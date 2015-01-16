@@ -886,7 +886,7 @@ function loadJQuery() {
             console.log("reload JQuery ");
             var script = document.createElement("script");
             script.src = "//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js";
-            scr.async = false;
+            script.async = false;
             document.getElementsByTagName("head")[0].appendChild(script);
     } 
     $ = jQuery.noConflict();
