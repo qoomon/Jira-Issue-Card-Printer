@@ -1,5 +1,7 @@
 loadScripts(function(){
-     appendScript("//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js", false);
+     if (window.jQuery === undefined) {  
+          appendScript("//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js", false);
+     }
 },function(){
     addGoogleAnalytics();
     init();
@@ -13,7 +15,7 @@ function main(){
     printScopeDeviderToken1 = "~~~~~";
     printScopeDeviderToken2 = "<b>Attachment</b>"
 
-    if($("#card-print-overlay").length > 0){
+    if(jQuery("#card-print-overlay").length > 0){
         alert("Print Card already opened!");
         return;
     }
@@ -37,47 +39,47 @@ function main(){
 
 function open(issueKeyList) {
 
-    $(document).keyup(function(e) {
+    jQuery(document).keyup(function(e) {
         if (e.keyCode == 27) {  // esc
             close();
         }  
     });
 
-    $("head").append(newPrintOverlayStyle);
-    $("body").append(newPrintOverlayHTML);
+    jQuery("head").append(newPrintOverlayStyle);
+    jQuery("body").append(newPrintOverlayHTML);
 
-    var printFrame = $("#card-print-dialog-content-iframe");
+    var printFrame = jQuery("#card-print-dialog-content-iframe");
     var printWindow = printFrame[0].contentWindow;
     var printDocument = printWindow.document;
 
     printDocument.open();
     printDocument.write("<head/><body/>");
    
-    $("head", printDocument).append(newPrintPanelPageCSS());
-    $("head", printDocument).append(newPrintPanelCardCSS());
+    jQuery("head", printDocument).append(newPrintPanelPageCSS());
+    jQuery("head", printDocument).append(newPrintPanelCardCSS());
     
     console.logInfo("load " + issueKeyList.length + " issues...");
-    $("#card-print-dialog-title").text("Card Print   -   Loading... " + 0 + " / " + issueKeyList.length);
+    jQuery("#card-print-dialog-title").text("Card Print   -   Loading... " + 0 + " / " + issueKeyList.length);
     var deferredList = [];
     issueKeyList.each(function(position, issueKey) {
         var card = newCardHTML(issueKey);
         card.hide();
-        $("body", printDocument).append(card);
-        var deferred = new $.Deferred()
+        jQuery("body", printDocument).append(card);
+        var deferred = new jQuery.Deferred()
         deferredList.push(deferred);
         loadCardDataJSON(issueKey, function(responseData) {
             fillCardWithJSONData(card, responseData); 
             card.show();
             resizeIframe(printFrame);
-            $("#card-print-dialog-title").text("Card Print   -   Loading... " + (position + 1) + " / " + issueKeyList.length);
+            jQuery("#card-print-dialog-title").text("Card Print   -   Loading... " + (position + 1) + " / " + issueKeyList.length);
             deferred.resolve();
         });
     });
     console.logInfo("wait for issues loaded...");
 
-    $.when.apply($, deferredList).done(function() {
-        $(printWindow).load(function(){
-            $("#card-print-dialog-title").text("Card Print");
+    jQuery.when.apply(jQuery, deferredList).done(function() {
+        jQuery(printWindow).load(function(){
+            jQuery("#card-print-dialog-title").text("Card Print");
             console.logInfo("everything loaded!");
             printWindow.print();
         })
@@ -88,26 +90,26 @@ function open(issueKeyList) {
 
 function close(){
     console.logInfo("close overlay");
-     $("#card-print-overlay").remove();
-     $("#card-print-overlay-style").remove();
+     jQuery("#card-print-overlay").remove();
+     jQuery("#card-print-overlay-style").remove();
 }
 
 
 function getSelectedIssueKeyList() {
 
     //JIRA
-    if ($("meta[name='application-name'][ content='JIRA']").length > 0) {
+    if (jQuery("meta[name='application-name'][ content='JIRA']").length > 0) {
         //Browse
         if (/.*\/browse\/.*/g.test(document.URL)) {
-            return $("a[data-issue-key][id='key-val']").map(function() {
-                return $(this).attr('data-issue-key');
+            return jQuery("a[data-issue-key][id='key-val']").map(function() {
+                return jQuery(this).attr('data-issue-key');
             });
         }
 
         // RapidBoard
         if (/.*\/secure\/RapidBoard.jspa.*/g.test(document.URL)) {
-            return $('div[data-issue-key].ghx-selected').map(function() {
-                return $(this).attr('data-issue-key');
+            return jQuery('div[data-issue-key].ghx-selected').map(function() {
+                return jQuery(this).attr('data-issue-key');
             });
         }
     }
@@ -238,14 +240,14 @@ function loadCardDataJSON(issueKey, callback, async) {
     var url = '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
     console.logInfo("IssueUrl: " + window.location.hostname + url);
     console.logDebug("Issue: " + issueKey + " Loading...");
-    return  $.ajax({
+    return  jQuery.ajax({
         type: 'GET',
         url: url,
         dataType: 'json',
         success: function(responseData){
             fields = responseData.fields;
             // add custom fields with field names 
-            $.each(responseData.names, function(key, value) {
+            jQuery.each(responseData.names, function(key, value) {
                 if(key.startsWith("customfield_")){
                     var newFieldId = value.toCamelCase();
                     console.logTrace("add new field: " + newFieldId +" with value from "+ key);
@@ -270,7 +272,7 @@ function loadCardDataJSON(issueKey, callback, async) {
 // http://www.cssdesk.com/T9hXg
 
 function newPrintOverlayHTML(){
-    var result = $(document.createElement('div'))
+    var result = jQuery(document.createElement('div'))
         .attr("id","card-print-overlay")
         .html(multilineString(function() {
                 /*!
@@ -292,7 +294,7 @@ function newPrintOverlayHTML(){
 
     result.find("#card-print-dialog-print")
         .click(function(event){
-            $('#card-print-dialog-content-iframe')[0].contentWindow.print();
+            jQuery('#card-print-dialog-content-iframe')[0].contentWindow.print();
             return false;
         });
 
@@ -316,7 +318,7 @@ function newPrintOverlayHTML(){
 }
 
 function newPrintOverlayStyle(){
- var result = $(document.createElement('style'))
+ var result = jQuery(document.createElement('style'))
         .attr("id", "card-print-overlay-style")
         .attr("type", "text/css")
         .html(multilineString(function() {
@@ -417,7 +419,7 @@ function newPrintOverlayStyle(){
 
 function newPrintPanelPageCSS(){
 
-    var result = $(document.createElement('style'))
+    var result = jQuery(document.createElement('style'))
         .attr("id", "printPanelPageStyle")
         .attr("type", "text/css")
         .html(multilineString(function() {
@@ -487,7 +489,7 @@ function newPrintPanelPageCSS(){
 // http://www.cssdesk.com/scHcP
 
 function newCardHTML(issueKey){
-    var card = $(document.createElement('div'))
+    var card = jQuery(document.createElement('div'))
         .attr("id",issueKey)
         .addClass("page")
         .html(multilineString(function() {
@@ -528,7 +530,7 @@ function newCardHTML(issueKey){
 }
 
 function newPrintPanelCardCSS(){
-    var result = $(document.createElement('style'))
+    var result = jQuery(document.createElement('style'))
         .attr("type", "text/css")
         .html(multilineString(function() {
                 /*!
@@ -817,13 +819,13 @@ function appendScript(src, async) {
 }
 
 function init() {
-    loadLoggingFunctions();
-    loadStringFunctions();
-    
-    
-    $.expr[':']['is'] = function(node, index, props){
+     //jQuery Extention
+     jQuery.expr[':']['is'] = function(node, index, props){
       return node.textContent == props[3];
     }
+     
+    loadLoggingFunctions();
+    loadStringFunctions();
     
     Date.prototype.format = function(format) {
         var returnStr = '';
@@ -1019,11 +1021,11 @@ function generateHTMLWithAbsolutePathes(html) {
         return (link.protocol + "//" + link.host + link.pathname + link.search + link.hash);
     };
 
-    $(html).find('[href]').not('[href^="http"],[href^="https"],[href^="mailto:"],[href^="#"]').each(function() {
-        $(this).attr('href', absoultePath);
+    jQuery(html).find('[href]').not('[href^="http"],[href^="https"],[href^="mailto:"],[href^="#"]').each(function() {
+        jQuery(this).attr('href', absoultePath);
     });
-    $(html).find('[src]').not('[src^="http"],[src^="https"]').each(function() {
-        $(this).attr('src', absoultePath);
+    jQuery(html).find('[src]').not('[src^="http"],[src^="https"]').each(function() {
+        jQuery(this).attr('src', absoultePath);
     });
 
     return html;
