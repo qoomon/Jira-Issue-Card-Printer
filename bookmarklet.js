@@ -1,4 +1,4 @@
-var isDev = document.querySelector('[qoomon_dev]') != null;
+var isDev = qoomon_dev;
 
 // <GoogleAnalytics>
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
