@@ -1,3 +1,4 @@
+var qoomon_dev;
 var isDev = qoomon_dev;
 
 // <GoogleAnalytics>
