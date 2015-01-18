@@ -5,10 +5,7 @@
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
 ga('create', 'UA-50840116-3', 'auto', {'alwaysSendReferrer': true});
-ga('send', {
-  'hitType': 'pageview',
-  'page': '/jiracardprinter/Bookmarklet.js'
-});
+ga('send', {'hitType': 'pageview', 'page': '/jiracardprinter/Bookmarklet.js'});
 // </GoogleAnalytics>
 
 // load jQuery
@@ -34,6 +31,7 @@ function init(){
 }
 
 function main(){
+  //preconditions
   if(jQuery("#card-print-overlay").length > 0){
     alert("Print Card already opened!");
     return;
@@ -45,13 +43,18 @@ function main(){
     return;
   }
 
-  openPrintPreview(issueKeyList);
+  // open print preview
+  jQuery("head").append(printOverlayStyle);
+  jQuery("body").append(printOverlayHTML);
+
+  jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
+  renderCards(issueKeyList, function(){
+    jQuery("#card-print-dialog-title").text("Card Print");
+    jQuery('#card-print-dialog-content-iframe')[0].contentWindow.print();
+  });
 }
 
-function openPrintPreview(issueKeyList) {
-
-  jQuery("head").append(newPrintOverlayStyle);
-  jQuery("body").append(newPrintOverlayHTML);
+function renderCards(issueKeyList, callback) {
 
   var printFrame = jQuery("#card-print-dialog-content-iframe");
   var printWindow = printFrame[0].contentWindow;
@@ -60,11 +63,11 @@ function openPrintPreview(issueKeyList) {
   printDocument.open();
   printDocument.write("<head/><body/>");
 
-  jQuery("head", printDocument).append(newPrintPanelPageCSS());
-  jQuery("head", printDocument).append(newPrintPanelCardCSS());
+  jQuery("head", printDocument).append(printPanelPageCSS());
+  jQuery("head", printDocument).append(printPanelCardCSS());
 
   console.logInfo("load " + issueKeyList.length + " issues...");
-  jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
+
   var deferredList = [];
 
   issueKeyList.each(function(position, issueKey) {
@@ -83,9 +86,8 @@ function openPrintPreview(issueKeyList) {
 
   applyDeferred(deferredList,function() {
     jQuery(printWindow).load(function(){
-      jQuery("#card-print-dialog-title").text("Card Print");
       console.logInfo("everything loaded!");
-      printWindow.print();
+      callback();
     })
     printDocument.close();
     console.logInfo("wait for resources loaded...");
@@ -93,7 +95,6 @@ function openPrintPreview(issueKeyList) {
 }
 
 function closePrintPreview(){
-  console.logInfo("close overlay");
   jQuery("#card-print-overlay").remove();
   jQuery("#card-print-overlay-style").remove();
 }
@@ -272,7 +273,7 @@ function fillCardWithJSONData(card, data) {
 
 // http://www.cssdesk.com/T9hXg
 
-function newPrintOverlayHTML(){
+function printOverlayHTML(){
   var result = jQuery(document.createElement('div'))
   .attr("id","card-print-overlay")
   .html(multilineString(function() {
@@ -330,7 +331,7 @@ function newPrintOverlayHTML(){
   return result;
 }
 
-function newPrintOverlayStyle(){
+function printOverlayStyle(){
     var result = jQuery(document.createElement('style'))
     .attr("id", "card-print-overlay-style")
     .attr("type", "text/css")
@@ -430,7 +431,7 @@ return result;
 }
 
 
-function newPrintPanelPageCSS(){
+function printPanelPageCSS(){
 
   var result = jQuery(document.createElement('style'))
   .attr("id", "printPanelPageStyle")
@@ -542,7 +543,7 @@ function newCardHTML(issueKey){
   return card;
 }
 
-function newPrintPanelCardCSS(){
+function printPanelCardCSS(){
   var result = jQuery(document.createElement('style'))
   .attr("type", "text/css")
   .html(multilineString(function() {
