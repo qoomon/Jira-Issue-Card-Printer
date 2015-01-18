@@ -13,7 +13,7 @@ if (window.jQuery === undefined) {
   appendScript('//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js');
 }
 
-// wait untill all other scripts loaded
+// wait untill all scripts loaded
 appendScript('https://qoomon.github.io/void', function(){
   init();
   main();
@@ -25,7 +25,10 @@ function init(){
   addStringFunctions();
   addDateFunctions();
 
-  printScopeDeviderToken = "<b>Attachment</b>"
+  printScopeDeviderToken = "<b>Attachment</b>";
+
+  cors = "https://cors-anywhere.herokuapp.com/";
+  //$("#card").load("https://cors-anywhere.herokuapp.com/"+"https://qoomon.github.io/Jira-Issue-Card-Printer/card.html");
 
   console.logLevel = console.INFO;
 }
@@ -274,6 +277,8 @@ function fillCardWithJSONData(card, data) {
 // http://www.cssdesk.com/T9hXg
 
 function printOverlayHTML(){
+
+
   var result = jQuery(document.createElement('div'))
   .attr("id","card-print-overlay")
   .html(multilineString(function() {
@@ -800,10 +805,6 @@ body {
 //############################################################################################################################
 //############################################################################################################################
 //############################################################################################################################
-
-function getCORS(url, callback){
-  $.get('https://cors-anywhere.herokuapp.com/' + url, callback);
-}
 
 function appendScript(url, callback){
 
