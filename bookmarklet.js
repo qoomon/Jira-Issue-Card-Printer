@@ -1,3 +1,5 @@
+var isDev = document.querySelector('[qoomon_dev]') != null;
+
 // <GoogleAnalytics>
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -26,6 +28,13 @@ function init(){
   addDateFunctions();
 
   printScopeDeviderToken = "<b>Attachment</b>";
+
+  hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
+  if(isDev){
+    alert("Develop Version");
+    hostOrigin = "https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/";
+  }
+  resourceOrigin = hostOrigin+ "resources/";
 
   cors = "https://cors-anywhere.herokuapp.com/";
   //$("#card").load("https://cors-anywhere.herokuapp.com/"+"https://qoomon.github.io/Jira-Issue-Card-Printer/card.html");
@@ -74,13 +83,14 @@ function renderCards(issueKeyList, callback) {
   var deferredList = [];
 
   issueKeyList.each(function(position, issueKey) {
-    var card = newCardHTML(issueKey);
-    card.hide();
-    jQuery("body", printDocument).append(card);
+    var page = newPage(issueKey);
+    page.hide();
+    page.find('.key').text(issueKey);
+    jQuery("body", printDocument).append(page);
     var deferred = addDeferred(deferredList);
     loadCardDataJSON(issueKey, function(responseData) {
-      fillCardWithJSONData(card, responseData);
-      card.show();
+      fillCardWithJSONData(page, responseData);
+      page.show();
       resizeIframe(printFrame);
       deferred.resolve();
     });
@@ -88,8 +98,9 @@ function renderCards(issueKeyList, callback) {
   console.logInfo("wait for issues loaded...");
 
   applyDeferred(deferredList,function() {
+    console.logInfo("...all issues loaded.");
     jQuery(printWindow).load(function(){
-      console.logInfo("everything loaded!");
+      console.logInfo("...all resources loaded.");
       callback();
     })
     printDocument.close();
@@ -128,27 +139,27 @@ function getSelectedIssueKeyList() {
 function fillCardWithJSONData(card, data) {
   //Key
   var key = data.key;
-  console.logInfo("key: " + key);
+  console.logDebug("key: " + key);
   card.find('.key').text(key);
 
   //Type
   var type = data.fields.issuetype.name.toLowerCase();
-  console.logInfo("type: " + type);
+  console.logDebug("type: " + type);
   card.find(".card").attr("type", type);
 
   //Summary
   var summary = data.fields.summary;
-  console.logInfo("summary: " + summary);
+  console.logDebug("summary: " + summary);
   card.find('.summary').text(summary);
 
   //Description
   var description = data.renderedFields.description;
-  console.logInfo("description: " + description);
+  console.logDebug("description: " + description);
   card.find('.description').html(description);
 
   //Assignee
   var assignee = data.fields.assignee;
-  console.logInfo("assignee: " + assignee);
+  console.logDebug("assignee: " + assignee);
   if ( assignee ) {
     var avatarUrl = assignee.avatarUrls['48x48'];
     if(avatarUrl.indexOf("ownerId=") < 0){
@@ -164,7 +175,7 @@ function fillCardWithJSONData(card, data) {
 
   //Due-Date
   var duedate = data.fields.duedate;
-  console.logInfo("duedate: " + duedate);
+  console.logDebug("duedate: " + duedate);
   if ( duedate ) {
     var renderedDuedate = new Date(duedate).format('D d.m.');
     card.find(".due-date").text(renderedDuedate);
@@ -182,7 +193,7 @@ function fillCardWithJSONData(card, data) {
   } else if (data.fields.attachment.length > 0) {
     hasAttachment = true;
   }
-  console.logInfo("hasAttachment: " + hasAttachment);
+  console.logDebug("hasAttachment: " + hasAttachment);
   if ( hasAttachment ) {
   } else{
     card.find('.attachment').addClass('hidden');
@@ -190,7 +201,7 @@ function fillCardWithJSONData(card, data) {
 
   //Story Points
   var storyPoints = data.fields.storyPoints;
-  console.logInfo("storyPoints: " + storyPoints);
+  console.logDebug("storyPoints: " + storyPoints);
   if (storyPoints) {
     card.find(".estimate").text(storyPoints);
   } else {
@@ -199,7 +210,7 @@ function fillCardWithJSONData(card, data) {
 
   //Epic
   var epicKey = data.fields.epicLink;
-  console.logInfo("epicKey: " + epicKey);
+  console.logDebug("epicKey: " + epicKey);
   if ( epicKey ) {
     card.find(".epic-key").text(epicKey);
     loadCardDataJSON(epicKey, function(responseData) {
@@ -229,7 +240,7 @@ function fillCardWithJSONData(card, data) {
     console.logInfo("Apply LRS Specifics");
     //Desired-Date
     var desiredDate = data.fields.desiredDate;
-    console.logInfo("desiredDate: " + desiredDate);
+    console.logDebug("desiredDate: " + desiredDate);
     if ( desiredDate ) {
       var renderedDesiredDate = new Date(desiredDate).format('D d.m.');
       card.find(".due-date").text(renderedDesiredDate);
@@ -244,7 +255,7 @@ function fillCardWithJSONData(card, data) {
 
     //https://docs.atlassian.com/jira/REST/latest/
     var url = '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
-    console.logInfo("IssueUrl: " + window.location.hostname + url);
+    console.logDebug("IssueUrl: " + window.location.hostname + url);
     console.logDebug("Issue: " + issueKey + " Loading...");
     return  jQuery.ajax({
       type: 'GET',
@@ -507,8 +518,8 @@ return result;
 
 // http://www.cssdesk.com/scHcP
 
-function newCardHTML(issueKey){
-  var card = jQuery(document.createElement('div'))
+function newPage(issueKey){
+  var page = jQuery(document.createElement('div'))
   .attr("id",issueKey)
   .addClass("page")
   .html(multilineString(function() {
@@ -543,9 +554,8 @@ function newCardHTML(issueKey){
 </div>
 */
   }));
-  card.find('.key').text(issueKey);
 
-  return card;
+  return page;
 }
 
 function printPanelCardCSS(){
@@ -665,7 +675,7 @@ body {
   position: relative;
   float: left;
   background-color: GREENYELLOW;
-  background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Objects.png);
+  background-image: url({RESOURCE_ORIGIN}icons/Objects.png);
   background-repeat: no-repeat;
   -webkit-background-size: 70%;
   background-size: 70%;
@@ -674,15 +684,15 @@ body {
 }
 .card[type="story"] .type-icon {
   background-color: GOLD;
-  background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Bulb.png);
+  background-image: url({RESOURCE_ORIGIN}icons/Bulb.png);
 }
 .card[type="bug"] .type-icon {
   background-color: CRIMSON;
-  background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Bug.png);
+  background-image: url({RESOURCE_ORIGIN}icons/Bug.png);
 }
 .card[type="epic"] .type-icon {
   background-color: ROYALBLUE;
-  background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Flash.png);
+  background-image: url({RESOURCE_ORIGIN}icons/Flash.png);
 }
 .estimate {
   position: relative;
@@ -709,7 +719,7 @@ body {
   height: 2.5cm;
   margin-top: 0.35cm;
   background-color: MEDIUMPURPLE;
-  background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/AlarmClock.png);
+  background-image: url({RESOURCE_ORIGIN}icons/AlarmClock.png);
   background-repeat: no-repeat;
   -webkit-background-size: 65%;
   background-size: 65%;
@@ -740,7 +750,7 @@ body {
   width: 2.1cm;
   height: 2.1cm;
   background-color: LIGHTSKYBLUE;
-  background-image: url(https://images.weserv.nl/?url=www.iconsdb.com/icons/download/color/2f2f2f/attach-256.png);
+  background-image: url({RESOURCE_ORIGIN}icons/Attachment.png);
   background-repeat: no-repeat;
   -webkit-background-size: 70%;
   background-size: 70%;
@@ -756,7 +766,7 @@ body {
   font-size: 2.0cm;
   line-height: 2.5cm;
   padding-left: 0.1cm;
-  background-image: url(https://images.weserv.nl/?url=www.iconsdb.com/icons/download/color/aaaaaa/contacts-256.png);
+  background-image: url({RESOURCE_ORIGIN}icons/Person.png);
   background-repeat: no-repeat;
   -webkit-background-size: cover;
   background-size: cover;
@@ -798,7 +808,7 @@ body {
   font-weight: bold;
 }
 */
-}));
+}).replace(/{RESOURCE_ORIGIN}/g, resourceOrigin));
   return result;
 }
 
