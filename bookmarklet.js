@@ -57,8 +57,8 @@ function main(){
   }
 
   // open print preview
-  jQuery("head").append(printOverlayStyle);
   jQuery("body").append(printOverlayHTML);
+  jQuery("#card-print-overlay").prepend(printOverlayStyle);
 
   jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
   renderCards(issueKeyList, function(){
