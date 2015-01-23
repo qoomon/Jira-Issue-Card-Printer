@@ -298,6 +298,10 @@ function printOverlayHTML(){
 <div id="card-print-dialog">
   <div id="card-print-dialog-header">
     <div id="card-print-dialog-title">Card Print</div>
+    <div id="info">
+      <input id="report-issue" type="button" class="aui-button" value="Report Issues" />
+      <input id="about" type="button" class="aui-button" value="About" />
+    </div>
     <div id="buttons">
       <input id="card-print-dialog-print" type="button" class="aui-button aui-button-primary" value="Print" />
       <a id="card-print-dialog-cancel" title="Cancel" class="cancel">Cancel</a>
@@ -310,6 +314,19 @@ function printOverlayHTML(){
 </div>
 */
   }));
+  // info
+
+  result.find("#report-issue")
+  .click(function(event){
+    window.open('https://github.com/qoomon/Jira-Issue-Card-Printer/issues');
+    return false;
+  });
+  
+   result.find("#about")
+  .click(function(event){
+    window.open('http://qoomon.blogspot.de/2014/01/jira-issue-card-printer-bookmarklet.html');
+    return false;
+  });
 
   // print
 
@@ -354,9 +371,6 @@ function printOverlayStyle(){
     .attr("type", "text/css")
     .html(multilineString(function() {
 /*!
-#card-print-dialog-cancel {
-  padding:5px 10px 5px 10px;
-}
 #card-print-overlay {
   position: fixed;
   height: 100%;
@@ -364,9 +378,11 @@ function printOverlayStyle(){
   top: 0;
   left: 0;
   background:rgba(0, 0, 0, 0.5);
+  
   box-sizing: border-box;
   word-wrap:break-word;
   z-index: 99999;
+ 
 }
 
 #card-print-dialog {
@@ -375,18 +391,18 @@ function printOverlayStyle(){
   top: 60px;
   right:0px;
   left:0px;
-
+  
   height: calc(100% - 120px);
   width: 1000px;
   margin: auto;
-
+  
   border-style: solid;
   border-color: #cccccc;
   border-width: 1px;
   -moz-border-radius: 4px;
   -webkit-border-radius: 4px;
   border-radius: 4px;
-
+  
   overflow: hidden;
 }
 
@@ -394,24 +410,26 @@ function printOverlayStyle(){
   position: relative;
   background: #f0f0f0;
   height: 25px;
-
+  
   border-bottom: 1px solid #cccccc;
-
+  
   padding: 15px 20px 15px 20px;
 }
 
 #card-print-dialog-content {
   position: relative;
   background: white;
-  height: calc(100% - 106px);
-  width: 100%;
+height: calc(100% - 106px);		+  height: 100px;
+  width: 100%;		
+	
+  overflow-y: scroll;		
+}	
 
-  overflow-y: scroll;
-}
-#card-print-dialog-content-iframe {
-  position: relative;
-  height: 100%;
+#card-print-dialog-content-iframe {		
+  position: relative;		
+  height: 100%;		
   width: 100%;
+  
   border:none;
 }
 
@@ -427,6 +445,14 @@ function printOverlayStyle(){
 #buttons {
   position: relative;
   float: right;
+  display: inline-block;
+  height 30px;
+}
+
+#info {
+  position: absolute;
+  right: 250px;
+  float: left;
   display: inline-block;
   height 30px;
 }
@@ -565,248 +591,254 @@ function printPanelCardCSS(){
   .html(multilineString(function() {
 /*!
 * {
-  color: black;
-  font-family:"Droid Serif";
+    color: black;
+    font-family:"Droid Serif";
 }
 body {
-  margin: 0;
+    margin: 0;
 }
 .hidden {
-  visibility: hidden;
+    visibility: hidden;
 }
-  .card-header:after,
-  .card-footer:after {
-  content:" ";
-  display: block;
-  clear: both;
-  height:0
+.card-header:after, 
+.card-footer:after {
+    content:" ";
+    display: block;
+    clear: both;
+    height:0
 }
-.card-border,
-.badge,
+.card-border, 
+.badge, 
 .shadow {
-  border-style: solid;
-  border-color: #2f2f2f;
-  border-top-width: 0.14cm;
-  border-left-width: 0.14cm;
-  border-bottom-width: 0.24cm;
-  border-right-width: 0.24cm;
-  -webkit-border-radius: 0.25cm;
-  border-radius: 0.25cm;
-  // -webkit-filter: drop-shadow(0px 5px 10px black)
+    border-style: solid;
+    border-color: #2f2f2f;
+    border-top-width: 0.14cm;
+    border-left-width: 0.14cm;
+    border-bottom-width: 0.24cm;
+    border-right-width: 0.24cm;
+    -webkit-border-radius: 0.25cm;
+    border-radius: 0.25cm;
+    // -webkit-filter: drop-shadow(0px 5px 10px black)
 }
 .circular {
-  -moz-border-radius: 50%;
-  -webkit-border-radius: 50%;
-  border-radius: 50%;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
 }
 .badge {
-  width: 3.2cm;
-  height: 3.2cm;
-  background: #d0d0d0;
+    width: 3.2cm;
+    height: 3.2cm;
+    background: #d0d0d0;
 }
+
 .card {
-  position: relative;
-  min-width: 21.0cm;
+    position: relative;
+    min-width: 21.0cm;
+   
 }
 .author {
-  z-index: 999;
-  position: absolute;
-  top:3.1cm;
-  right:0.7cm;
-  -webkit-transform-origin: 100% 100%;
-  transform-origin: 100% 100%;
-  -webkit-transform: rotate(-90deg);
-  transform: rotate(-90deg);
-  font-size: 0.4cm;
-  color: DARKGREY;
+    z-index: 999;
+    position: absolute;
+    top:3.1cm;
+    right:0.7cm;
+    -webkit-transform-origin: 100% 100%;
+    transform-origin: 100% 100%;
+    -webkit-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+    font-size: 0.4cm;
+    color: DARKGREY;
 }
 .card-border {
-  position: absolute;
-  top:2.0cm;
-  left:0.4cm;
-  right:0.4cm;
-  height: calc(100% - 4.0cm);
-  background: #ffffff;
+    position: absolute;
+    top:2.0cm;
+    left:0.4cm;
+    right:0.4cm;
+    height: calc(100% - 4.0cm);
+    background: #ffffff;
+
 }
 .card-header {
   position: relative;
 }
 .card-content {
-  position: relative;
-  margin-top: 0.3cm;
-  margin-left: 1.0cm;
-  margin-right: 1.1cm;
-  margin-bottom: 0.2cm;
-  min-height: 5.0cm;
+    position: relative;
+    margin-top: 0.3cm;
+    margin-left: 1.0cm;
+    margin-right: 1.1cm;
+    margin-bottom: 0.2cm;
+    min-height: 3.0cm;
 }
 .content-header {
-  position: relative;
-  font-size: 1.1cm;
-  line-height: 1.1cm;
-  margin-bottom: 0.6cm;
+    position: relative;
+    font-size: 1.1cm;
+    line-height: 1.1cm;
+    margin-bottom: 0.6cm;
 }
 .card-footer {
-  position: relative;
-  page-break-inside: avoid;
+    position: relative;
+    page-break-inside: avoid;
 }
 .summary {
-  font-weight: bold;
+    font-weight: bold;
 }
 .description {
-  font-size: 0.6cm;
-  line-height: 0.6cm;
+    min-height: 3.0cm;
+    font-size: 0.6cm;
+    line-height: 0.6cm;
 }
 .key {
-  position: absolute;
-  float: left;
-  width: auto;
-  min-width: 4.4cm;
-  height: 1.35cm;
-  left: 2.8cm;
-  margin-top: 1.05cm;
-  padding-top: 0.2cm;
-  padding-left: 0.9cm;
-  padding-right: 0.4cm;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1.0cm;
-  line-height: 1.30cm;
+    position: absolute;
+    float: left;
+    width: auto;
+    min-width: 4.4cm;
+    height: 1.35cm;
+    left: 3.0cm;
+    margin-top: 1.2cm;
+    padding-left: 0.7cm;
+    padding-right: 0.4cm;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.0cm;
+    line-height: 1.4cm;
 }
 .type-icon {
-  position: relative;
-  float: left;
-  background-color: GREENYELLOW;
-  background-image: url({RESOURCE_ORIGIN}icons/Objects.png);
-  background-repeat: no-repeat;
-  -webkit-background-size: 70%;
-  background-size: 70%;
-  background-position: center;
-  z-index: 1;
+    position: relative;
+    float: left;
+    background-color: GREENYELLOW;
+    background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Objects.png);
+    background-repeat: no-repeat;
+    -webkit-background-size: 70%;
+    background-size: 70%;
+    background-position: center;
+    z-index: 1;
 }
+
 .card[type="story"] .type-icon {
-  background-color: GOLD;
-  background-image: url({RESOURCE_ORIGIN}icons/Bulb.png);
+    background-color: GOLD;
+    background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Bulb.png);
 }
 .card[type="bug"] .type-icon {
-  background-color: CRIMSON;
-  background-image: url({RESOURCE_ORIGIN}icons/Bug.png);
+    background-color: CRIMSON;
+    background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Bug.png);
 }
 .card[type="epic"] .type-icon {
-  background-color: ROYALBLUE;
-  background-image: url({RESOURCE_ORIGIN}icons/Flash.png);
+    background-color: ROYALBLUE;
+    background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Flash.png);
 }
+
 .estimate {
-  position: relative;
-  float: left;
-  left: -0.65cm;
-  top:-1.5cm;
-  height: 1.1cm;
-  width: 1.1cm;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1cm;
-  line-height: 1.15cm;
-  margin-top:1.5cm;
-  z-index: 999;
+    position: relative;
+    float: left;
+    left: -0.65cm;
+    top:-1.5cm;
+    height: 1.1cm;
+    width: 1.1cm;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1cm;
+    line-height: 1.15cm;
+    margin-top:1.5cm;
+    z-index: 999;
 }
+
 .due {
-  position: relative;
-  float: right;
+    position: relative;
+    float: right;
 }
 .due-icon {
-  position: relative;
-  float:right;
-  width: 2.5cm;
-  height: 2.5cm;
-  margin-top: 0.35cm;
-  background-color: MEDIUMPURPLE;
-  background-image: url({RESOURCE_ORIGIN}icons/AlarmClock.png);
-  background-repeat: no-repeat;
-  -webkit-background-size: 65%;
-  background-size: 65%;
-  background-position: center;
-  z-index: 1;
+    position: relative;
+    float:right;
+    width: 2.5cm;
+    height: 2.5cm;
+    margin-top: 0.4cm;
+    background-color: MEDIUMPURPLE;
+    background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/AlarmClock.png);
+    background-repeat: no-repeat;
+    -webkit-background-size: 65%;
+    background-size: 65%;
+    background-position: center;
+    z-index: 1;
 }
 .due-date {
-  position: relative;
-  float: right;
-  right: -0.6cm;
-  width: auto;
-  min-width: 2.8cm;
-  height: auto;
-  margin-top: 1.3cm;
-  padding-top: 0.3cm;
-  padding-bottom: 0.2cm;
-  padding-left: 0.3cm;
-  padding-right: 0.6cm;
-  text-align: center;
-  font-weight: bold;
-  font-size: 0.7cm;
-  line-height: 0.7cm;
+    position: relative;
+    float: right;
+    right: -0.6cm;
+    width: auto;
+    min-width: 2.8cm;
+    height: auto;
+    margin-top: 1.3cm;
+    padding-top: 0.2cm;
+    padding-bottom: 0.2cm;
+    padding-left: 0.3cm;
+    padding-right: 0.6cm;
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.7cm;
+    line-height: 0.7cm;
 }
 .attachment {
-  position: relative;
-  float: left;
-  margin-left: 0.6cm;
-  width: 2.1cm;
-  height: 2.1cm;
-  background-color: LIGHTSKYBLUE;
-  background-image: url({RESOURCE_ORIGIN}icons/Attachment.png);
-  background-repeat: no-repeat;
-  -webkit-background-size: 70%;
-  background-size: 70%;
-  background-position: center;
+    position: relative;
+    float: left;
+    margin-left: 0.6cm;
+    width: 2.1cm;
+    height: 2.1cm;
+    background-color: LIGHTSKYBLUE;
+    background-image: url(https://images.weserv.nl/?url=www.iconsdb.com/icons/download/color/2f2f2f/attach-256.png);
+    background-repeat: no-repeat;
+    -webkit-background-size: 70%;
+    background-size: 70%;
+    background-position: center;
+    
 }
 .assignee {
-  position: relative;
-  float: right;
-  width: 2.1cm;
-  height: 2.1cm;
-  text-align: center;
-  font-weight: bold;
-  font-size: 2.0cm;
-  line-height: 2.5cm;
-  padding-left: 0.1cm;
-  background-image: url({RESOURCE_ORIGIN}icons/Person.png);
-  background-repeat: no-repeat;
-  -webkit-background-size: cover;
-  background-size: cover;
-  -webkit-background-size: 100%;
-  background-size: 100%;
-  -webkit-filter: contrast(150%) grayscale(100%);
-  filter: contrast(150%) grayscale(100%);
-  background-position: center;
+    position: relative;
+    float: right;
+    width: 2.1cm;
+    height: 2.1cm;
+    text-align: center;
+    font-weight: bold;
+    font-size: 2.1cm;
+    line-height: 2.1cm;
+    background-image: url(https://images.weserv.nl/?url=www.iconsdb.com/icons/download/color/aaaaaa/contacts-256.png);
+    background-repeat: no-repeat;
+    -webkit-background-size: cover;
+    background-size: cover;
+    -webkit-background-size: 100%;
+    background-size: 100%;
+    -webkit-filter: contrast(150%) grayscale(100%);
+    filter: contrast(150%) grayscale(100%);
+    background-position: center;
 }
 .qr-code {
-  position: relative;
-  float: left;
-  width: 2.1cm;
-  height: 2.1cm;
-  background-image: url(https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=blog.qoomon.com);
-  background-repeat: no-repeat;
-  -webkit-background-size: cover;
-  background-size: cover;
-  background-position: center;
+    position: relative;
+    float: left;
+    width: 2.1cm;
+    height: 2.1cm;
+    background-image: url(https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=blog.qoomon.com);
+    background-repeat: no-repeat;
+    -webkit-background-size: cover;
+    background-size: cover;
+    background-position: center;
 }
 .epic {
-  width: auto;
-  height: auto;
-  position: relative;
-  float:right;
-  margin-right:0.6cm;
-  padding-top: 0.2cm;
-  padding-bottom: 0.2cm;
-  padding-left: 0.3cm;
-  padding-right: 0.3cm;
-  text-align: left;
-  font-size: 0.7cm;
-  line-height: 0.7cm;
-  max-width: calc( 100% - 10.2cm);
+    width: auto;
+    height: auto;
+    position: relative;
+    float:right;
+    margin-right:0.6cm;
+    padding-top: 0.2cm;
+    padding-bottom: 0.2cm;
+    padding-left: 0.3cm;
+    padding-right: 0.3cm;
+    text-align: left;
+    font-size: 0.7cm;
+    line-height: 0.7cm;
+    max-width: calc( 100% - 10.2cm);
 }
 .epic-key {
 }
 .epic-name {
-  font-weight: bold;
+    font-weight: bold;
 }
 */
 }).replace(/{RESOURCE_ORIGIN}/g, resourceOrigin));
