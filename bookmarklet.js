@@ -298,6 +298,10 @@ function printOverlayHTML(){
 <div id="card-print-dialog">
   <div id="card-print-dialog-header">
     <div id="card-print-dialog-title">Card Print</div>
+    <div id="info">
+      <input id="report-issue" type="button" class="aui-button" value="Report Issues" />
+      <input id="about" type="button" class="aui-button" value="About" />
+    </div>
     <div id="buttons">
       <input id="card-print-dialog-print" type="button" class="aui-button aui-button-primary" value="Print" />
       <a id="card-print-dialog-cancel" title="Cancel" class="cancel">Cancel</a>
@@ -310,6 +314,19 @@ function printOverlayHTML(){
 </div>
 */
   }));
+  // info
+
+  result.find("#report-issue")
+  .click(function(event){
+    window.open('https://github.com/qoomon/Jira-Issue-Card-Printer/issues');
+    return false;
+  });
+  
+   result.find("#about")
+  .click(function(event){
+    window.open('http://qoomon.blogspot.de/2014/01/jira-issue-card-printer-bookmarklet.html');
+    return false;
+  });
 
   // print
 
@@ -354,64 +371,58 @@ function printOverlayStyle(){
     .attr("type", "text/css")
     .html(multilineString(function() {
 /*!
-#card-print-dialog-cancel {
-  padding:5px 10px 5px 10px;
-}
 #card-print-overlay {
-  position: fixed;
+  position: absolute;
   height: 100%;
   width: 100%;
   top: 0;
   left: 0;
   background:rgba(0, 0, 0, 0.5);
+  
   box-sizing: border-box;
   word-wrap:break-word;
   z-index: 99999;
+  overflow-y: scroll;
+  
 }
 
 #card-print-dialog {
   position: relative;
 
-  top: 60px;
+  top: 100px;
   right:0px;
   left:0px;
-
-  height: calc(100% - 120px);
-  width: 1000px;
+  
+  height: auto;
+  width: 810px;
   margin: auto;
-
+  
   border-style: solid;
   border-color: #cccccc;
   border-width: 1px;
   -moz-border-radius: 4px;
   -webkit-border-radius: 4px;
   border-radius: 4px;
-
+  
   overflow: hidden;
 }
 
 #card-print-dialog-header {
   position: relative;
   background: #f0f0f0;
-  height: 25px;
-
+  height: 30px;
+  
   border-bottom: 1px solid #cccccc;
-
-  padding: 15px 20px 15px 20px;
+  
+  padding: 15px;
 }
 
 #card-print-dialog-content {
   position: relative;
   background: white;
-  height: calc(100% - 106px);
+  height: 100px;
   width: 100%;
-
-  overflow-y: scroll;
-}
-#card-print-dialog-content-iframe {
-  position: relative;
-  height: 100%;
-  width: 100%;
+  
   border:none;
 }
 
@@ -419,7 +430,6 @@ function printOverlayStyle(){
   position: relative;
   background: #f0f0f0;
   border-top: 1px solid #cccccc;
-  height: 30px;
   padding: 10px;
   text-align: right;
 }
@@ -427,6 +437,14 @@ function printOverlayStyle(){
 #buttons {
   position: relative;
   float: right;
+  display: inline-block;
+  height 30px;
+}
+
+#info {
+  position: absolute;
+  right: 250px;
+  float: left;
   display: inline-block;
   height 30px;
 }
