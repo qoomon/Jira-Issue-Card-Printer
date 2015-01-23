@@ -2,7 +2,7 @@
 Beautiful Jira Issue Card Printer
 
 ## More Info...
-http://qoomon.blogspot.de/2014/01/jira-issue-card-printer-bookmarklet.html
+https://qoomon.github.io/Jira-Issue-Card-Printer/index.html
 
 ### Card Layout
 
