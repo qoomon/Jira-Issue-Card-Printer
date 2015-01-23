@@ -682,6 +682,7 @@ body {
     font-weight: bold;
 }
 .description {
+    min-height: 3.0cm;
     font-size: 0.6cm;
     line-height: 0.6cm;
 }
