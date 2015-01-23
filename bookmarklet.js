@@ -372,7 +372,7 @@ function printOverlayStyle(){
     .html(multilineString(function() {
 /*!
 #card-print-overlay {
-  position: absolute;
+  position: fixed;
   height: 100%;
   width: 100%;
   top: 0;
@@ -382,19 +382,18 @@ function printOverlayStyle(){
   box-sizing: border-box;
   word-wrap:break-word;
   z-index: 99999;
-  overflow-y: scroll;
-  
+ 
 }
 
 #card-print-dialog {
   position: relative;
 
-  top: 100px;
+  top: 60px;
   right:0px;
   left:0px;
   
-  height: auto;
-  width: 810px;
+  height: calc(100% - 120px);
+  width: 1000px;
   margin: auto;
   
   border-style: solid;
@@ -410,17 +409,25 @@ function printOverlayStyle(){
 #card-print-dialog-header {
   position: relative;
   background: #f0f0f0;
-  height: 30px;
+  height: 25px;
   
   border-bottom: 1px solid #cccccc;
   
-  padding: 15px;
+  padding: 15px 20px 15px 20px;
 }
 
 #card-print-dialog-content {
   position: relative;
   background: white;
-  height: 100px;
+height: calc(100% - 106px);		+  height: 100px;
+  width: 100%;		
+	
+  overflow-y: scroll;		
+}	
+
+#card-print-dialog-content-iframe {		
+  position: relative;		
+  height: 100%;		
   width: 100%;
   
   border:none;
@@ -430,6 +437,7 @@ function printOverlayStyle(){
   position: relative;
   background: #f0f0f0;
   border-top: 1px solid #cccccc;
+  height: 30px;
   padding: 10px;
   text-align: right;
 }
