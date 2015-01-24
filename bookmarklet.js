@@ -451,7 +451,7 @@ height: calc(100% - 106px);		+  height: 100px;
 
 #info {
   position: absolute;
-  right: 300px;
+  right: 400px;
   float: left;
   display: inline-block;
   height 30px;
