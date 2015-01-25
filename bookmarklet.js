@@ -57,8 +57,8 @@ function main(){
   }
 
   // open print preview
-  jQuery("head").append(printOverlayStyle);
   jQuery("body").append(printOverlayHTML);
+  jQuery("#card-print-overlay").prepend(printOverlayStyle);
 
   jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
   renderCards(issueKeyList, function(){
@@ -451,7 +451,7 @@ height: calc(100% - 106px);		+  height: 100px;
 
 #info {
   position: absolute;
-  right: 250px;
+  right: 400px;
   float: left;
   display: inline-block;
   height 30px;
@@ -699,7 +699,7 @@ body {
     text-align: center;
     font-weight: bold;
     font-size: 1.0cm;
-    line-height: 1.4cm;
+    line-height: 1.6cm;
 }
 .type-icon {
     position: relative;
@@ -797,8 +797,8 @@ body {
     height: 2.1cm;
     text-align: center;
     font-weight: bold;
-    font-size: 2.1cm;
-    line-height: 2.1cm;
+    font-size: 1.8cm;
+    line-height: 2.5cm;
     background-image: url(https://images.weserv.nl/?url=www.iconsdb.com/icons/download/color/aaaaaa/contacts-256.png);
     background-repeat: no-repeat;
     -webkit-background-size: cover;
