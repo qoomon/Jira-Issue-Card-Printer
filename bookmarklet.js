@@ -699,7 +699,7 @@ body {
     text-align: center;
     font-weight: bold;
     font-size: 1.0cm;
-    line-height: 1.4cm;
+    line-height: 1.6cm;
 }
 .type-icon {
     position: relative;
