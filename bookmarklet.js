@@ -797,7 +797,7 @@ body {
     height: 2.1cm;
     text-align: center;
     font-weight: bold;
-    font-size: 1.5cm;
+    font-size: 1.8cm;
     line-height: 2.5cm;
     background-image: url(https://images.weserv.nl/?url=www.iconsdb.com/icons/download/color/aaaaaa/contacts-256.png);
     background-repeat: no-repeat;
