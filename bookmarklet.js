@@ -79,9 +79,6 @@ try {
   function print(){
     ga('send', 'event', 'button', 'click', 'print', $(".card").length );
     jQuery('#card-print-dialog-content-iframe')[0].contentWindow.print();
-    console.logInfo(jQuery('#card-print-dialog-content-iframe'));
-    console.logInfo(jQuery('#card-print-dialog-content-iframe')[0]);
-    console.logInfo(jQuery('#card-print-dialog-content-iframe')[0].contentWindow);
   }
   
   function renderCards(issueKeyList, callback) {
