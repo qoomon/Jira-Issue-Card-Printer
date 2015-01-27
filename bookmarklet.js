@@ -4,8 +4,7 @@
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-ga('create', 'UA-50840116-3', 'auto');
-ga('send', 'pageview');
+ga('create', 'UA-50840116-3', 'auto', {'alwaysSendReferrer': true});
 // </GoogleAnalytics>
 
 try {
@@ -53,12 +52,14 @@ try {
     
     var issueKeyList = getSelectedIssueKeyList();
     
-    ga('send', 'event', 'bookmarklet', 'click', { 'eventValue': issueKeyList.length });
+    ga('send', 'event', 'bookmarklet', 'click', 'print', issueKeyList.length );
     
     if(issueKeyList.length <= 0){
       alert("Please select at least one issue.");
       return;
     }
+    
+    ga('send', 'pageview', '/cardprinter');
     
     // open print preview
     jQuery("body").append(printOverlayHTML);
