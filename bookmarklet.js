@@ -72,11 +72,13 @@ try {
     jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
     renderCards(issueKeyList, function(){
       jQuery("#card-print-dialog-title").text("Card Print");
-      
-      ga('send', 'event', 'button', 'click', 'print', issueKeyList.length );
-      
-      jQuery('#card-print-dialog-content-iframe')[0].contentWindow.print();
+      print();
     });
+  }
+  
+  function print(){
+    ga('send', 'event', 'button', 'click', 'print', issueKeyList.length );
+    jQuery('#card-print-dialog-content-iframe')[0].contentWindow.print();
   }
   
   function renderCards(issueKeyList, callback) {
@@ -344,7 +346,7 @@ try {
   
     result.find("#card-print-dialog-print")
     .click(function(event){
-      jQuery('#card-print-dialog-content-iframe')[0].contentWindow.print();
+      print();
       return false;
     });
   
