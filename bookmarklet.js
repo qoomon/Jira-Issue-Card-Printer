@@ -5,6 +5,7 @@
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
 ga('create', 'UA-50840116-3', 'auto', {'name': 'jiraIssueCardPrinter'});
+ga('send', 'pageview');
 // </GoogleAnalytics>
 
 try {
@@ -58,8 +59,6 @@ try {
       alert("Please select at least one issue.");
       return;
     }
-  
-    ga('send', 'pageview');
     
     // open print preview
     jQuery("body").append(printOverlayHTML);
