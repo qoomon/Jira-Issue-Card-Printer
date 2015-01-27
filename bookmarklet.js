@@ -58,22 +58,23 @@ try {
     
     var issueKeyList = getSelectedIssueKeyList();
     
-    ga('send', 'event', 'bookmarklet', 'click', 'print', issueKeyList.length );
-    
     if(issueKeyList.length <= 0){
       alert("Please select at least one issue.");
       return;
     }
     
-    ga('send', 'pageview');
-    
     // open print preview
     jQuery("body").append(printOverlayHTML);
     jQuery("#card-print-overlay").prepend(printOverlayStyle);
+    
+    ga('send', 'pageview');
   
     jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
     renderCards(issueKeyList, function(){
       jQuery("#card-print-dialog-title").text("Card Print");
+      
+      ga('send', 'event', 'button', 'click', 'print', issueKeyList.length );
+      
       jQuery('#card-print-dialog-content-iframe')[0].contentWindow.print();
     });
   }
@@ -1073,6 +1074,7 @@ try {
   }
 
 } catch (err) {
+  log.error(err.message);
   ga('send', 'exception', {
     'exDescription': err.message,
     'exFatal': true
