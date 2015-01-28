@@ -1,4 +1,4 @@
-version = "3.1.8";
+version = "3.1.9";
 console.log("Version: " + version);
 
 var isDev = typeof isDev === 'undefined' || isDev ;
@@ -24,6 +24,7 @@ ga('set', 'location', window.location.protocol + '//' + window.location.host + w
 ga('set', 'hostname', window.location.hostname);
 ga('set', 'page', '/cardprinter');
 ga('set', 'title', document.title);
+ga('set', 'referrer', window.location.hostname);
 //ga('set', 'campaignSource', '(direct)');
 //ga('set', 'campaignMedium', '(none)');
 // </GoogleAnalytics>
