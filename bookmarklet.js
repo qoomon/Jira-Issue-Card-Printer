@@ -1,5 +1,5 @@
 version = "3.1.7";
-console.logInfo("Version: " + version);
+console.log("Version: " + version);
 // <GoogleAnalytics>
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
