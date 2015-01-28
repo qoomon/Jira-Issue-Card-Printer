@@ -1,5 +1,18 @@
-version = "3.1.7";
+version = "3.1.8";
 console.log("Version: " + version);
+
+var isDev = typeof isDev === 'undefined' || isDev ;
+
+hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
+if(isDev){
+  console.log("DEVELOPMENT");
+  hostOrigin = "https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/";
+  isDev = false;
+}
+
+cors = "https://cors-anywhere.herokuapp.com/";
+//$("#card").load("https://cors-anywhere.herokuapp.com/"+"https://qoomon.github.io/Jira-Issue-Card-Printer/card.html");
+  
 // <GoogleAnalytics>
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -15,7 +28,6 @@ ga('set', 'title', document.title);
 //ga('set', 'campaignMedium', '(none)');
 // </GoogleAnalytics>
 
-var isDev
 try {
   
   // load jQuery
@@ -37,17 +49,9 @@ try {
   
     printScopeDeviderToken = "<b>Attachment</b>";
   
-    hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
-    if(isDev){
-      alert("Develop Version");
-      hostOrigin = "https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/";
-    }
-    resourceOrigin = hostOrigin+ "resources/";
-  
-    cors = "https://cors-anywhere.herokuapp.com/";
-    //$("#card").load("https://cors-anywhere.herokuapp.com/"+"https://qoomon.github.io/Jira-Issue-Card-Printer/card.html");
-  
     console.logLevel = console.INFO;
+    
+    resourceOrigin = hostOrigin+ "resources/";
   }
   
   function main(){
@@ -78,8 +82,11 @@ try {
   }
   
   function print(){
-    ga('send', 'event', 'button', 'click', 'print', $(".card").length );
-    jQuery('#card-print-dialog-content-iframe')[0].contentWindow.print();
+    var printFrame = jQuery("#card-print-dialog-content-iframe");
+    var printWindow = printFrame[0].contentWindow;
+    var printDocument = printWindow.document;
+    ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length );
+    printWindow.print();
   }
   
   function renderCards(issueKeyList, callback) {
@@ -1082,6 +1089,6 @@ try {
     'exDescription': err.message,
     'exFatal': true
   });
-} 
+};
 
-isDev = false;
+
