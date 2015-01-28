@@ -1,4 +1,4 @@
-version = "3.1.9";
+version = "3.1.10";
 console.log("Version: " + version);
 
 var isDev = typeof isDev === 'undefined' || isDev ;
