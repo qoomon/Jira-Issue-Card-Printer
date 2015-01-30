@@ -21,7 +21,7 @@ cors = "https://cors-anywhere.herokuapp.com/";
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-ga('create', 'UA-50840116-3');
+ga('create', 'UA-50840116-3', {'alwaysSendReferrer': true});
 ga('set', 'referrer', referrer);
 ga('set', 'page', '/cardprinter');
 //ga('set', 'referrer', window.location.hostname);
