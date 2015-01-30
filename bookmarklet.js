@@ -1,11 +1,13 @@
-version = "3.1.12";
+version = "3.1.14";
 console.log("Version: " + version);
 
 var isDev = typeof isDev === 'undefined' || isDev ;
 
+referrer = window.location.hostname
 hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
 if(isDev){
   console.log("DEVELOPMENT");
+  referrer = "dev.qoomon.com"
   hostOrigin = "https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/";
   isDev = false;
 }
@@ -19,7 +21,9 @@ cors = "https://cors-anywhere.herokuapp.com/";
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
+
 ga('create', 'UA-50840116-3', {'alwaysSendReferrer': true});
+ga('set', 'referrer', referrer);
 ga('set', 'page', '/cardprinter');
 //ga('set', 'referrer', window.location.hostname);
 //ga('set', 'location', window.location.protocol + '//' + window.location.host + window.location.pathname);
@@ -79,7 +83,7 @@ try {
     jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
     renderCards(issueKeyList, function(){
       jQuery("#card-print-dialog-title").text("Card Print");
-      print();
+      //print();
     });
   }
   
@@ -171,6 +175,8 @@ try {
     var type = data.fields.issuetype.name.toLowerCase();
     console.logDebug("type: " + type);
     card.find(".card").attr("type", type);
+    
+    ga('send', 'event', 'task', 'generate', 'card', type );
   
     //Summary
     var summary = data.fields.summary;
