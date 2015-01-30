@@ -1,4 +1,4 @@
-version = "3.1.13";
+version = "3.1.14";
 console.log("Version: " + version);
 
 var isDev = typeof isDev === 'undefined' || isDev ;
@@ -20,6 +20,7 @@ cors = "https://cors-anywhere.herokuapp.com/";
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
 
 ga('create', 'UA-50840116-3', {'alwaysSendReferrer': true});
 ga('set', 'referrer', referrer);
