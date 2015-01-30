@@ -3,9 +3,11 @@ console.log("Version: " + version);
 
 var isDev = typeof isDev === 'undefined' || isDev ;
 
+referrer = window.location.hostname
 hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
 if(isDev){
   console.log("DEVELOPMENT");
+  referrer = "dev.qoomon.com"
   hostOrigin = "https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/";
   isDev = false;
 }
@@ -19,7 +21,8 @@ cors = "https://cors-anywhere.herokuapp.com/";
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-ga('create', 'UA-50840116-3', {'alwaysSendReferrer': true});
+ga('create', 'UA-50840116-3');
+ga('set', 'referrer', referrer);
 ga('set', 'page', '/cardprinter');
 //ga('set', 'referrer', window.location.hostname);
 //ga('set', 'location', window.location.protocol + '//' + window.location.host + window.location.pathname);
