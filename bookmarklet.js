@@ -83,7 +83,7 @@ try {
     jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
     renderCards(issueKeyList, function(){
       jQuery("#card-print-dialog-title").text("Card Print");
-      print();
+      //print();
     });
   }
   
@@ -175,6 +175,8 @@ try {
     var type = data.fields.issuetype.name.toLowerCase();
     console.logDebug("type: " + type);
     card.find(".card").attr("type", type);
+    
+    ga('send', 'event', 'task', 'generate', 'card', type );
   
     //Summary
     var summary = data.fields.summary;
