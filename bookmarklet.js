@@ -587,17 +587,17 @@ try {
     <div class="card-header">
       <div class="type-icon badge circular"></div>
       <div class="key badge"></div>
-      <div class="estimate badge circular " contenteditable="true"></div>
+      <div class="estimate badge circular"></div>
       <div class="due">
         <div class="due-icon badge circular "></div>
-        <div class="due-date badge" contenteditable="true"></div>
+        <div class="due-date badge"></div>
       </div>
     </div>
     <div class="card-content">
       <div class="content-header">
-        <span class="summary" contenteditable="true"></span>
+        <span class="summary"></span>
       </div>
-      <div class="description" contenteditable="true"></div>
+      <div class="description"></div>
     </div>
     <div class="card-footer">
       <div class="assignee badge circular"></div>
@@ -605,7 +605,7 @@ try {
       <div class="attachment badge circular"></div>
       <div class="epic badge">
         <span class="epic-key"></span>
-        <span class="epic-name" contenteditable="true"></span>
+        <span class="epic-name"></span>
         </div>
     </div>
   </div>
