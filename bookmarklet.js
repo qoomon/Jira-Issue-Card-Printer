@@ -329,23 +329,22 @@ try {
     .attr("id","card-print-overlay")
     .html(multilineString(function() {
   /*!
-  <div id="card-print-dialog">
-    <div id="card-print-dialog-header">
-      <div id="card-print-dialog-title">Card Print</div>
-      <div id="info">
-        <input id="report-issue" type="button" class="aui-button" value="Report Issues" />
-        <input id="about" type="button" class="aui-button" value="About" />
-      </div>
-      <div id="buttons">
-        <input id="card-print-dialog-print" type="button" class="aui-button aui-button-primary" value="Print" />
-        <a id="card-print-dialog-cancel" title="Cancel" class="cancel">Cancel</a>
-      </div>
+<div id="card-print-dialog">
+  <div id="card-print-dialog-header">
+    <div id="card-print-dialog-title">Card Print</div>
+    <div id="buttons">
+      <input id="report-issue" type="button" class="aui-button" value="Report Issues" />
+      <input id="about" type="button" class="aui-button" value="About" />
     </div>
-    <div id="card-print-dialog-content">
-      <iframe id="card-print-dialog-content-iframe"></iframe>
     </div>
-    <div id="card-print-dialog-footer"></div>
+  <div id="card-print-dialog-content">
+    <iframe id="card-print-dialog-content-iframe"></iframe>
   </div>
+  <div id="card-print-dialog-footer">
+    <input id="card-print-dialog-print" type="button" class="aui-button aui-button-primary" value="Print" />
+    <a id="card-print-dialog-cancel" title="Cancel" class="cancel">Cancel</a>
+  </div>
+</div>
   */
     }));
     // info
@@ -479,14 +478,6 @@ try {
   #buttons {
     position: relative;
     float: right;
-    display: inline-block;
-    height 30px;
-  }
-  
-  #info {
-    position: absolute;
-    right: 400px;
-    float: left;
     display: inline-block;
     height 30px;
   }
