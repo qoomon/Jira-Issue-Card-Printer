@@ -1,8 +1,8 @@
 version = "3.1.17";
 console.log("Version: " + version);
 
-var isDev = typeof isDev === 'undefined' || isDev ;
-var isTest = typeof isTest === 'undefined' || isTest ;
+var isDev = typeof isDev !== 'undefined' && isDev ;
+var isTest = typeof isTest !== 'undefined' && isTest ;
 
 hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
 if(isDev){
@@ -26,7 +26,7 @@ cors = "https://cors-anywhere.herokuapp.com/";
 
 ga('create', 'UA-50840116-3', {'alwaysSendReferrer': true});
 ga('set', 'page', '/cardprinter');
-if(typeof referrer === 'undefined'){
+if(typeof referrer !== 'undefined'){
   ga('set', 'referrer', referrer);
 }
 //ga('set', 'referrer', window.location.hostname);
