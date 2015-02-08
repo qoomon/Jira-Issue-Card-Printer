@@ -26,7 +26,7 @@ cors = "https://cors-anywhere.herokuapp.com/";
 ga('create', 'UA-50840116-3', {'alwaysSendReferrer': true});
 ga('set', 'page', '/cardprinter');
 if(isTest || isDev){
-  ga('set', 'referrer', "http://dev.qoomon.com");
+  ga('set', 'alwaysSendReferrer', false);
 }
 //ga('set', 'referrer', window.location.hostname);
 //ga('set', 'location', window.location.protocol + '//' + window.location.host + window.location.pathname);
