@@ -1,4 +1,4 @@
-version = "3.1.19";
+version = "3.1.20";
 console.log("Version: " + version);
 
 var isDev = typeof isDev !== 'undefined' && isDev ;
@@ -22,12 +22,12 @@ cors = "https://cors-anywhere.herokuapp.com/";
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-
+if(isTest || isDev){
+  ga('set', 'referrer', 'dev.qoomon.com');
+}
 ga('create', 'UA-50840116-3', {'alwaysSendReferrer': true});
 ga('set', 'page', '/cardprinter');
-if(isTest || isDev){
-  ga('set', 'alwaysSendReferrer', false);
-}
+
 //ga('set', 'referrer', window.location.hostname);
 //ga('set', 'location', window.location.protocol + '//' + window.location.host + window.location.pathname);
 //ga('set', 'hostname', window.location.hostname);
