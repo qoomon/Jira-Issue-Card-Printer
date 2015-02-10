@@ -1,5 +1,5 @@
 (function () {
-  var version = "3.1.20";
+  var version = "3.1.21";
   console.log("Version: " + version);
   
   var isDev = typeof isDev !== 'undefined' && isDev ;
@@ -14,7 +14,7 @@
     console.log("TEST");
   }
   
-  cors = "https://cors-anywhere.herokuapp.com/";
+  //cors = "https://cors-anywhere.herokuapp.com/";
   //$("#card").load("https://cors-anywhere.herokuapp.com/"+"https://qoomon.github.io/Jira-Issue-Card-Printer/card.html");
     
   // <GoogleAnalytics>
@@ -22,13 +22,13 @@
     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  
-  
+
   ga('create', 'UA-50840116-3', {'alwaysSendReferrer': true});
   if(isTest || isDev){
-    ga('set', 'referrer', 'dev.qoomon.com');
+    ga('set', 'page', '/dev/cardprinter');
+  } else {
+    ga('set', 'page', '/cardprinter');
   }
-  ga('set', 'page', '/cardprinter');
   
   //ga('set', 'referrer', window.location.hostname);
   //ga('set', 'location', window.location.protocol + '//' + window.location.host + window.location.pathname);
