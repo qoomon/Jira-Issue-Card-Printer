@@ -200,7 +200,7 @@
         var avatarUrl = assignee.avatarUrls['48x48'];
         if(avatarUrl.indexOf("ownerId=") < 0){
           var displayName = assignee.displayName;
-          card.find(".assignee").text(displayName[0]);
+          card.find(".assignee").text(displayName[0].toUpperCase());
         }
         else {
           card.find(".assignee").css("background-image", "url('" + avatarUrl + "')");
