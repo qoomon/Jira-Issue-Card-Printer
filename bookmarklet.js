@@ -414,6 +414,7 @@
         var printWindow = printFrame[0].contentWindow;
         var printDocument = printWindow.document;
         jQuery("HTML", printDocument).css("font-size", jQuery(this).val() +"cm");
+        resizeIframe(printFrame);
       });
 
       // print
