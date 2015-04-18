@@ -584,10 +584,10 @@
         overflow: auto;
         margin-left: auto;
         margin-right: auto;
-        padding: 1.0rem;
-        margin: 1.0rem;
+        padding: 1.0cm;
+        margin: 1.0cm;
         width: auto;
-        min-width: 21rem;
+        min-width: 21cm;
         height: auto;
         page-break-after: always;
         page-break-inside: avoid;
@@ -600,10 +600,10 @@
 
         border-style: solid;
         border-color: #bfbfbf;
-        border-width: 0.05rem;
-        -moz-border-radius: 0.1rem;
-        -webkit-border-radius: 0.1rem;
-        border-radius: 0.1rem;
+        border-width: 0.05cm;
+        -moz-border-radius: 0.1cm;
+        -webkit-border-radius: 0.1cm;
+        border-radius: 0.1cm;
 
         overflow: hidden;
 
@@ -621,9 +621,9 @@
 
           background:rgba(256, 256, 256, 0.0);
           border-style: none;
-          padding: 0.0rem;
-          margin: 0.0rem;
-          margin-top: 2.0rem;
+          padding: 0.0cm;
+          margin: 0.0cm;
+          margin-top: 2.0cm;
 
           -webkit-box-shadow: none;
           -moz-box-shadow: none;
@@ -637,7 +637,7 @@
         }
 
         .page:first-of-type {
-          margin-top: 0rem;
+          margin-top: 0cm;
         }
 
         .page:last-of-type {
