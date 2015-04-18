@@ -1,5 +1,5 @@
 (function () {
-  var version = "3.2.0";
+  var version = "3.2.1";
   console.log("Version: " + version);
 
   var isDev = typeof isDev !== 'undefined' && isDev ;
@@ -749,7 +749,7 @@
     .author {
         z-index: 999;
         position: absolute;
-        top:2.0rem;
+        top:1.5rem;
         right:-0.25rem;
         -webkit-transform-origin: 100% 100%;
         transform-origin: 100% 100%;
@@ -758,7 +758,7 @@
         font-size: 0.4rem;
         line-height: 0.8rem;
         text-align: center;
-        color: DARKGREY;
+        color: #2F4F4F;
     }
     .card-border {
         position: absolute;
