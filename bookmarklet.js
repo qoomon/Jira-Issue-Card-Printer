@@ -662,7 +662,8 @@
       .html(multilineString(function() {
     /*!
     <div class="card">
-      <div class="author">qoomon.com<br>Bengt Brodersen</div>
+      <div class="author author-page">qoomon.com</div>
+      <div class="author author-name">Bengt Brodersen</div>
       <div class="card-border"></div>
       <div class="card-header">
         <div class="type-icon badge circular"></div>
@@ -701,256 +702,267 @@
       .html(multilineString(function() {
     /*!
     * {
-        color: black;
-        font-family:"Droid Serif";
-    }
-    body {
-        margin: 0;
-    }
-    .hidden {
-        visibility: hidden;
-    }
-    .card-header:after,
-    .card-footer:after {
-        content:" ";
-        display: block;
-        clear: both;
-        height:0
-    }
-    .card-border,
-    .badge,
-    .shadow {
-        border-style: solid;
-        border-color: #2f2f2f;
-        border-top-width: 0.14rem;
-        border-left-width: 0.14rem;
-        border-bottom-width: 0.24rem;
-        border-right-width: 0.24rem;
-        -webkit-border-radius: 0.25rem;
-        border-radius: 0.25rem;
-        // -webkit-filter: drop-shadow(0px 5px 10px black)
-    }
-    .circular {
-        -moz-border-radius: 50%;
-        -webkit-border-radius: 50%;
-        border-radius: 50%;
-    }
-    .badge {
-        width: 3.2rem;
-        height: 3.2rem;
-        background: #d0d0d0;
-    }
+         color: black;
+         font-family:"Droid Serif";
+     }
+     body {
+         margin: 0;
+     }
+     .hidden {
+         visibility: hidden;
+     }
+     .card-header:after,
+     .card-footer:after {
+         content:" ";
+         display: block;
+         clear: both;
+         height:0
+     }
+     .card-border,
+     .badge,
+     .shadow {
+         border-style: solid;
+         border-color: #2f2f2f;
+         border-top-width: 0.14rem;
+         border-left-width: 0.14rem;
+         border-bottom-width: 0.24rem;
+         border-right-width: 0.24rem;
+         -webkit-border-radius: 0.25rem;
+         border-radius: 0.25rem;
+         // -webkit-filter: drop-shadow(0px 5px 10px black)
+     }
+     .circular {
+         -moz-border-radius: 50%;
+         -webkit-border-radius: 50%;
+         border-radius: 50%;
+     }
+     .badge {
+         width: 3.2rem;
+         height: 3.2rem;
+         background: #d0d0d0;
+     }
 
-    .card {
-        position: relative;
-        min-width: 21.0rem;
+     .card {
+         position: relative;
+         min-width: 21.0rem;
 
-    }
-    .author {
-        z-index: 999;
-        position: absolute;
-        top:1.5rem;
-        right:-0.25rem;
-        -webkit-transform-origin: 100% 100%;
-        transform-origin: 100% 100%;
-        -webkit-transform: rotate(-90deg);
-        transform: rotate(-90deg);
-        font-size: 0.4rem;
-        line-height: 0.8rem;
-        text-align: center;
-        color: #2F4F4F;
-    }
-    .card-border {
-        position: absolute;
-        top:2.0rem;
-        left:0.4rem;
-        right:0.4rem;
-        height: calc(100% - 4.0rem);
-        background: #ffffff;
+     }
+     .author{
+         z-index: 999;
 
-    }
-    .card-header {
-      position: relative;
-    }
-    .card-content {
-        position: relative;
-        margin-top: 0.3rem;
-        margin-left: 1.0rem;
-        margin-right: 1.1rem;
-        margin-bottom: 0.2rem;
-        min-height: 1.2rem;
-    }
-    .content-header {
-        position: relative;
-        font-size: 1.1rem;
-        line-height: 1.1rem;
-        margin-bottom: 0.6rem;
-    }
-    .card-footer {
-        position: relative;
-        page-break-inside: avoid;
-    }
-    .summary {
-        font-weight: bold;
-    }
-    .description {
-        font-size: 0.6rem;
-        line-height: 0.6rem;
-    }
-    .key {
-        position: absolute;
-        float: left;
-        width: auto;
-        min-width: 4.4rem;
-        height: 1.35rem;
-        left: 3.0rem;
-        margin-top: 1.2rem;
-        padding-left: 0.7rem;
-        padding-right: 0.4rem;
-        text-align: center;
-        font-weight: bold;
-        font-size: 1.0rem;
-        line-height: 1.5rem;
-    }
-    .type-icon {
-        position: relative;
-        float: left;
-        background-color: GREENYELLOW;
-        background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Objects.png);
-        background-repeat: no-repeat;
-        -webkit-background-size: 70%;
-        background-size: 70%;
-        background-position: center;
-        z-index: 1;
-    }
+         line-height: 0.8rem;
+     }
+     .author-page {
+         position: absolute;
+         top:2.5rem;
+         right:0.55rem;
+         font-size: 0.45rem;
+         -webkit-transform-origin: 100% 100%;
+         transform-origin: 100% 100%;
+         -webkit-transform: rotate(-90deg);
+         transform: rotate(-90deg);
+     }
+     .author-name {
+         position: absolute;
+         top:3.26rem;
+         right:-2.6rem;
+         font-size: 0.35rem;
+         -webkit-transform-origin: 0% 0%;
+         transform-origin: 0% 0%;
+         -webkit-transform: rotate(90deg);
+         transform: rotate(90deg);
+     }
+     .card-border {
+         position: absolute;
+         top:2.0rem;
+         left:0.4rem;
+         right:0.4rem;
+         height: calc(100% - 4.0rem);
+         background: #ffffff;
 
-    .card[type="story"] .type-icon {
-        background-color: GOLD;
-        background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Bulb.png);
-    }
-    .card[type="bug"] .type-icon {
-        background-color: CRIMSON;
-        background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Bug.png);
-    }
-    .card[type="epic"] .type-icon {
-        background-color: ROYALBLUE;
-        background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Flash.png);
-    }
+     }
+     .card-header {
+       position: relative;
+     }
+     .card-content {
+         position: relative;
+         margin-top: 0.3rem;
+         margin-left: 1.0rem;
+         margin-right: 1.1rem;
+         margin-bottom: 0.2rem;
+         min-height: 1.2rem;
+     }
+     .content-header {
+         position: relative;
+         font-size: 1.1rem;
+         line-height: 1.1rem;
+         margin-bottom: 0.6rem;
+     }
+     .card-footer {
+         position: relative;
+         page-break-inside: avoid;
+     }
+     .summary {
+         font-weight: bold;
+     }
+     .description {
+         font-size: 0.6rem;
+         line-height: 0.6rem;
+     }
+     .key {
+         position: absolute;
+         float: left;
+         width: auto;
+         min-width: 4.4rem;
+         height: 1.35rem;
+         left: 3.0rem;
+         margin-top: 1.2rem;
+         padding-left: 0.7rem;
+         padding-right: 0.4rem;
+         text-align: center;
+         font-weight: bold;
+         font-size: 1.0rem;
+         line-height: 1.5rem;
+     }
+     .type-icon {
+         position: relative;
+         float: left;
+         background-color: GREENYELLOW;
+         background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Objects.png);
+         background-repeat: no-repeat;
+         -webkit-background-size: 70%;
+         background-size: 70%;
+         background-position: center;
+         z-index: 1;
+     }
 
-    .estimate {
-        position: relative;
-        float: left;
-        left: -0.65rem;
-        top:-1.5rem;
-        height: 1.1rem;
-        width: 1.1rem;
-        text-align: center;
-        font-weight: bold;
-        font-size: 1rem;
-        line-height: 1.15rem;
-        margin-top:1.5rem;
-        z-index: 999;
-    }
+     .card[type="story"] .type-icon {
+         background-color: GOLD;
+         background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Bulb.png);
+     }
+     .card[type="bug"] .type-icon {
+         background-color: CRIMSON;
+         background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Bug.png);
+     }
+     .card[type="epic"] .type-icon {
+         background-color: ROYALBLUE;
+         background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Flash.png);
+     }
 
-    .due {
-        position: relative;
-        float: right;
-    }
-    .due-icon {
-        position: relative;
-        float:right;
-        width: 2.5rem;
-        height: 2.5rem;
-        margin-top: 0.4rem;
-        background-color: MEDIUMPURPLE;
-        background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/AlarmClock.png);
-        background-repeat: no-repeat;
-        -webkit-background-size: 65%;
-        background-size: 65%;
-        background-position: center;
-        z-index: 1;
-    }
-    .due-date {
-        position: relative;
-        float: right;
-        right: -0.6rem;
-        width: auto;
-        min-width: 2.8rem;
-        height: auto;
-        margin-top: 1.3rem;
-        padding-top: 0.2rem;
-        padding-bottom: 0.2rem;
-        padding-left: 0.3rem;
-        padding-right: 0.6rem;
-        text-align: center;
-        font-weight: bold;
-        font-size: 0.7rem;
-        line-height: 0.7rem;
-    }
-    .attachment {
-        position: relative;
-        float: left;
-        margin-left: 0.6rem;
-        width: 2.1rem;
-        height: 2.1rem;
-        background-color: LIGHTSKYBLUE;
-        background-image: url(https://images.weserv.nl/?url=www.iconsdb.com/icons/download/color/2f2f2f/attach-256.png);
-        background-repeat: no-repeat;
-        -webkit-background-size: 70%;
-        background-size: 70%;
-        background-position: center;
+     .estimate {
+         position: relative;
+         float: left;
+         left: -0.65rem;
+         top:-1.5rem;
+         height: 1.1rem;
+         width: 1.1rem;
+         text-align: center;
+         font-weight: bold;
+         font-size: 0.9rem;
+         line-height: 1.15rem;
+         margin-top:1.5rem;
+         z-index: 999;
+     }
 
-    }
-    .assignee {
-        position: relative;
-        float: right;
-        width: 2.1rem;
-        height: 2.1rem;
-        text-align: center;
-        font-weight: bold;
-        font-size: 1.8rem;
-        line-height: 2.2rem;
-        background-image: url(https://images.weserv.nl/?url=www.iconsdb.com/icons/download/color/aaaaaa/contacts-256.png);
-        background-repeat: no-repeat;
-        -webkit-background-size: cover;
-        background-size: cover;
-        -webkit-background-size: 100%;
-        background-size: 100%;
-        -webkit-filter: contrast(150%) grayscale(100%);
-        filter: contrast(150%) grayscale(100%);
-        background-position: center;
-    }
-    .qr-code {
-        position: relative;
-        float: left;
-        width: 2.1rem;
-        height: 2.1rem;
-        background-image: url(https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=blog.qoomon.com);
-        background-repeat: no-repeat;
-        -webkit-background-size: cover;
-        background-size: cover;
-        background-position: center;
-    }
-    .epic {
-        width: auto;
-        height: auto;
-        position: relative;
-        float:right;
-        margin-right:0.6rem;
-        padding-top: 0.2rem;
-        padding-bottom: 0.2rem;
-        padding-left: 0.3rem;
-        padding-right: 0.3rem;
-        text-align: left;
-        font-size: 0.7rem;
-        line-height: 0.7rem;
-        max-width: calc( 100% - 10.2rem);
-    }
-    .epic-key {
-    }
-    .epic-name {
-        font-weight: bold;
-    }
+     .due {
+         position: relative;
+         float: right;
+     }
+     .due-icon {
+         position: relative;
+         float:right;
+         width: 2.5rem;
+         height: 2.5rem;
+         margin-top: 0.4rem;
+         background-color: MEDIUMPURPLE;
+         background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/AlarmClock.png);
+         background-repeat: no-repeat;
+         -webkit-background-size: 65%;
+         background-size: 65%;
+         background-position: center;
+         z-index: 1;
+     }
+     .due-date {
+         position: relative;
+         float: right;
+         right: -0.6rem;
+         width: auto;
+         min-width: 2.8rem;
+         height: auto;
+         margin-top: 1.3rem;
+         padding-top: 0.2rem;
+         padding-bottom: 0.2rem;
+         padding-left: 0.3rem;
+         padding-right: 0.6rem;
+         text-align: center;
+         font-weight: bold;
+         font-size: 0.7rem;
+         line-height: 0.7rem;
+     }
+     .attachment {
+         position: relative;
+         float: left;
+         margin-left: 0.6rem;
+         width: 2.1rem;
+         height: 2.1rem;
+         background-color: LIGHTSKYBLUE;
+         background-image: url(https://images.weserv.nl/?url=www.iconsdb.com/icons/download/color/2f2f2f/attach-256.png);
+         background-repeat: no-repeat;
+         -webkit-background-size: 70%;
+         background-size: 70%;
+         background-position: center;
+
+     }
+     .assignee {
+         position: relative;
+         float: right;
+         width: 2.1rem;
+         height: 2.1rem;
+         text-align: center;
+         font-weight: bold;
+         font-size: 1.8rem;
+         line-height: 2.2rem;
+         background-image: url(https://images.weserv.nl/?url=www.iconsdb.com/icons/download/color/aaaaaa/contacts-256.png);
+         background-repeat: no-repeat;
+         -webkit-background-size: cover;
+         background-size: cover;
+         -webkit-background-size: 100%;
+         background-size: 100%;
+         -webkit-filter: contrast(150%) grayscale(100%);
+         filter: contrast(150%) grayscale(100%);
+         background-position: center;
+     }
+     .qr-code {
+         position: relative;
+         float: left;
+         width: 2.1rem;
+         height: 2.1rem;
+         background-image: url(https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=blog.qoomon.com);
+         background-repeat: no-repeat;
+         -webkit-background-size: cover;
+         background-size: cover;
+         background-position: center;
+     }
+     .epic {
+         width: auto;
+         height: auto;
+         position: relative;
+         float:right;
+         margin-right:0.6rem;
+         padding-top: 0.2rem;
+         padding-bottom: 0.2rem;
+         padding-left: 0.3rem;
+         padding-right: 0.3rem;
+         text-align: left;
+         font-size: 0.7rem;
+         line-height: 0.7rem;
+         max-width: calc( 100% - 10.2rem);
+     }
+     .epic-key {
+     }
+     .epic-name {
+         font-weight: bold;
+     }
     */
     }).replace(/{RESOURCE_ORIGIN}/g, resourceOrigin));
       return result;
