@@ -587,7 +587,6 @@
         padding: 1.0cm;
         margin: 1.0cm;
         width: auto;
-        min-width: 21cm;
         height: auto;
         page-break-after: always;
         page-break-inside: avoid;
@@ -744,7 +743,7 @@
 
      .card {
          position: relative;
-         min-width: 21.0rem;
+         min-width: 17.0rem;
 
      }
      .author{
