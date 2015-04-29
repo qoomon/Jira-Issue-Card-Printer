@@ -3,15 +3,11 @@
     console.log("Version: " + version);
 
     var isDev = typeof isDev !== 'undefined' && isDev ;
-    var isTest = typeof isTest !== 'undefined' && isTest ;
 
     var hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
     if(isDev){
       console.log("DEVELOPMENT");
       hostOrigin = "https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/";
-    }
-    if(isTest){
-      console.log("TEST");
     }
 
     //cors = "https://cors-anywhere.herokuapp.com/";
@@ -24,20 +20,7 @@
     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
     ga('create', 'UA-50840116-3', {'alwaysSendReferrer': true});
-    if(isTest || isDev){
-      ga('set', 'page', '/dev/cardprinter');
-    } else {
-      ga('set', 'page', '/cardprinter');
-    }
-
-    //ga('set', 'referrer', window.location.hostname);
-    //ga('set', 'location', window.location.protocol + '//' + window.location.host + window.location.pathname);
-    //ga('set', 'hostname', window.location.hostname);
-    //ga('set', 'title', document.title);
-
-    //ga('set', 'campaignSource', '(direct)');
-    //ga('set', 'campaignMedium', '(none)');
-    // </GoogleAnalytics>
+    ga('set', 'page', '/cardprinter');
 
     try {
 
@@ -83,7 +66,9 @@
         jQuery("body").append(printOverlayHTML);
         jQuery("#card-print-overlay").prepend(printOverlayStyle);
 
-        ga('send', 'pageview');
+        if(!isDev){
+          ga('send', 'pageview');
+        }
 
         jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
         renderCards(issueKeyList, function(){
@@ -96,7 +81,11 @@
         var printFrame = jQuery("#card-print-dialog-content-iframe");
         var printWindow = printFrame[0].contentWindow;
         var printDocument = printWindow.document;
-        ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length );
+        if(!isDev){
+          if(!isDev){
+            ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length );
+          }
+        }
         printWindow.print();
       }
 
@@ -205,7 +194,9 @@
         console.logDebug("type: " + type);
         card.find(".card").attr("type", type);
 
-        ga('send', 'event', 'task', 'generate', 'card', type );
+        if(!isDev){
+          ga('send', 'event', 'task', 'generate', 'card', type );
+        }
 
         //Summary
         var summary = data.fields.summary;
@@ -488,7 +479,6 @@
         border-style: solid;
         border-color: #cccccc;
         border-width: 1px;
-        -moz-border-radius: 4px;
         -webkit-border-radius: 4px;
         border-radius: 4px;
 
@@ -594,13 +584,11 @@
           background:white;
 
           -webkit-box-shadow: 0px 0px 7px 3px rgba(31,31,31,0.4);
-          -moz-box-shadow: 0px 0px 7px 3px rgba(31,31,31,0.4);
           box-shadow: 0px 0px 7px 3px rgba(31,31,31,0.4);
 
           border-style: solid;
           border-color: #bfbfbf;
           border-width: 0.05cm;
-          -moz-border-radius: 0.1cm;
           -webkit-border-radius: 0.1cm;
           border-radius: 0.1cm;
 
@@ -624,14 +612,10 @@
             margin-top: 1.0cm;
 
             -webkit-box-shadow: none;
-            -moz-box-shadow: none;
             box-shadow: none;
 
             -webkit-print-color-adjust:exact;
             print-color-adjust: exact;
-
-            -webkit-filter:opacity(1.0);
-            filter:opacity(1.0);
           }
 
           .page:first-of-type {
@@ -727,10 +711,8 @@
            border-right-width: 0.24rem;
            -webkit-border-radius: 0.25rem;
            border-radius: 0.25rem;
-           // -webkit-filter: drop-shadow(0px 5px 10px black)
        }
        .circular {
-           -moz-border-radius: 50%;
            -webkit-border-radius: 50%;
            border-radius: 50%;
        }
@@ -743,11 +725,8 @@
        .card {
            position: relative;
            min-width: 17.0rem;
-
        }
        .author{
-
-
            line-height: 0.8rem;
        }
        .author-page {
@@ -1186,9 +1165,11 @@
 
     } catch (err) {
       console.logError(err.message);
-      ga('send', 'exception', {
-        'exDescription': err.message,
-        'exFatal': true
-      });
+      if(!isDev){
+        ga('send', 'exception', {
+          'exDescription': err.message,
+          'exFatal': true
+        });
+      }
     };
   })();
