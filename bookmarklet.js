@@ -36,6 +36,7 @@
       });
 
       function init(){
+
         addJQueryFunctions();
         addConsoleFunctions();
         addStringFunctions();
@@ -82,10 +83,23 @@
         var printWindow = printFrame[0].contentWindow;
         var printDocument = printWindow.document;
         if(!isDev){
-          if(!isDev){
             ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length );
-          }
         }
+        printWindow.matchMedia("print").addListener(function() {
+          jQuery(".page",printDocument).each(function(position, page) {
+            var height = jQuery(page).height()
+              - jQuery(page).find(".card-header").outerHeight()
+              - jQuery(page).find(".card-footer").outerHeight()
+              - jQuery(page).find(".content-header").outerHeight()
+              - 40;
+              jQuery(page).find(".description").css("max-height", height+"px");
+              var lineHeight = jQuery(page).find(".description").css("line-height");
+              lineHeight = lineHeight.substring(0, lineHeight.length - 2);
+              var lineClamp = Math.floor(height / lineHeight);
+              jQuery(page).find(".description").css("-webkit-line-clamp", lineClamp+"");
+
+          });
+        });
         printWindow.print();
       }
 
@@ -568,6 +582,7 @@
           /*!
         HTML {
           font-size: 1.0cm;
+          overflow: hidden;
         }
         .page {
           position: relative;
@@ -593,23 +608,17 @@
           border-radius: 0.1cm;
 
           overflow: hidden;
-
         }
-
-        .multiCardPage {
-          page-break-after: avoid;
-        }
-
-
 
         @media print {
 
           .page {
+            max-height:100% ;
+            height: 100%;
             background: white;
             border-style: none;
             padding: 0.0cm;
             margin: 0.0cm;
-            margin-top: 1.0cm;
 
             -webkit-box-shadow: none;
             box-shadow: none;
@@ -618,12 +627,14 @@
             print-color-adjust: exact;
           }
 
-          .page:first-of-type {
-            margin-top: 0cm;
+          .multiCardPage {
+            height: auto;
+            margin-bottom: 1.0cm;
+            page-break-after: avoid;
           }
 
           .page:last-of-type {
-            page-break-after: auto;
+            page-break-after: avoid;
           }
 
         }
@@ -721,10 +732,11 @@
            height: 3.2rem;
            background: #d0d0d0;
        }
-
        .card {
            position: relative;
            min-width: 17.0rem;
+           max-height: 100%;
+           overflow: hidden;
        }
        .author{
            line-height: 0.8rem;
@@ -775,18 +787,21 @@
            position: relative;
            font-size: 1.1rem;
            line-height: 1.1rem;
-           margin-bottom: 0.6rem;
+           //margin-bottom: 0.6rem;
        }
        .card-footer {
            position: relative;
-           page-break-inside: avoid;
        }
        .summary {
            font-weight: bold;
        }
        .description {
+       display:  block;
            font-size: 0.6rem;
            line-height: 0.6rem;
+           overflow: hidden;
+           display: -webkit-box;
+           -webkit-box-orient: vertical;
        }
        .key {
            position: absolute;
