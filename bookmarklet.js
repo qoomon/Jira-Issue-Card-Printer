@@ -56,13 +56,13 @@
 
       resourceOrigin = hostOrigin+ "resources/";
 
-      JIRA='JIRA'
-      PIVOTAL_TRACKER='PIVOTAL_TRACKER'
+      APP_JIRA='APP_JIRA'
+      APP_PIVOTAL_TRACKER='APP_PIVOTAL_TRACKER'
       issueTracker = 'UNKNOWN'
       if( jQuery("meta[name='application-name'][ content='JIRA']").length > 0){
-        issueTracker = JIRA
+        issueTracker = APP_JIRA
       } else if( /.*\pivotaltracker.com\/.*/g.test(document.URL)){
-        issueTracker = PIVOTAL_TRACKER
+        issueTracker = APP_PIVOTAL_TRACKER
       }
     }
 
@@ -101,8 +101,15 @@
       if(!isDev){
           ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length );
       }
+
+      //jQuery("html", printDocument).css("font-size", + 0.5 +"cm");
+
       printWindow.matchMedia("print").addListener(function() {
         jQuery(".page",printDocument).each(function(position, page) {
+          // jQuery(page).css("width","50%");
+          // jQuery(page).css("height","50%");
+          // jQuery(page).css("float","left");
+
           var height = jQuery(page).height()
             - jQuery(page).find(".card-header").outerHeight()
             - jQuery(page).find(".card-footer").outerHeight()
@@ -113,8 +120,6 @@
             lineHeight = lineHeight.substring(0, lineHeight.length - 2);
             var lineClamp = Math.floor(height / lineHeight);
             jQuery(page).find(".description").css("-webkit-line-clamp", lineClamp+"");
-
-            //jQuery(page).scc("float","left");
         });
       });
       printWindow.print();
@@ -197,9 +202,9 @@
 
     function getSelectedIssueKeyList() {
       switch(issueTracker) {
-          case JIRA:
+          case APP_JIRA:
             return getSelectedIssueKeyListJira();
-          case PIVOTAL_TRACKER:
+          case APP_PIVOTAL_TRACKER:
             return getSelectedIssueKeyListPivotalTracker();
       }
     }
@@ -226,8 +231,6 @@
     function getSelectedIssueKeyListPivotalTracker() {
       //Single Story
       if (/.*\/stories\/.*/g.test(document.URL)) {
-
-
         return [document.URL.replace(/.*\/stories\/(.*)\??/,'$1')];
       }
 
@@ -243,9 +246,9 @@
 
     function getCardData(issueKey, callback){
       switch(issueTracker) {
-          case JIRA:
+          case APP_JIRA:
             return getCardDataJira(issueKey, callback);
-          case PIVOTAL_TRACKER:
+          case APP_PIVOTAL_TRACKER:
             return getCardDataPivotalTracker(issueKey, callback);
       }
 
@@ -457,7 +460,7 @@
       }
 
       //QR-Code
-      var qrCodeUrl = 'https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=' + data.url;
+      var qrCodeUrl = 'https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=' + encodeURIComponent(data.url);
       card.find(".qr-code").css("background-image", "url('" + qrCodeUrl + "')");
     }
 
@@ -534,7 +537,7 @@
           var printFrame = jQuery("#card-print-dialog-content-iframe");
           var printWindow = printFrame[0].contentWindow;
           var printDocument = printWindow.document;
-          jQuery("HTML", printDocument).css("font-size", jQuery(this).val() +"cm");
+          jQuery("html", printDocument).css("font-size", jQuery(this).val() +"cm");
           resizeIframe(printFrame);
         });
 
@@ -729,8 +732,6 @@
         @media print {
 
           .page {
-            max-height:100% ;
-            height: 100%;
             background: white;
             border-style: none;
             padding: 0.0cm;
