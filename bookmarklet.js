@@ -1,29 +1,29 @@
   (function () {
-    var version = "3.2.3";
+    var version = "3.4.0";
     console.log("Version: " + version);
 
-    var isDev = typeof isDev !== 'undefined' && isDev ;
+    var isDev = /.*jira.atlassian.com\/secure\/RapidBoard.jspa\?.*projectKey=ANERDS.*/g.test(document.URL) // Jira
+             || /.*pivotaltracker.com\/n\/projects\/510733.*/g.test(document.URL); // PivotTracker
 
     var hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
     if(isDev){
       console.log("DEVELOPMENT");
       hostOrigin = "https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/";
+    } else {
+      //cors = "https://cors-anywhere.herokuapp.com/";
+      //$("#card").load("https://cors-anywhere.herokuapp.com/"+"https://qoomon.github.io/Jira-Issue-Card-Printer/card.html");
+
+      // <GoogleAnalytics>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-50840116-3', {'alwaysSendReferrer': true});
+      ga('set', 'page', '/cardprinter');
     }
 
-    //cors = "https://cors-anywhere.herokuapp.com/";
-    //$("#card").load("https://cors-anywhere.herokuapp.com/"+"https://qoomon.github.io/Jira-Issue-Card-Printer/card.html");
-
-    // <GoogleAnalytics>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-    ga('create', 'UA-50840116-3', {'alwaysSendReferrer': true});
-    ga('set', 'page', '/cardprinter');
-
     try {
-
       // load jQuery
       if (window.jQuery === undefined) {
         appendScript('//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js');
@@ -34,318 +34,436 @@
         init();
         main();
       });
+    } catch (err) {
+      console.log(err.message);
+      if(!isDev){
+        ga('send', 'exception', {
+          'exDescription': err.message,
+          'exFatal': true
+        });
+      }
+    }
 
-      function init(){
+    function init(){
+      addJQueryFunctions();
+      addConsoleFunctions();
+      addStringFunctions();
+      addDateFunctions();
 
-        addJQueryFunctions();
-        addConsoleFunctions();
-        addStringFunctions();
-        addDateFunctions();
+      printScopeDeviderToken = "<b>Attachment</b>";
 
-        printScopeDeviderToken = "<b>Attachment</b>";
+      console.logLevel = console.INFO;
 
-        console.logLevel = console.INFO;
+      resourceOrigin = hostOrigin+ "resources/";
 
-        resourceOrigin = hostOrigin+ "resources/";
+      JIRA='JIRA'
+      PIVOTAL_TRACKER='PIVOTAL_TRACKER'
+      issueTracker = 'UNKNOWN'
+      if( jQuery("meta[name='application-name'][ content='JIRA']").length > 0){
+        issueTracker = JIRA
+      } else if( /.*\pivotaltracker.com\/.*/g.test(document.URL)){
+        issueTracker = PIVOTAL_TRACKER
+      }
+    }
+
+    function main(){
+      //preconditions
+      if(jQuery("#card-print-overlay").length > 0){
+        alert("Print Card already opened!");
+        return;
       }
 
-      function main(){
-        //preconditions
-        if(jQuery("#card-print-overlay").length > 0){
-          alert("Print Card already opened!");
-          return;
-        }
+      var issueKeyList = getSelectedIssueKeyList();
 
-        var issueKeyList = getSelectedIssueKeyList();
+      if(issueKeyList.length <= 0){
+        alert("Please select at least one issue.");
+        return;
+      }
 
-        if(issueKeyList.length <= 0){
-          alert("Please select at least one issue.");
-          return;
-        }
+      // open print preview
+      jQuery("body").append(printOverlayHTML);
+      jQuery("#card-print-overlay").prepend(printOverlayStyle);
 
-        // open print preview
-        jQuery("body").append(printOverlayHTML);
-        jQuery("#card-print-overlay").prepend(printOverlayStyle);
+      if(!isDev){
+        ga('send', 'pageview');
+      }
 
-        if(!isDev){
-          ga('send', 'pageview');
-        }
+      jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
+      renderCards(issueKeyList, function(){
+        jQuery("#card-print-dialog-title").text("Card Print");
+      });
+    }
 
-        jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
-        renderCards(issueKeyList, function(){
-          jQuery("#card-print-dialog-title").text("Card Print");
-          //print();
+    function print(){
+      var printFrame = jQuery("#card-print-dialog-content-iframe");
+      var printWindow = printFrame[0].contentWindow;
+      var printDocument = printWindow.document;
+      if(!isDev){
+          ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length );
+      }
+      printWindow.matchMedia("print").addListener(function() {
+        jQuery(".page",printDocument).each(function(position, page) {
+          var height = jQuery(page).height()
+            - jQuery(page).find(".card-header").outerHeight()
+            - jQuery(page).find(".card-footer").outerHeight()
+            - jQuery(page).find(".content-header").outerHeight()
+            - 40;
+            jQuery(page).find(".description").css("max-height", height+"px");
+            var lineHeight = jQuery(page).find(".description").css("line-height");
+            lineHeight = lineHeight.substring(0, lineHeight.length - 2);
+            var lineClamp = Math.floor(height / lineHeight);
+            jQuery(page).find(".description").css("-webkit-line-clamp", lineClamp+"");
+
+            //jQuery(page).scc("float","left");
+        });
+      });
+      printWindow.print();
+    }
+
+    function hideDescription(hide){
+      var printFrame = jQuery("#card-print-dialog-content-iframe");
+      var printWindow = printFrame[0].contentWindow;
+      var printDocument = printWindow.document;
+      if(hide){
+        jQuery(".description", printDocument).hide();
+      } else {
+        jQuery(".description", printDocument).show();
+      }
+
+      resizeIframe(printFrame);
+    }
+
+    function endableMultiCardPage(enable){
+      var printFrame = jQuery("#card-print-dialog-content-iframe");
+      var printWindow = printFrame[0].contentWindow;
+      var printDocument = printWindow.document;
+      if(enable){
+        jQuery(".page", printDocument).addClass("multiCardPage");
+      } else {
+        jQuery(".page", printDocument).removeClass("multiCardPage");
+      }
+    }
+
+    function renderCards(issueKeyList, callback) {
+
+      var printFrame = jQuery("#card-print-dialog-content-iframe");
+      var printWindow = printFrame[0].contentWindow;
+      var printDocument = printWindow.document;
+
+      printDocument.open();
+      printDocument.write("<head/><body/>");
+
+      jQuery("head", printDocument).append(printPanelPageCSS());
+      jQuery("head", printDocument).append(printPanelCardCSS());
+
+      console.logInfo("load " + issueKeyList.length + " issues...");
+
+      var deferredList = [];
+
+      issueKeyList.each(function(index, issueKey) {
+        var page = newPage(issueKey);
+        page.attr("index",index);
+        page.hide();
+        page.find('.key').text(issueKey);
+        jQuery("body", printDocument).append(page);
+        var deferred = addDeferred(deferredList);
+        getCardData(issueKey, function(cardData) {
+          console.logDebug("cardData: " + cardData);
+          if(!isDev){
+            ga('send', 'event', 'task', 'generate', 'card', cardData.type );
+          }
+          fillCard(page, cardData);
+          page.show();
+          resizeIframe(printFrame);
+          deferred.resolve();
+        });
+      });
+      console.logInfo("wait for issues loaded...");
+
+      applyDeferred(deferredList,function() {
+        console.logInfo("...all issues loaded.");
+        jQuery(printWindow).load(function(){
+          console.logInfo("...all resources loaded.");
+          callback();
+        })
+        printDocument.close();
+        console.logInfo("wait for resources loaded...");
+      });
+    }
+
+    function closePrintPreview(){
+      jQuery("#card-print-overlay").remove();
+      jQuery("#card-print-overlay-style").remove();
+    }
+
+    function getSelectedIssueKeyList() {
+      switch(issueTracker) {
+          case JIRA:
+            return getSelectedIssueKeyListJira();
+          case PIVOTAL_TRACKER:
+            return getSelectedIssueKeyListPivotalTracker();
+      }
+    }
+
+    function getSelectedIssueKeyListJira() {
+
+      //Browse
+      if (/.*\/browse\/.*/g.test(document.URL)) {
+        return jQuery("a[data-issue-key][id='key-val']").map(function() {
+          return jQuery(this).attr('data-issue-key');
         });
       }
 
-      function print(){
-        var printFrame = jQuery("#card-print-dialog-content-iframe");
-        var printWindow = printFrame[0].contentWindow;
-        var printDocument = printWindow.document;
-        if(!isDev){
-            ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length );
-        }
-        printWindow.matchMedia("print").addListener(function() {
-          jQuery(".page",printDocument).each(function(position, page) {
-            var height = jQuery(page).height()
-              - jQuery(page).find(".card-header").outerHeight()
-              - jQuery(page).find(".card-footer").outerHeight()
-              - jQuery(page).find(".content-header").outerHeight()
-              - 40;
-              jQuery(page).find(".description").css("max-height", height+"px");
-              var lineHeight = jQuery(page).find(".description").css("line-height");
-              lineHeight = lineHeight.substring(0, lineHeight.length - 2);
-              var lineClamp = Math.floor(height / lineHeight);
-              jQuery(page).find(".description").css("-webkit-line-clamp", lineClamp+"");
+      // RapidBoard
+      if (/.*\/secure\/RapidBoard.jspa.*/g.test(document.URL)) {
+        return jQuery('div[data-issue-key].ghx-selected').map(function() {
+          return jQuery(this).attr('data-issue-key');
+        });
+      }
 
+      return [];
+    }
+
+    function getSelectedIssueKeyListPivotalTracker() {
+
+      //Single Story
+      if (/.*\/n\/projects\/.*\/stories\/.*/g.test(document.URL)) {
+        return jQuery('.story[data-id]').map(function() {
+          return jQuery(this).attr('data-id');
+        });
+      }
+
+      // Board
+      if (/.*\/n\/projects\/.*/g.test(document.URL)) {
+        return jQuery('.story[data-id]:has(.selected)').map(function() {
+          return jQuery(this).attr('data-id');
+        });
+      }
+
+      return [];
+    }
+
+    function getCardData(issueKey, callback){
+      switch(issueTracker) {
+          case JIRA:
+            return getCardDataJira(issueKey, callback);
+          case PIVOTAL_TRACKER:
+            return getCardDataPivotalTracker(issueKey, callback);
+      }
+
+    }
+
+    function getCardDataJira(issueKey, callback) {
+      getIssueDataJira(issueKey,function(data){
+
+          var issueData = {};
+
+          issueData.key = data.key;
+
+          issueData.type = data.fields.issuetype.name.toLowerCase();
+
+          issueData.summary = data.fields.summary;
+
+          issueData.description = data.renderedFields.description;
+
+          if ( data.fields.assignee ) {
+            issueData.assignee = data.fields.assignee.displayName;
+            var avatarUrl = data.fields.assignee.avatarUrls['48x48'];
+            if(avatarUrl.indexOf("ownerId=") >= 0){
+              issueData.avatarUrl = avatarUrl;
+            }
+          }
+
+          if ( data.fields.duedate ) {
+            issueData.dueDate = new Date(data.fields.duedate).format('D d.m.');
+          }
+
+          issueData.hasAttachment = data.fields.attachment.length > 0;
+          if(issueData.description){
+            var printScope = issueData.description.indexOf(printScopeDeviderToken);
+            if (printScope >= 0) {
+              issueData.description = issueData.description.substring(0, printScope);
+              issueData.hasAttachment = true;
+            }
+          }
+
+          issueData.storyPoints = data.fields.storyPoints;
+
+          issueData.epicKey = data.fields.epicLink;
+          if ( issueData.epicKey ) {
+            getIssueDataJira(issueData.epicKey , function(data) {
+              issueData.epicName = data.fields.epicName;
+            }, false);
+          }
+
+          issueData.url = window.location.origin + "/browse/" + key;
+
+          //check for lrs
+          if(true){
+            console.logInfo("Apply LRS Specifics");
+            //Desired-Date
+            if ( data.fields.desiredDate ) {
+              issueData.dueDate = new Date(data.fields.desiredDate).format('D d.m.');
+            }
+          }
+
+          callback(issueData);
+        });
+    }
+
+    function getCardDataPivotalTracker(issueKey, callback) {
+      getIssueDataPivotalTracker(issueKey,function(data){
+
+          var issueData = {};
+
+          issueData.key = data.id;
+
+          issueData.type = data.kind.toLowerCase();
+
+          issueData.summary = data.name;
+
+          issueData.description = data.description;
+          if(issueData.description){
+            issueData.description = "<p>"+issueData.description
+          }
+
+          if ( data.owned_by && data.owned_by.length > 0 ) {
+            issueData.assignee = data.owner_ids[0].name;
+          }
+
+          if ( data.deadline ) {
+            issueData.dueDate = new Date(data.deadline).format('D d.m.');
+          }
+
+          issueData.hasAttachment = false;
+          if(issueData.description){
+            var printScope = issueData.description.indexOf(printScopeDeviderToken);
+            if (printScope >= 0) {
+              issueData.description = issueData.description.substring(0, printScope);
+              issueData.hasAttachment = true;
+            }
+          }
+
+          issueData.storyPoints = data.estimate;
+
+// TODO
+          // issueData.epicKey = data.fields.epicLink;
+          // if ( issueData.epicKey ) {
+          //   getIssueDataPivotalTracker(issueData.epicKey , function(data) {
+          //     issueData.epicName = data.fields.epicName;
+          //   }, false);
+          // }
+
+          issueData.url = data.url;
+
+          callback(issueData);
+        });
+    }
+
+    function getIssueDataJira(issueKey, callback, async) {
+      async = typeof async !== 'undefined' ? async : true;
+      //https://docs.atlassian.com/jira/REST/latest/
+      var url = '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
+      console.logDebug("IssueUrl: " + url);
+      console.logDebug("Issue: " + issueKey + " Loading...");
+      jQuery.ajax({
+        type: 'GET',
+        url: url,
+        data: {},
+        dataType: 'json',
+        async: async,
+        success: function(responseData){
+          console.logDebug("Issue: " + issueKey + " Loaded!");
+          // add custom fields with field names
+          jQuery.each(responseData.names, function(key, value) {
+            if(key.startsWith("customfield_")){
+              var newFieldId = value.toCamelCase();
+              console.logTrace("add new field: " + newFieldId +" with value from "+ key);
+              responseData.fields[value.toCamelCase()] = responseData.fields[key];
+            }
           });
-        });
-        printWindow.print();
+          callback(responseData);
+        },
+      });
+    }
+
+    function getIssueDataPivotalTracker(issueKey, callback, async) {
+      async = typeof async !== 'undefined' ? async : true;
+      //http://www.pivotaltracker.com/help/api
+      var url = 'https://www.pivotaltracker.com/services/v5/stories/' + issueKey + "?fields=name,kind,description,story_type,owned_by(name),comments(file_attachments(kind)),estimate,deadline";
+      console.logDebug("IssueUrl: " + url);
+      console.logDebug("Issue: " + issueKey + " Loading...");
+      jQuery.ajax({
+        type: 'GET',
+        url: url,
+        data: {},
+        dataType: 'json',
+        async: async,
+        success: function(responseData){
+          console.logDebug("Issue: " + issueKey + " Loaded!");
+          callback(responseData);
+        },
+      });
+    }
+
+    function fillCard(card, data) {
+      //Key
+      card.find('.key').text(data.key);
+
+      //Type
+      card.find(".card").attr("type", data.type);
+
+      //Summary
+      card.find('.summary').text(data.summary);
+
+      //Description
+      card.find('.description').html(data.description);
+
+      //Assignee
+      if ( data.assignee ) {
+        if(data.avatarUrl){
+          card.find(".assignee").css("background-image", "url('" + data.avatarUrl + "')");
+        } else {
+          card.find(".assignee").text(data.assignee[0].toUpperCase());
+        }
+      } else {
+        card.find(".assignee").addClass("hidden");
       }
 
-      function hideDescription(hide){
-        var printFrame = jQuery("#card-print-dialog-content-iframe");
-        var printWindow = printFrame[0].contentWindow;
-        var printDocument = printWindow.document;
-        if(hide){
-          jQuery(".description", printDocument).hide();
-        } else {
-          jQuery(".description", printDocument).show();
-        }
-
-        resizeIframe(printFrame);
+      //Due-Date
+      if ( data.dueDate ) {
+        card.find(".due-date").text(data.dueDate);
+      } else {
+        card.find(".due").addClass("hidden");
       }
 
-      function endableMultiCardPage(enable){
-        var printFrame = jQuery("#card-print-dialog-content-iframe");
-        var printWindow = printFrame[0].contentWindow;
-        var printDocument = printWindow.document;
-        if(enable){
-          jQuery(".page", printDocument).addClass("multiCardPage");
-        } else {
-          jQuery(".page", printDocument).removeClass("multiCardPage");
-        }
+      //Attachment
+      if ( data.hasAttachment ) {
+      } else{
+        card.find('.attachment').addClass('hidden');
       }
 
-      function renderCards(issueKeyList, callback) {
-
-        var printFrame = jQuery("#card-print-dialog-content-iframe");
-        var printWindow = printFrame[0].contentWindow;
-        var printDocument = printWindow.document;
-
-        printDocument.open();
-        printDocument.write("<head/><body/>");
-
-        jQuery("head", printDocument).append(printPanelPageCSS());
-        jQuery("head", printDocument).append(printPanelCardCSS());
-
-        console.logInfo("load " + issueKeyList.length + " issues...");
-
-        var deferredList = [];
-
-        issueKeyList.each(function(position, issueKey) {
-          var page = newPage(issueKey);
-          page.hide();
-          page.find('.key').text(issueKey);
-          jQuery("body", printDocument).append(page);
-          var deferred = addDeferred(deferredList);
-          loadCardDataJSON(issueKey, function(responseData) {
-            fillCardWithJSONData(page, responseData);
-            page.show();
-            resizeIframe(printFrame);
-            deferred.resolve();
-          });
-        });
-        console.logInfo("wait for issues loaded...");
-
-        applyDeferred(deferredList,function() {
-          console.logInfo("...all issues loaded.");
-          jQuery(printWindow).load(function(){
-            console.logInfo("...all resources loaded.");
-            callback();
-          })
-          printDocument.close();
-          console.logInfo("wait for resources loaded...");
-        });
+      //Story Points
+      if (data.storyPoints) {
+        card.find(".estimate").text(data.storyPoints);
+      } else {
+        card.find(".estimate").addClass("hidden");
       }
 
-      function closePrintPreview(){
-        jQuery("#card-print-overlay").remove();
-        jQuery("#card-print-overlay-style").remove();
+      //Epic
+      if ( data.epicKey ) {
+        card.find(".epic-key").text(data.epicKey);
+        card.find(".epic-name").text(data.epicName);
+      } else {
+        card.find(".epic").addClass("hidden");
       }
 
+      //QR-Code
+      var qrCodeUrl = 'https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=' + data.url;
+      card.find(".qr-code").css("background-image", "url('" + qrCodeUrl + "')");
+    }
 
-      function getSelectedIssueKeyList() {
-
-        //JIRA
-        if (jQuery("meta[name='application-name'][ content='JIRA']").length > 0) {
-          //Browse
-          if (/.*\/browse\/.*/g.test(document.URL)) {
-            return jQuery("a[data-issue-key][id='key-val']").map(function() {
-              return jQuery(this).attr('data-issue-key');
-            });
-          }
-
-          // RapidBoard
-          if (/.*\/secure\/RapidBoard.jspa.*/g.test(document.URL)) {
-            return jQuery('div[data-issue-key].ghx-selected').map(function() {
-              return jQuery(this).attr('data-issue-key');
-            });
-          }
-        }
-
-        return [];
-      }
-
-      function fillCardWithJSONData(card, data) {
-        //Key
-        var key = data.key;
-        console.logDebug("key: " + key);
-        card.find('.key').text(key);
-
-        //Type
-        var type = data.fields.issuetype.name.toLowerCase();
-        console.logDebug("type: " + type);
-        card.find(".card").attr("type", type);
-
-        if(!isDev){
-          ga('send', 'event', 'task', 'generate', 'card', type );
-        }
-
-        //Summary
-        var summary = data.fields.summary;
-        console.logDebug("summary: " + summary);
-        card.find('.summary').text(summary);
-
-        //Description
-        var description = data.renderedFields.description;
-        console.logDebug("description: " + description);
-        card.find('.description').html(description);
-
-        //Assignee
-        var assignee = data.fields.assignee;
-        console.logDebug("assignee: " + assignee);
-        if ( assignee ) {
-          var avatarUrl = assignee.avatarUrls['48x48'];
-          if(avatarUrl.indexOf("ownerId=") < 0){
-            var displayName = assignee.displayName;
-            card.find(".assignee").text(displayName[0].toUpperCase());
-          }
-          else {
-            card.find(".assignee").css("background-image", "url('" + avatarUrl + "')");
-          }
-        } else {
-          card.find(".assignee").addClass("hidden");
-        }
-
-        //Due-Date
-        var duedate = data.fields.duedate;
-        console.logDebug("duedate: " + duedate);
-        if ( duedate ) {
-          var renderedDuedate = new Date(duedate).format('D d.m.');
-          card.find(".due-date").text(renderedDuedate);
-        } else {
-          card.find(".due").addClass("hidden");
-        }
-
-        //Attachment
-        var hasAttachment = false;
-        var indexOfPrintScopeDeviderToken =  description.indexOf(printScopeDeviderToken);
-        if (indexOfPrintScopeDeviderToken >= 0) {
-          var descriptionWithoutAttachment = description.substring(0, indexOfPrintScopeDeviderToken);
-          card.find('.description').html(descriptionWithoutAttachment);
-          hasAttachment = true;
-        } else if (data.fields.attachment.length > 0) {
-          hasAttachment = true;
-        }
-        console.logDebug("hasAttachment: " + hasAttachment);
-        if ( hasAttachment ) {
-        } else{
-          card.find('.attachment').addClass('hidden');
-        }
-
-        //Story Points
-        var storyPoints = data.fields.storyPoints;
-        console.logDebug("storyPoints: " + storyPoints);
-        if (storyPoints) {
-          card.find(".estimate").text(storyPoints);
-        } else {
-          card.find(".estimate").addClass("hidden");
-        }
-
-        //Epic
-        var epicKey = data.fields.epicLink;
-        console.logDebug("epicKey: " + epicKey);
-        if ( epicKey ) {
-          card.find(".epic-key").text(epicKey);
-          loadCardDataJSON(epicKey, function(responseData) {
-            var epicName = responseData.fields.epicName;
-            console.logTrace("epicName: " + epicName);
-            card.find(".epic-name").text(epicName);
-          }, false);
-        } else {
-          card.find(".epic").addClass("hidden");
-        }
-
-        //QR-Code
-        var qrCodeImageUrl = 'https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=' + window.location.origin + "/browse/" + key;
-        console.logTrace("qrCodeImageUrl: " + qrCodeImageUrl);
-        card.find(".qr-code").css("background-image", "url('" + qrCodeImageUrl + "')");
-
-        //handle Site specifics
-        switch (window.location.hostname) {
-          case "lrs-support.com": fillCardWithJSONDataLRS(card, data);
-          break;
-          default:
-          }
-
-        }
-
-        function fillCardWithJSONDataLRS(card, data) {
-          console.logInfo("Apply LRS Specifics");
-          //Desired-Date
-          var desiredDate = data.fields.desiredDate;
-          console.logDebug("desiredDate: " + desiredDate);
-          if ( desiredDate ) {
-            var renderedDesiredDate = new Date(desiredDate).format('D d.m.');
-            card.find(".due-date").text(renderedDesiredDate);
-            card.find(".due").removeClass("hidden");
-          } else {
-            card.find(".due").addClass("hidden");
-          }
-        }
-
-
-        function loadCardDataJSON(issueKey, callback) {
-
-          //https://docs.atlassian.com/jira/REST/latest/
-          var url = '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
-          console.logDebug("IssueUrl: " + window.location.hostname + url);
-          console.logDebug("Issue: " + issueKey + " Loading...");
-          return  jQuery.ajax({
-            type: 'GET',
-            url: url,
-            dataType: 'json',
-            success: function(responseData){
-              fields = responseData.fields;
-              // add custom fields with field names
-              jQuery.each(responseData.names, function(key, value) {
-                if(key.startsWith("customfield_")){
-                  var newFieldId = value.toCamelCase();
-                  console.logTrace("add new field: " + newFieldId +" with value from "+ key);
-                  fields[value.toCamelCase()] = fields[key];
-                }
-              });
-              console.logDebug("Issue: " + issueKey + " Loaded!");
-              callback(responseData);
-            },
-            data: {},
-          });
-        }
-
-
-
-      //############################################################################################################################
+    //############################################################################################################################
       //############################################################################################################################
       //############################################################################################################################
 
@@ -1178,13 +1296,4 @@
         iframe.height(iframe[0].contentWindow.document.body.scrollHeight);
       }
 
-    } catch (err) {
-      console.logError(err.message);
-      if(!isDev){
-        ga('send', 'exception', {
-          'exDescription': err.message,
-          'exFatal': true
-        });
-      }
-    };
   })();
