@@ -159,8 +159,7 @@
       console.logInfo("load " + issueKeyList.length + " issues...");
 
       var deferredList = [];
-
-      issueKeyList.each(function(index, issueKey) {
+      jQuery.each(issueKeyList,function(index, issueKey) {
         var page = newPage(issueKey);
         page.attr("index",index);
         page.hide();
@@ -225,16 +224,15 @@
     }
 
     function getSelectedIssueKeyListPivotalTracker() {
-
       //Single Story
-      if (/.*\/n\/projects\/.*\/stories\/.*/g.test(document.URL)) {
-        return jQuery('.story[data-id]').map(function() {
-          return jQuery(this).attr('data-id');
-        });
+      if (/.*\/stories\/.*/g.test(document.URL)) {
+
+
+        return [document.URL.replace(/.*\/stories\/(.*)\??/,'$1')];
       }
 
       // Board
-      if (/.*\/n\/projects\/.*/g.test(document.URL)) {
+      if (/.*\/projects\/.*/g.test(document.URL)) {
         return jQuery('.story[data-id]:has(.selected)').map(function() {
           return jQuery(this).attr('data-id');
         });
