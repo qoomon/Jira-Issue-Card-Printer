@@ -1,5 +1,5 @@
   (function () {
-    var version = "3.2.3";
+    var version = "3.4.0";
     console.log("Version: " + version);
 
     var isDev = /.*jira.atlassian.com\/secure\/RapidBoard.jspa\?.*projectKey=ANERDS.*/g.test(document.URL) // Jira
@@ -56,6 +56,14 @@
 
       resourceOrigin = hostOrigin+ "resources/";
 
+      JIRA='JIRA'
+      PIVOTAL_TRACKER='PIVOTAL_TRACKER'
+      issueTracker = 'UNKNOWN'
+      if( jQuery("meta[name='application-name'][ content='JIRA']").length > 0){
+        issueTracker = JIRA
+      } else if( /.*\pivotaltracker.com\/.*/g.test(document.URL)){
+        issueTracker = PIVOTAL_TRACKER
+      }
     }
 
     function main(){
@@ -106,8 +114,7 @@
             var lineClamp = Math.floor(height / lineHeight);
             jQuery(page).find(".description").css("-webkit-line-clamp", lineClamp+"");
 
-            jQuery(page).width("40%");
-            jQuery(page).scc("float","left");
+            //jQuery(page).scc("float","left");
         });
       });
       printWindow.print();
@@ -190,44 +197,64 @@
     }
 
     function getSelectedIssueKeyList() {
-      // jira
-      if( true){
-        return getSelectedJiraIssueKeyList();
+      switch(issueTracker) {
+          case JIRA:
+            return getSelectedIssueKeyListJira();
+          case PIVOTAL_TRACKER:
+            return getSelectedIssueKeyListPivotalTracker();
       }
     }
 
-    function getSelectedJiraIssueKeyList() {
+    function getSelectedIssueKeyListJira() {
 
-      //JIRA
-      if (jQuery("meta[name='application-name'][ content='JIRA']").length > 0) {
-        //Browse
-        if (/.*\/browse\/.*/g.test(document.URL)) {
-          return jQuery("a[data-issue-key][id='key-val']").map(function() {
-            return jQuery(this).attr('data-issue-key');
-          });
-        }
+      //Browse
+      if (/.*\/browse\/.*/g.test(document.URL)) {
+        return jQuery("a[data-issue-key][id='key-val']").map(function() {
+          return jQuery(this).attr('data-issue-key');
+        });
+      }
 
-        // RapidBoard
-        if (/.*\/secure\/RapidBoard.jspa.*/g.test(document.URL)) {
-          return jQuery('div[data-issue-key].ghx-selected').map(function() {
-            return jQuery(this).attr('data-issue-key');
-          });
-        }
+      // RapidBoard
+      if (/.*\/secure\/RapidBoard.jspa.*/g.test(document.URL)) {
+        return jQuery('div[data-issue-key].ghx-selected').map(function() {
+          return jQuery(this).attr('data-issue-key');
+        });
+      }
+
+      return [];
+    }
+
+    function getSelectedIssueKeyListPivotalTracker() {
+
+      //Single Story
+      if (/.*\/n\/projects\/.*\/stories\/.*/g.test(document.URL)) {
+        return jQuery('.story[data-id]').map(function() {
+          return jQuery(this).attr('data-id');
+        });
+      }
+
+      // Board
+      if (/.*\/n\/projects\/.*/g.test(document.URL)) {
+        return jQuery('.story[data-id]:has(.selected)').map(function() {
+          return jQuery(this).attr('data-id');
+        });
       }
 
       return [];
     }
 
     function getCardData(issueKey, callback){
-      //Jira
-      if(true){
-        getJiraCardData(issueKey, callback);
+      switch(issueTracker) {
+          case JIRA:
+            return getCardDataJira(issueKey, callback);
+          case PIVOTAL_TRACKER:
+            return getCardDataPivotalTracker(issueKey, callback);
       }
 
     }
 
-    function getJiraCardData(issueKey, callback) {
-      getJiraIssueData(issueKey,function(data){
+    function getCardDataJira(issueKey, callback) {
+      getIssueDataJira(issueKey,function(data){
 
           var issueData = {};
 
@@ -252,17 +279,19 @@
           }
 
           issueData.hasAttachment = data.fields.attachment.length > 0;
-          var printScope = issueData.description.indexOf(printScopeDeviderToken);
-          if (printScope >= 0) {
-            issueData.description = issueData.description.substring(0, printScope);
-            issueData.hasAttachment = true;
+          if(issueData.description){
+            var printScope = issueData.description.indexOf(printScopeDeviderToken);
+            if (printScope >= 0) {
+              issueData.description = issueData.description.substring(0, printScope);
+              issueData.hasAttachment = true;
+            }
           }
 
           issueData.storyPoints = data.fields.storyPoints;
 
           issueData.epicKey = data.fields.epicLink;
           if ( issueData.epicKey ) {
-            getJiraIssueData(issueData.epicKey , function(data) {
+            getIssueDataJira(issueData.epicKey , function(data) {
               issueData.epicName = data.fields.epicName;
             }, false);
           }
@@ -282,11 +311,60 @@
         });
     }
 
-    function getJiraIssueData(issueKey, callback, async) {
+    function getCardDataPivotalTracker(issueKey, callback) {
+      getIssueDataPivotalTracker(issueKey,function(data){
+
+          var issueData = {};
+
+          issueData.key = data.id;
+
+          issueData.type = data.kind.toLowerCase();
+
+          issueData.summary = data.name;
+
+          issueData.description = data.description;
+          if(issueData.description){
+            issueData.description = "<p>"+issueData.description
+          }
+
+          if ( data.owned_by && data.owned_by.length > 0 ) {
+            issueData.assignee = data.owner_ids[0].name;
+          }
+
+          if ( data.deadline ) {
+            issueData.dueDate = new Date(data.deadline).format('D d.m.');
+          }
+
+          issueData.hasAttachment = false;
+          if(issueData.description){
+            var printScope = issueData.description.indexOf(printScopeDeviderToken);
+            if (printScope >= 0) {
+              issueData.description = issueData.description.substring(0, printScope);
+              issueData.hasAttachment = true;
+            }
+          }
+
+          issueData.storyPoints = data.estimate;
+
+// TODO
+          // issueData.epicKey = data.fields.epicLink;
+          // if ( issueData.epicKey ) {
+          //   getIssueDataPivotalTracker(issueData.epicKey , function(data) {
+          //     issueData.epicName = data.fields.epicName;
+          //   }, false);
+          // }
+
+          issueData.url = data.url;
+
+          callback(issueData);
+        });
+    }
+
+    function getIssueDataJira(issueKey, callback, async) {
       async = typeof async !== 'undefined' ? async : true;
       //https://docs.atlassian.com/jira/REST/latest/
       var url = '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
-      console.logDebug("IssueUrl: " + window.location.hostname + url);
+      console.logDebug("IssueUrl: " + url);
       console.logDebug("Issue: " + issueKey + " Loading...");
       jQuery.ajax({
         type: 'GET',
@@ -304,6 +382,25 @@
               responseData.fields[value.toCamelCase()] = responseData.fields[key];
             }
           });
+          callback(responseData);
+        },
+      });
+    }
+
+    function getIssueDataPivotalTracker(issueKey, callback, async) {
+      async = typeof async !== 'undefined' ? async : true;
+      //http://www.pivotaltracker.com/help/api
+      var url = 'https://www.pivotaltracker.com/services/v5/stories/' + issueKey + "?fields=name,kind,description,story_type,owned_by(name),comments(file_attachments(kind)),estimate,deadline";
+      console.logDebug("IssueUrl: " + url);
+      console.logDebug("Issue: " + issueKey + " Loading...");
+      jQuery.ajax({
+        type: 'GET',
+        url: url,
+        data: {},
+        dataType: 'json',
+        async: async,
+        success: function(responseData){
+          console.logDebug("Issue: " + issueKey + " Loaded!");
           callback(responseData);
         },
       });
