@@ -294,7 +294,7 @@
             }, false);
           }
 
-          issueData.url = window.location.origin + "/browse/" + key;
+          issueData.url = window.location.origin + "/browse/" + issueData.key;
 
           //check for lrs
           if(true){
