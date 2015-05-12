@@ -2,28 +2,27 @@
         var version = "3.2.3";
         console.log("Version: " + version);
 
-        var isDev = typeof isDev !== 'undefined' && isDev ;
-        if (/.*projectKey=ANERDS.*/g.test(document.URL)) {
-          isDev = true;
-        }
+        var isDev = /.*jira.atlassian.com\/secure\/RapidBoard.jspa\?.*projectKey=ANERDS.*/g.test(document.URL) // Jira
+                 || /.*pivotaltracker.com\/n\/projects\/510733.*/g.test(document.URL); // PivotTracker
 
         var hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
         if(isDev){
           console.log("DEVELOPMENT");
           hostOrigin = "https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/";
+        } else {
+          //cors = "https://cors-anywhere.herokuapp.com/";
+          //$("#card").load("https://cors-anywhere.herokuapp.com/"+"https://qoomon.github.io/Jira-Issue-Card-Printer/card.html");
+
+          // <GoogleAnalytics>
+          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+          ga('create', 'UA-50840116-3', {'alwaysSendReferrer': true});
+          ga('set', 'page', '/cardprinter');
         }
 
-        //cors = "https://cors-anywhere.herokuapp.com/";
-        //$("#card").load("https://cors-anywhere.herokuapp.com/"+"https://qoomon.github.io/Jira-Issue-Card-Printer/card.html");
-
-        // <GoogleAnalytics>
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-        ga('create', 'UA-50840116-3', {'alwaysSendReferrer': true});
-        ga('set', 'page', '/cardprinter');
 
         try {
 
@@ -49,6 +48,7 @@
             console.logLevel = console.INFO;
 
             resourceOrigin = hostOrigin+ "resources/";
+
           }
 
           function main(){
@@ -76,9 +76,7 @@
             jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
             renderCards(issueKeyList, function(){
               jQuery("#card-print-dialog-title").text("Card Print");
-              //print();
             });
-            setColumnCount(1);
           }
 
           function print(){
@@ -117,25 +115,6 @@
             }
           }
 
-          function setColumnCount(columnCount){
-            var printFrame = jQuery("#card-print-dialog-content-iframe");
-            var printWindow = printFrame[0].contentWindow;
-            var printDocument = printWindow.document;
-
-            jQuery(".column > .page",printDocument).unwrap();
-            jQuery(".page",printDocument).sort(function(a, b) {
-                return parseInt(jQuery(a).attr("index")) > parseInt(jQuery(b).attr("index")) ? 1 : -1;
-              }).appendTo(jQuery("body",printDocument));
-
-            var columns = []
-            for(var columnIndex = 0; columnIndex < columnCount; columnIndex+=1) {
-              columns[columnIndex] = jQuery(".page:nth-child("+columnCount+"n+"+columnIndex+")", printDocument);
-            }
-            for(var columnIndex = 0; columnIndex < columnCount; columnIndex+=1) {
-              columns[columnIndex].wrapAll("<div class='column' style='width: calc(100% / "+columnCount+" - "+((columnCount-1)/columnCount)+"cm)'></div>");
-            }
-          }
-
           function renderCards(issueKeyList, callback) {
 
             var printFrame = jQuery("#card-print-dialog-content-iframe");
@@ -159,8 +138,12 @@
               page.find('.key').text(issueKey);
               jQuery("body", printDocument).append(page);
               var deferred = addDeferred(deferredList);
-              loadCardDataJSON(issueKey, function(responseData) {
-                fillCardWithJSONData(page, responseData);
+              getCardData(issueKey, function(cardData) {
+                console.logDebug("cardData: " + cardData);
+                if(!isDev){
+                  ga('send', 'event', 'task', 'generate', 'card', cardData.type );
+                }
+                fillCard(page, cardData);
                 page.show();
                 resizeIframe(printFrame);
                 deferred.resolve();
@@ -184,8 +167,14 @@
             jQuery("#card-print-overlay-style").remove();
           }
 
-
           function getSelectedIssueKeyList() {
+            // jira
+            if( true){
+              return getSelectedJiraIssueKeyList();
+            }
+          }
+
+          function getSelectedJiraIssueKeyList() {
 
             //JIRA
             if (jQuery("meta[name='application-name'][ content='JIRA']").length > 0) {
@@ -207,152 +196,153 @@
             return [];
           }
 
-          function fillCardWithJSONData(card, data) {
-            //Key
-            var key = data.key;
-            console.logDebug("key: " + key);
-            card.find('.key').text(key);
-
-            //Type
-            var type = data.fields.issuetype.name.toLowerCase();
-            console.logDebug("type: " + type);
-            card.find(".card").attr("type", type);
-
-            if(!isDev){
-              ga('send', 'event', 'task', 'generate', 'card', type );
+          function getCardData(issueKey, callback){
+            //Jira
+            if(true){
+              getJiraCardData(issueKey, callback);
             }
 
+          }
+
+          function getJiraCardData(issueKey, callback) {
+            getJiraIssueData(issueKey,function(data){
+
+                var issueData = {};
+
+                issueData.key = data.key;
+
+                issueData.type = data.fields.issuetype.name.toLowerCase();
+
+                issueData.summary = data.fields.summary;
+
+                issueData.description = data.renderedFields.description;
+
+                if ( data.fields.assignee ) {
+                  issueData.assignee = data.fields.assignee.displayName;
+                  var avatarUrl = data.fields.assignee.avatarUrls['48x48'];
+                  if(avatarUrl.indexOf("ownerId=") >= 0){
+                    issueData.avatarUrl = avatarUrl;
+                  }
+                }
+
+                if ( data.fields.duedate ) {
+                  issueData.dueDate = new Date(data.fields.duedate).format('D d.m.');
+                }
+
+                issueData.hasAttachment = data.fields.attachment.length > 0;
+                var printScope = issueData.description.indexOf(printScopeDeviderToken);
+                if (printScope >= 0) {
+                  issueData.description = issueData.description.substring(0, printScope);
+                  issueData.hasAttachment = true;
+                }
+
+                issueData.storyPoints = data.fields.storyPoints;
+
+                issueData.epicKey = data.fields.epicLink;
+                if ( issueData.epicKey ) {
+                  getJiraIssueData(issueData.epicKey , function(data) {
+                    issueData.epicName = data.fields.epicName;
+                  }, false);
+                }
+
+                issueData.url = window.location.origin + "/browse/" + key;
+
+                //check for lrs
+                if(true){
+                  console.logInfo("Apply LRS Specifics");
+                  //Desired-Date
+                  if ( data.fields.desiredDate ) {
+                    issueData.dueDate = new Date(data.fields.desiredDate).format('D d.m.');
+                  }
+                }
+
+                callback(issueData);
+              });
+          }
+
+          function getJiraIssueData(issueKey, callback, async) {
+            async = typeof async !== 'undefined' ? async : true;
+            //https://docs.atlassian.com/jira/REST/latest/
+            var url = '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
+            console.logDebug("IssueUrl: " + window.location.hostname + url);
+            console.logDebug("Issue: " + issueKey + " Loading...");
+            jQuery.ajax({
+              type: 'GET',
+              url: url,
+              data: {},
+              dataType: 'json',
+              async: async,
+              success: function(responseData){
+                console.logDebug("Issue: " + issueKey + " Loaded!");
+                // add custom fields with field names
+                jQuery.each(responseData.names, function(key, value) {
+                  if(key.startsWith("customfield_")){
+                    var newFieldId = value.toCamelCase();
+                    console.logTrace("add new field: " + newFieldId +" with value from "+ key);
+                    responseData.fields[value.toCamelCase()] = responseData.fields[key];
+                  }
+                });
+                callback(responseData);
+              },
+            });
+          }
+
+          function fillCard(card, data) {
+            //Key
+            card.find('.key').text(data.key);
+
+            //Type
+            card.find(".card").attr("type", data.type);
+
             //Summary
-            var summary = data.fields.summary;
-            console.logDebug("summary: " + summary);
-            card.find('.summary').text(summary);
+            card.find('.summary').text(data.summary);
 
             //Description
-            var description = data.renderedFields.description;
-            console.logDebug("description: " + description);
-            card.find('.description').html(description);
+            card.find('.description').html(data.description);
 
             //Assignee
-            var assignee = data.fields.assignee;
-            console.logDebug("assignee: " + assignee);
-            if ( assignee ) {
-              var avatarUrl = assignee.avatarUrls['48x48'];
-              if(avatarUrl.indexOf("ownerId=") < 0){
-                var displayName = assignee.displayName;
-                card.find(".assignee").text(displayName[0].toUpperCase());
-              }
-              else {
-                card.find(".assignee").css("background-image", "url('" + avatarUrl + "')");
+            if ( data.assignee ) {
+              if(data.avatarUrl){
+                card.find(".assignee").css("background-image", "url('" + data.avatarUrl + "')");
+              } else {
+                card.find(".assignee").text(data.assignee[0].toUpperCase());
               }
             } else {
               card.find(".assignee").addClass("hidden");
             }
 
             //Due-Date
-            var duedate = data.fields.duedate;
-            console.logDebug("duedate: " + duedate);
-            if ( duedate ) {
-              var renderedDuedate = new Date(duedate).format('D d.m.');
-              card.find(".due-date").text(renderedDuedate);
+            if ( data.dueDate ) {
+              card.find(".due-date").text(data.dueDate);
             } else {
               card.find(".due").addClass("hidden");
             }
 
             //Attachment
-            var hasAttachment = false;
-            var indexOfPrintScopeDeviderToken =  description.indexOf(printScopeDeviderToken);
-            if (indexOfPrintScopeDeviderToken >= 0) {
-              var descriptionWithoutAttachment = description.substring(0, indexOfPrintScopeDeviderToken);
-              card.find('.description').html(descriptionWithoutAttachment);
-              hasAttachment = true;
-            } else if (data.fields.attachment.length > 0) {
-              hasAttachment = true;
-            }
-            console.logDebug("hasAttachment: " + hasAttachment);
-            if ( hasAttachment ) {
+            if ( data.hasAttachment ) {
             } else{
               card.find('.attachment').addClass('hidden');
             }
 
             //Story Points
-            var storyPoints = data.fields.storyPoints;
-            console.logDebug("storyPoints: " + storyPoints);
-            if (storyPoints) {
-              card.find(".estimate").text(storyPoints);
+            if (data.storyPoints) {
+              card.find(".estimate").text(data.storyPoints);
             } else {
               card.find(".estimate").addClass("hidden");
             }
 
             //Epic
-            var epicKey = data.fields.epicLink;
-            console.logDebug("epicKey: " + epicKey);
-            if ( epicKey ) {
-              card.find(".epic-key").text(epicKey);
-              loadCardDataJSON(epicKey, function(responseData) {
-                var epicName = responseData.fields.epicName;
-                console.logTrace("epicName: " + epicName);
-                card.find(".epic-name").text(epicName);
-              }, false);
+            if ( data.epicKey ) {
+              card.find(".epic-key").text(data.epicKey);
+              card.find(".epic-name").text(data.epicName);
             } else {
               card.find(".epic").addClass("hidden");
             }
 
             //QR-Code
-            var qrCodeImageUrl = 'https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=' + window.location.origin + "/browse/" + key;
-            console.logTrace("qrCodeImageUrl: " + qrCodeImageUrl);
-            card.find(".qr-code").css("background-image", "url('" + qrCodeImageUrl + "')");
-
-            //handle Site specifics
-            switch (window.location.hostname) {
-              case "lrs-support.com": fillCardWithJSONDataLRS(card, data);
-              break;
-              default:
-              }
-            }
-
-            function fillCardWithJSONDataLRS(card, data) {
-              console.logInfo("Apply LRS Specifics");
-              //Desired-Date
-              var desiredDate = data.fields.desiredDate;
-              console.logDebug("desiredDate: " + desiredDate);
-              if ( desiredDate ) {
-                var renderedDesiredDate = new Date(desiredDate).format('D d.m.');
-                card.find(".due-date").text(renderedDesiredDate);
-                card.find(".due").removeClass("hidden");
-              } else {
-                card.find(".due").addClass("hidden");
-              }
-            }
-
-
-            function loadCardDataJSON(issueKey, callback) {
-
-              //https://docs.atlassian.com/jira/REST/latest/
-              var url = '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
-              console.logDebug("IssueUrl: " + window.location.hostname + url);
-              console.logDebug("Issue: " + issueKey + " Loading...");
-              return  jQuery.ajax({
-                type: 'GET',
-                url: url,
-                dataType: 'json',
-                success: function(responseData){
-                  fields = responseData.fields;
-                  // add custom fields with field names
-                  jQuery.each(responseData.names, function(key, value) {
-                    if(key.startsWith("customfield_")){
-                      var newFieldId = value.toCamelCase();
-                      console.logTrace("add new field: " + newFieldId +" with value from "+ key);
-                      fields[value.toCamelCase()] = fields[key];
-                    }
-                  });
-                  console.logDebug("Issue: " + issueKey + " Loaded!");
-                  callback(responseData);
-                },
-                data: {},
-              });
-            }
-
-
+            var qrCodeUrl = 'https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=' + data.url;
+            card.find(".qr-code").css("background-image", "url('" + qrCodeUrl + "')");
+          }
 
           //############################################################################################################################
           //############################################################################################################################
@@ -384,7 +374,6 @@
                 <label style="margin-right:10px"><input id="card-scale-range" type="range" min="0.4" max="1.4" step="0.05" value="1.0" />Scale</label>
                 <label style="margin-right:10px"><input id="hide-description-checkbox" type="checkbox"/>Hide Description</label>
                 <label style="margin-right:10px"><input id="multi-card-page-checkbox" type="checkbox"/>Multi Card Page</label>
-                <label style="margin-right:10px"><input id="two-column-page-checkbox" type="checkbox"/>Two Column Page</label>
                 <input id="card-print-dialog-print" type="button" class="aui-button aui-button-primary" value="Print" />
                 <a id="card-print-dialog-cancel" title="Cancel" class="cancel">Cancel</a>
               </div>
@@ -411,14 +400,6 @@
             result.find("#multi-card-page-checkbox")
             .click(function() {
               enableMultiCardPage(this.checked);
-              return true;
-            });
-
-            // enable two column page
-
-            result.find("#two-column-page-checkbox")
-            .click(function() {
-              setColumnCount(this.checked ? 2 : 1);
               return true;
             });
 
@@ -604,22 +585,6 @@
 
             body {
               padding: 0.5cm;
-            }
-
-            .column{
-              display:inline-block;
-              float: left;
-              padding: 0.0cm;
-              margin: 0.0cm;
-              margin-right: 0.5cm;
-              margin-left: 0.5cm;
-            }
-
-            .column:first-of-type{
-              margin-left: 0.0cm;
-            }
-            .column:last-of-type {
-              margin-right: 0.0cm;
             }
 
             .page {
