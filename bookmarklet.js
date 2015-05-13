@@ -91,6 +91,7 @@
       jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
       renderCards(issueKeyList, function(){
         jQuery("#card-print-dialog-title").text("Card Print");
+        print();
       });
     }
 
@@ -104,11 +105,14 @@
 
       //jQuery("html", printDocument).css("font-size", + 0.5 +"cm");
 
+      var orientationCSS = jQuery('<style type="text/css" media="print">@page{size: landscape;}</style>')
+      // jQuery("head",printDocument).append(orientationCSS);
+
       printWindow.matchMedia("print").addListener(function() {
         jQuery(".page",printDocument).each(function(position, page) {
-          // jQuery(page).css("width","50%");
-          // jQuery(page).css("height","50%");
-          // jQuery(page).css("float","left");
+          jQuery(page).css("width","calc( 50% - 1cm )");
+          jQuery(page).css("height","calc( 50% - 1cm )");
+          jQuery(page).css("float","left");
 
           var height = jQuery(page).height()
             - jQuery(page).find(".card-header").outerHeight()
@@ -122,6 +126,18 @@
             jQuery(page).find(".description").css("-webkit-line-clamp", lineClamp+"");
         });
       });
+
+      jQuery(".page:odd",printDocument).each(function(position, page) {
+        jQuery(page).css("margin-left","2cm");
+      });
+      jQuery(".page:nth-child(4n+3)",printDocument).each(function(position, page) {
+        jQuery(page).css("margin-top","2cm");
+      });
+
+      jQuery(".page:nth-child(4n+4)",printDocument).each(function(position, page) {
+        jQuery(page).css("margin-top","2cm");
+      });
+
       printWindow.print();
     }
 
