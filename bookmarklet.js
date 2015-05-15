@@ -2,37 +2,23 @@
     var version = "3.5.0";
     console.log("Version: " + version);
 
-    var isDev = /.*jira.atlassian.com\/secure\/RapidBoard.jspa\?.*projectKey=ANERDS.*/g.test(document.URL) // Jira
-        || /.*pivotaltracker.com\/n\/projects\/510733.*/g.test(document.URL); // PivotTracker
-
-    var hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
-    if (isDev) {
-        console.log("DEVELOPMENT");
-        hostOrigin = "https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/";
-    } else {
-        //cors = "https://cors-anywhere.herokuapp.com/";
-        //$("#card").load("https://cors-anywhere.herokuapp.com/"+"https://qoomon.github.io/Jira-Issue-Card-Printer/card.html");
-
-        // <GoogleAnalytics>
-        (function(i, s, o, g, r, a, m) {
-            i['GoogleAnalyticsObject'] = r;
-            i[r] = i[r] || function() {
-                (i[r].q = i[r].q || []).push(arguments)
-            }, i[r].l = 1 * new Date();
-            a = s.createElement(o),
-                m = s.getElementsByTagName(o)[0];
-            a.async = 1;
-            a.src = g;
-            m.parentNode.insertBefore(a, m)
-        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
-
-        ga('create', 'UA-50840116-3', {
-            'alwaysSendReferrer': true
-        });
-        ga('set', 'page', '/cardprinter');
-    }
-
     try {
+        var isDev = /.*jira.atlassian.com\/secure\/RapidBoard.jspa\?.*projectKey=ANERDS.*/g.test(document.URL) // Jira
+            || /.*pivotaltracker.com\/n\/projects\/510733.*/g.test(document.URL); // PivotTracker
+        var isProd = !isDev;
+
+        if (isProd){
+            //cors = "https://cors-anywhere.herokuapp.com/";
+            //$("#card").load("https://cors-anywhere.herokuapp.com/"+"https://qoomon.github.io/Jira-Issue-Card-Printer/card.html");
+            initGoogleAnalytics();
+        }
+
+        var hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
+        if (isDev) {
+            console.log("DEVELOPMENT");
+            hostOrigin = "https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/";
+        }
+
         // load jQuery
         if (window.jQuery === undefined) {
             appendScript('//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js');
@@ -43,9 +29,10 @@
             init();
             main();
         });
+
     } catch (err) {
         console.log(err.message);
-        if (!isDev) {
+        if (isProd) {
             ga('send', 'exception', {
                 'exDescription': err.message,
                 'exFatal': true
@@ -54,18 +41,14 @@
     }
 
     function init() {
-        addJQueryFunctions();
-        addConsoleFunctions();
         addStringFunctions();
         addDateFunctions();
 
-        printScopeDeviderToken = "<b>Attachment</b>";
+        var printScopeDeviderToken = "<b>Attachment</b>";
 
-        console.logLevel = console.INFO;
+        var resourceOrigin = hostOrigin + "resources/";
 
-        resourceOrigin = hostOrigin + "resources/";
-
-        appFunctions = {};
+        var appFunctions = {};
         if (jQuery("meta[name='application-name'][ content='JIRA']").length > 0) {
             appFunctions = jiraFunctions;
         } else if (/.*\pivotaltracker.com\/.*/g.test(document.URL)) {
@@ -91,7 +74,7 @@
         jQuery("body").append(printOverlayHTML);
         jQuery("#card-print-overlay").prepend(printOverlayStyle);
 
-        if (!isDev) {
+        if (isProd) {
             ga('send', 'pageview');
         }
 
@@ -106,7 +89,7 @@
         var printFrame = jQuery("#card-print-dialog-content-iframe");
         var printWindow = printFrame[0].contentWindow;
         var printDocument = printWindow.document;
-        if (!isDev) {
+        if (isProd) {
             ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length);
         }
 
@@ -116,7 +99,19 @@
             // jQuery("head",printDocument).append(orientationCSS);
 
         printWindow.matchMedia("print").addListener(function() {
+          var htmlWidth = jQuery("html", printDocument).css("font-size").replace("cm", "") * jQuery("html", printDocument).width() / 2;
+          var cardMinWidth = jQuery(".card", printDocument).css("min-width").replace("px", "");
+
+          var cardScale = htmlWidth / cardMinWidth;
+
+            console.log("htmlWidth: " + htmlWidth);
+            console.log("cardMinWidth: " + cardMinWidth);
+            console.log("cardScale: " + cardScale);
+
+            jQuery("html", printDocument).css("font-size",cardScale+"cm");
+
             jQuery(".page", printDocument).each(function(position, page) {
+
                 jQuery(page).css("width", "calc( 50% - 1cm )");
                 jQuery(page).css("height", "calc( 50% - 1cm )");
                 jQuery(page).css("float", "left");
@@ -136,7 +131,6 @@
         jQuery(".page:nth-child(4n+3)", printDocument).each(function(position, page) {
             jQuery(page).css("margin-top", "2cm");
         });
-
         jQuery(".page:nth-child(4n+4)", printDocument).each(function(position, page) {
             jQuery(page).css("margin-top", "2cm");
         });
@@ -180,7 +174,7 @@
         jQuery("head", printDocument).append(printPanelPageCSS());
         jQuery("head", printDocument).append(printPanelCardCSS());
 
-        console.logInfo("load " + issueKeyList.length + " issues...");
+        console.log("load " + issueKeyList.length + " issues...");
 
         var deferredList = [];
         jQuery.each(issueKeyList, function(index, issueKey) {
@@ -191,8 +185,8 @@
             jQuery("body", printDocument).append(page);
             var deferred = addDeferred(deferredList);
             appFunctions.getCardData(issueKey, function(cardData) {
-                console.logDebug("cardData: " + cardData);
-                if (!isDev) {
+                //console.log("cardData: " + cardData);
+                if (isProd) {
                     ga('send', 'event', 'task', 'generate', 'card', cardData.type);
                 }
                 fillCard(page, cardData);
@@ -201,16 +195,16 @@
                 deferred.resolve();
             });
         });
-        console.logInfo("wait for issues loaded...");
+        console.log("wait for issues loaded...");
 
         applyDeferred(deferredList, function() {
-            console.logInfo("...all issues loaded.");
+            console.log("...all issues loaded.");
             jQuery(printWindow).load(function() {
-                console.logInfo("...all resources loaded.");
+                console.log("...all resources loaded.");
                 callback();
             })
             printDocument.close();
-            console.logInfo("wait for resources loaded...");
+            console.log("wait for resources loaded...");
         });
     }
 
@@ -908,6 +902,26 @@
         head.appendChild(script);
     }
 
+    function initGoogleAnalytics(){
+      // <GoogleAnalytics>
+      (function(i, s, o, g, r, a, m) {
+          i['GoogleAnalyticsObject'] = r;
+          i[r] = i[r] || function() {
+              (i[r].q = i[r].q || []).push(arguments)
+          }, i[r].l = 1 * new Date();
+          a = s.createElement(o),
+              m = s.getElementsByTagName(o)[0];
+          a.async = 1;
+          a.src = g;
+          m.parentNode.insertBefore(a, m)
+      })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+      ga('create', 'UA-50840116-3', {
+          'alwaysSendReferrer': true
+      });
+      ga('set', 'page', '/cardprinter');
+    }
+
     //############################################################################################################################
     //############################################################################################################################
     //############################################################################################################################
@@ -925,56 +939,6 @@
     //############################################################################################################################
     //############################################################################################################################
     //############################################################################################################################
-
-
-    function addJQueryFunctions() {
-        //jQuery Extention
-        jQuery.expr[':']['is'] = function(node, index, props) {
-            return node.textContent == props[3];
-        }
-    }
-
-
-    function addConsoleFunctions() {
-
-        console.ERROR = 0;
-        console.WARN = 1;
-        console.INFO = 2;
-        console.DEBUG = 3;
-        console.TRACE = 4;
-
-        console.logLevel = console.INFO;
-
-        console.logError = function(msg) {
-            if (console.logLevel >= console.ERROR) {
-                console.log("ERROR: " + msg);
-            }
-        }
-
-        console.logWarn = function(msg) {
-            if (console.logLevel >= console.WARN) {
-                console.log("WARN:  " + msg);
-            }
-        }
-
-        console.logInfo = function(msg) {
-            if (console.logLevel >= console.INFO) {
-                console.log("INFO:  " + msg);
-            }
-        }
-
-        console.logDebug = function(msg) {
-            if (console.logLevel >= console.DEBUG) {
-                console.log("DEBUG: " + msg);
-            }
-        }
-
-        console.logTrace = function(msg) {
-            if (console.logLevel >= console.TRACE) {
-                console.log("TRACE: " + msg);
-            }
-        }
-    }
 
     function addStringFunctions() {
 
@@ -1255,16 +1219,15 @@
 
                 issueData.epicKey = data.fields.epicLink;
                 if (issueData.epicKey) {
-                  jiraFunctions.getIssueData(issueData.epicKey, function(data) {
+                    jiraFunctions.getIssueData(issueData.epicKey, function(data) {
                         issueData.epicName = data.fields.epicName;
                     }, false);
                 }
 
                 issueData.url = window.location.origin + "/browse/" + issueData.key;
 
-                //check for lrs
+                //LRS Specific field mapping
                 if (true) {
-                    console.logInfo("Apply LRS Specifics");
                     //Desired-Date
                     if (data.fields.desiredDate) {
                         issueData.dueDate = new Date(data.fields.desiredDate).format('D d.m.');
@@ -1279,8 +1242,8 @@
             async = typeof async !== 'undefined' ? async : true;
             //https://docs.atlassian.com/jira/REST/latest/
             var url = '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
-            console.logDebug("IssueUrl: " + url);
-            console.logDebug("Issue: " + issueKey + " Loading...");
+            console.log("IssueUrl: " + url);
+            //console.log("Issue: " + issueKey + " Loading...");
             jQuery.ajax({
                 type: 'GET',
                 url: url,
@@ -1288,12 +1251,12 @@
                 dataType: 'json',
                 async: async,
                 success: function(responseData) {
-                    console.logDebug("Issue: " + issueKey + " Loaded!");
+                    //console.log("Issue: " + issueKey + " Loaded!");
                     // add custom fields with field names
                     jQuery.each(responseData.names, function(key, value) {
                         if (key.startsWith("customfield_")) {
                             var newFieldId = value.toCamelCase();
-                            console.logTrace("add new field: " + newFieldId + " with value from " + key);
+                            //console.log("add new field: " + newFieldId + " with value from " + key);
                             responseData.fields[value.toCamelCase()] = responseData.fields[key];
                         }
                     });
@@ -1306,20 +1269,20 @@
     var pivotalTrackerFunctions = {
 
         getSelectedIssueKeyList: function() {
-                //Single Story
-                if (/.*\/stories\/.*/g.test(document.URL)) {
-                    return [document.URL.replace(/.*\/stories\/(.*)\??/, '$1')];
-                }
+            //Single Story
+            if (/.*\/stories\/.*/g.test(document.URL)) {
+                return [document.URL.replace(/.*\/stories\/(.*)\??/, '$1')];
+            }
 
-                // Board
-                if (/.*\/projects\/.*/g.test(document.URL)) {
-                    return jQuery('.story[data-id]:has(.selected)').map(function() {
-                        return jQuery(this).attr('data-id');
-                    });
-                }
+            // Board
+            if (/.*\/projects\/.*/g.test(document.URL)) {
+                return jQuery('.story[data-id]:has(.selected)').map(function() {
+                    return jQuery(this).attr('data-id');
+                });
+            }
 
-                return [];
-            },
+            return [];
+        },
 
         getCardData: function(issueKey, callback) {
             pivotalTrackerFunctions.getIssueData(issueKey, function(data) {
@@ -1374,8 +1337,8 @@
             async = typeof async !== 'undefined' ? async : true;
             //http://www.pivotaltracker.com/help/api
             var url = 'https://www.pivotaltracker.com/services/v5/stories/' + issueKey + "?fields=name,kind,description,story_type,owned_by(name),comments(file_attachments(kind)),estimate,deadline";
-            console.logDebug("IssueUrl: " + url);
-            console.logDebug("Issue: " + issueKey + " Loading...");
+            console.log("IssueUrl: " + url);
+            //console.log("Issue: " + issueKey + " Loading...");
             jQuery.ajax({
                 type: 'GET',
                 url: url,
@@ -1383,13 +1346,10 @@
                 dataType: 'json',
                 async: async,
                 success: function(responseData) {
-                    console.logDebug("Issue: " + issueKey + " Loaded!");
+                    //console.log("Issue: " + issueKey + " Loaded!");
                     callback(responseData);
                 },
             });
         }
     }
-
-
-
 })();
