@@ -3,30 +3,26 @@
     console.log("Version: " + version);
 
     try {
+        // load jQuery
+        if (window.jQuery === undefined) {
+            appendScript('//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js');
+        }
+
         var isDev = /.*jira.atlassian.com\/secure\/RapidBoard.jspa\?.*projectKey=ANERDS.*/g.test(document.URL) // Jira
             || /.*pivotaltracker.com\/n\/projects\/510733.*/g.test(document.URL); // PivotTracker
         var isProd = !isDev;
-
-        if (isProd){
-            //cors = "https://cors-anywhere.herokuapp.com/";
-            //$("#card").load("https://cors-anywhere.herokuapp.com/"+"https://qoomon.github.io/Jira-Issue-Card-Printer/card.html");
-            initGoogleAnalytics();
-        }
+        var appFunctions = null;
+        var printScopeDeviderToken = "<b>Attachment</b>";
 
         var hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
         if (isDev) {
             console.log("DEVELOPMENT");
             hostOrigin = "https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/";
         }
-
-        // load jQuery
-        if (window.jQuery === undefined) {
-            appendScript('//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js');
-        }
+        var resourceOrigin = hostOrigin + "resources/";
 
         // wait untill all scripts loaded
         appendScript('https://qoomon.github.io/void', function() {
-            init();
             main();
         });
 
@@ -41,22 +37,26 @@
     }
 
     function init() {
+
         addStringFunctions();
         addDateFunctions();
 
-        var printScopeDeviderToken = "<b>Attachment</b>";
-
-        var resourceOrigin = hostOrigin + "resources/";
-
-        var appFunctions = {};
         if (jQuery("meta[name='application-name'][ content='JIRA']").length > 0) {
             appFunctions = jiraFunctions;
         } else if (/.*\pivotaltracker.com\/.*/g.test(document.URL)) {
             appFunctions = pivotalTrackerFunctions
         }
+
+        if (isProd){
+            //cors = "https://cors-anywhere.herokuapp.com/";
+            //$("#card").load("https://cors-anywhere.herokuapp.com/"+"https://qoomon.github.io/Jira-Issue-Card-Printer/card.html");
+            initGoogleAnalytics();
+        }
     }
 
     function main() {
+        init();
+
         //preconditions
         if (jQuery("#card-print-overlay").length > 0) {
             alert("Print Card already opened!");
@@ -64,7 +64,6 @@
         }
 
         var issueKeyList = appFunctions.getSelectedIssueKeyList();
-
         if (issueKeyList.length <= 0) {
             alert("Please select at least one issue.");
             return;
@@ -74,6 +73,13 @@
         jQuery("body").append(printOverlayHTML);
         jQuery("#card-print-overlay").prepend(printOverlayStyle);
 
+        jQuery("#rowCount").val(readCookie("card_printer_row_count",2));
+        jQuery("#columnCount").val(readCookie("card_printer_column_count",1));
+        jQuery("#card-scale-range").val(readCookie("card_printer_card_scale",1));
+        jQuery("#multi-card-page-checkbox").attr('checked',readCookie("card_printer_multi_card_page",false) != 'false');
+        jQuery("#hide-description-checkbox").attr('checked',readCookie("card_printer_hide_description",false) != 'false');
+
+
         if (isProd) {
             ga('send', 'pageview');
         }
@@ -81,61 +87,55 @@
         jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
         renderCards(issueKeyList, function() {
             jQuery("#card-print-dialog-title").text("Card Print");
-            print();
+            // print();
         });
     }
 
     function print() {
+        var rowCount = jQuery("#rowCount").val();
+        var columnCount = jQuery("#columnCount").val();
+        var scale = jQuery("#card-scale-range").val();
+        var multiCard = jQuery("#multi-card-page-checkbox").is(':checked');
+        var hideDescription = jQuery("#hide-description-checkbox").is(':checked');
+
+        writeCookie("card_printer_row_count", rowCount);
+        writeCookie("card_printer_column_count",columnCount);
+        writeCookie("card_printer_card_scale",scale);
+        writeCookie("card_printer_multi_card_page",multiCard);
+        writeCookie("card_printer_hide_description",hideDescription);
+
         var printFrame = jQuery("#card-print-dialog-content-iframe");
         var printWindow = printFrame[0].contentWindow;
         var printDocument = printWindow.document;
         if (isProd) {
             ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length);
         }
-
-        //jQuery("html", printDocument).css("font-size", + 0.5 +"cm");
-
-        var orientationCSS = jQuery('<style type="text/css" media="print">@page{size: landscape;}</style>')
-            // jQuery("head",printDocument).append(orientationCSS);
-
+        var currentScale = jQuery("html", printDocument).css("font-size").replace("px", "");
         printWindow.matchMedia("print").addListener(function() {
-          var htmlWidth = jQuery("html", printDocument).css("font-size").replace("cm", "") * jQuery("html", printDocument).width() / 2;
-          var cardMinWidth = jQuery(".card", printDocument).css("min-width").replace("px", "");
+            jQuery("html", printDocument).css("font-size",currentScale +"px");
+            jQuery(".page", printDocument).css("height", "calc( 100% / " + rowCount    + " )");
+            jQuery(".page", printDocument).css("width",  "calc( 100% / " + columnCount + " )");
 
-          var cardScale = htmlWidth / cardMinWidth;
+            var pageWidth = jQuery(".page", printDocument).width();
+            var cardWidth = jQuery(".card", printDocument).width();
 
-            console.log("htmlWidth: " + htmlWidth);
-            console.log("cardMinWidth: " + cardMinWidth);
-            console.log("cardScale: " + cardScale);
+            var newScale = currentScale * pageWidth / cardWidth;
 
-            jQuery("html", printDocument).css("font-size",cardScale+"cm");
+            jQuery("html", printDocument).css("font-size",newScale +"px");
 
-            jQuery(".page", printDocument).each(function(position, page) {
+            jQuery(".card", printDocument).each(function(position, element) {
 
-                jQuery(page).css("width", "calc( 50% - 1cm )");
-                jQuery(page).css("height", "calc( 50% - 1cm )");
-                jQuery(page).css("float", "left");
-
-                var height = jQuery(page).height() - jQuery(page).find(".card-header").outerHeight() - jQuery(page).find(".card-footer").outerHeight() - jQuery(page).find(".content-header").outerHeight() - 40;
-                jQuery(page).find(".description").css("max-height", height + "px");
-                var lineHeight = jQuery(page).find(".description").css("line-height");
-                lineHeight = lineHeight.substring(0, lineHeight.length - 2);
-                var lineClamp = Math.floor(height / lineHeight);
-                jQuery(page).find(".description").css("-webkit-line-clamp", lineClamp + "");
+                var height = jQuery(element).height()
+                  - jQuery(element).find(".card-header").height()
+                  - jQuery(element).find(".card-footer").height()
+                  - jQuery(element).find(".content-header").height()
+                  - 40;
+                jQuery(element).find(".description").css("max-height", height + "px");
             });
         });
 
-        jQuery(".page:odd", printDocument).each(function(position, page) {
-            jQuery(page).css("margin-left", "2cm");
-        });
-        jQuery(".page:nth-child(4n+3)", printDocument).each(function(position, page) {
-            jQuery(page).css("margin-top", "2cm");
-        });
-        jQuery(".page:nth-child(4n+4)", printDocument).each(function(position, page) {
-            jQuery(page).css("margin-top", "2cm");
-        });
-
         printWindow.print();
+        jQuery("html", printDocument).css("font-size",currentScale +"px");
     }
 
     function hideDescription(hide) {
@@ -273,7 +273,6 @@
     //############################################################################################################################
     //############################################################################################################################
 
-
     // http://www.cssdesk.com/T9hXg
 
     function printOverlayHTML() {
@@ -296,9 +295,11 @@
                   </div>
                   <div id="card-print-dialog-footer">
                     <div class="buttons">
-                      <label style="margin-right:10px"><input id="card-scale-range" type="range" min="0.2" max="1.6" step="0.1" value="1.0" />Scale</label>
-                      <label style="margin-right:10px"><input id="hide-description-checkbox" type="checkbox"/>Hide Description</label>
+                      <label style="margin-right:10px"><input id="card-scale-range" type="range" min="0.4" max="1.6" step="0.1" value="1.0" />Scale</label>
                       <label style="margin-right:10px"><input id="multi-card-page-checkbox" type="checkbox"/>Multi Card Page</label>
+                      <label style="margin-right:10px;"><input id="rowCount" type="text" class="text" maxlength="1" style="width: 10px;" value="2"/>Row Count</label>
+                      <label style="margin-right:10px;"><input id="columnCount" type="text" class="text" maxlength="1" style="width: 10px;" value="1"/>Column Count</label>
+                      <label style="margin-right:10px"><input id="hide-description-checkbox" type="checkbox"/>Hide Description</label>
                       <input id="card-print-dialog-print" type="button" class="aui-button aui-button-primary" value="Print" />
                       <a id="card-print-dialog-cancel" title="Cancel" class="cancel">Cancel</a>
                     </div>
@@ -496,7 +497,6 @@
         return result;
     }
 
-
     function printPanelPageCSS() {
 
         var result = jQuery(document.createElement('style'))
@@ -504,11 +504,15 @@
             .attr("type", "text/css")
             .html(multilineString(function() {
                 /*!
+    * {
+      box-sizing: border-box;
+    }
     HTML {
       font-size: 1.0cm;
       overflow: hidden;
     }
     .page {
+
       position: relative;
       overflow: auto;
       margin-left: auto;
@@ -516,7 +520,7 @@
       padding: 1.0cm;
       margin: 1.0cm;
       width: auto;
-      height: auto;
+      height: 15cm;
       page-break-after: always;
       page-break-inside: avoid;
 
@@ -536,10 +540,16 @@
 
     @media print {
 
+      @page {
+        margin: 0.0cm;
+      }
+
       .page {
         background: white;
-        border-style: none;
-        padding: 0.0cm;
+        border-color: light-grey;
+        border-style: dashed;
+        border-width: 1.0px;
+        padding: 0.8cm;
         margin: 0.0cm;
 
         -webkit-box-shadow: none;
@@ -551,21 +561,19 @@
 
       .multiCardPage {
         height: auto;
-        margin-bottom: 1.0cm;
         page-break-after: avoid;
+        float: left;
       }
 
       .page:last-of-type {
         page-break-after: avoid;
       }
-
     }
   */
             }));
 
         return result;
     }
-
 
     // http://www.cssdesk.com/scHcP
 
@@ -657,6 +665,7 @@
                  .card {
                      position: relative;
                      min-width: 17.0rem;
+                     height: 100%;
                      max-height: 100%;
                      overflow: hidden;
                  }
@@ -690,16 +699,15 @@
                      top:2.0rem;
                      left:0.4rem;
                      right:0.4rem;
-                     height: calc(100% - 4.0rem);
+                     height: calc(100% - 3.3rem);
                      background: #ffffff;
-
                  }
                  .card-header {
                    position: relative;
                  }
                  .card-content {
                      position: relative;
-                     margin-top: 0.3rem;
+                     margin-top: 0.2rem;
                      margin-left: 1.0rem;
                      margin-right: 1.1rem;
                      margin-bottom: 0.2rem;
@@ -712,33 +720,43 @@
                      //margin-bottom: 0.6rem;
                  }
                  .card-footer {
-                     position: relative;
+                     position: absolute;
+                     bottom: 0rem;
                  }
                  .summary {
                      font-weight: bold;
                  }
                  .description {
-                 display:  block;
+                     margin-top: 0.4rem;
+                     display:  block;
                      font-size: 0.6rem;
                      line-height: 0.6rem;
                      overflow: hidden;
-                     display: -webkit-box;
-                     -webkit-box-orient: vertical;
                  }
+                 .description:after {
+                    content: "";
+                    text-align: right;
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 0.6em;
+                    background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+                  }
                  .key {
                      position: absolute;
                      float: left;
                      width: auto;
                      min-width: 4.4rem;
-                     height: 1.35rem;
-                     left: 3.0rem;
+                     height: 1.5rem;
+                     left: 2.5rem;
                      margin-top: 1.2rem;
-                     padding-left: 0.7rem;
+                     padding-left: 0.9rem;
                      padding-right: 0.4rem;
                      text-align: center;
                      font-weight: bold;
-                     font-size: 1.0rem;
-                     line-height: 1.5rem;
+                     font-size: 0.8rem;
+                     line-height: 1.2rem;
                  }
                  .type-icon {
                      position: relative;
@@ -768,16 +786,17 @@
                  .estimate {
                      position: relative;
                      float: left;
-                     left: -0.65rem;
+                     left: -0.60rem;
                      top:-1.5rem;
-                     height: 1.1rem;
-                     width: 1.1rem;
+                     height: 1.5rem;
+                     width: 1.5rem;
                      text-align: center;
                      font-weight: bold;
                      font-size: 0.9rem;
                      line-height: 1.15rem;
                      margin-top:1.5rem;
                      z-index: 999;
+                     overflow: hidden;
                  }
 
                  .due {
@@ -936,6 +955,18 @@
         jQuery.when.apply(jQuery, deferredList).done(callback);
     }
 
+    function readCookie(name, defaultValue){
+      var cookies = document.cookie.split('; ');
+
+      for(var i = 0; i<cookies.length; i++){
+         var cookie = cookies[i].split('=');
+         if(cookie[0] == name) return cookie[1];
+      }
+      return defaultValue
+    }
+    function writeCookie(name, value){
+      document.cookie=name+"=" +value;
+    }
     //############################################################################################################################
     //############################################################################################################################
     //############################################################################################################################
@@ -1151,7 +1182,6 @@
             .replace(/\*\/[^\/]+$/, '');
     }
 
-
     function resizeIframe(iframe) {
         iframe.height(iframe[0].contentWindow.document.body.scrollHeight);
     }
@@ -1192,7 +1222,7 @@
 
                 issueData.summary = data.fields.summary;
 
-                issueData.description = data.renderedFields.description;
+                issueData.description = data.renderedFields.description.replace(/<p>/, "");
 
                 if (data.fields.assignee) {
                     issueData.assignee = data.fields.assignee.displayName;
@@ -1297,7 +1327,7 @@
 
                 issueData.description = data.description;
                 if (issueData.description) {
-                    issueData.description = "<p>" + issueData.description
+                    issueData.description = issueData.description
                 }
 
                 if (data.owned_by && data.owned_by.length > 0) {
