@@ -855,8 +855,8 @@
                      height: 2.1rem;
                      text-align: center;
                      font-weight: bold;
-                     font-size: 1.8rem;
-                     line-height: 2.2rem;
+                     font-size: 1.4rem;
+                     line-height: 1.8rem;
                      background-image: url(https://images.weserv.nl/?url=www.iconsdb.com/icons/download/color/aaaaaa/contacts-256.png);
                      background-repeat: no-repeat;
                      -webkit-background-size: cover;
