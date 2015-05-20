@@ -9,7 +9,8 @@
         }
 
         var isDev = /.*jira.atlassian.com\/secure\/RapidBoard.jspa\?.*projectKey=ANERDS.*/g.test(document.URL) // Jira
-            || /.*pivotaltracker.com\/n\/projects\/510733.*/g.test(document.URL); // PivotTracker
+            || /.*pivotaltracker.com\/n\/projects\/510733.*/g.test(document.URL) // PivotTracker
+            || ( /.*trello.com\/.*/g.test(document.URL) && jQuery("span.js-member-name").text() =='Bengt Brodersen'); // Trello
         var isProd = !isDev;
         var appFunctions = null;
         var printScopeDeviderToken = "<b>Attachment</b>";
@@ -42,9 +43,17 @@
         addDateFunctions();
 
         if (jQuery("meta[name='application-name'][ content='JIRA']").length > 0) {
+            console.log("App: " + "Jira");
             appFunctions = jiraFunctions;
-        } else if (/.*\pivotaltracker.com\/.*/g.test(document.URL)) {
-            appFunctions = pivotalTrackerFunctions
+        } else if (/.*pivotaltracker.com\/.*/g.test(document.URL)) {
+            console.log("App: " + "PivotalTracker");
+            appFunctions = pivotalTrackerFunctions;
+        } else if (/.*trello.com\/.*/g.test(document.URL)) {
+            console.log("App: " + "Trello");
+            appFunctions = trelloFunctions;
+        } else {
+          alert("Unsupported app.Please create an issue at https://github.com/qoomon/Jira-Issue-Card-Printer");
+          return;
         }
 
         if (isProd){
@@ -87,7 +96,7 @@
         jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
         renderCards(issueKeyList, function() {
             jQuery("#card-print-dialog-title").text("Card Print");
-            // print();
+            //print();
         });
     }
 
@@ -224,7 +233,11 @@
         card.find('.summary').text(data.summary);
 
         //Description
-        card.find('.description').html(data.description);
+        if (data.description) {
+            card.find('.description').html(data.description);
+        } else {
+            card.find(".description").addClass("hidden");
+        }
 
         //Assignee
         if (data.assignee) {
@@ -636,7 +649,7 @@
                  }
                  .card-header:after,
                  .card-footer:after {
-                     content:" ";
+                     content: "";
                      display: block;
                      clear: both;
                      height:0
@@ -712,16 +725,18 @@
                      margin-right: 1.1rem;
                      margin-bottom: 0.2rem;
                      min-height: 1.2rem;
+                     width: auto;
                  }
                  .content-header {
                      position: relative;
                      font-size: 1.1rem;
                      line-height: 1.1rem;
-                     //margin-bottom: 0.6rem;
+                     width: auto;
                  }
                  .card-footer {
                      position: absolute;
-                     bottom: 0rem;
+                     bottom: 0;
+                     width: 100%;
                  }
                  .summary {
                      font-weight: bold;
@@ -733,21 +748,11 @@
                      line-height: 0.6rem;
                      overflow: hidden;
                  }
-                 .description:after {
-                    content: "";
-                    text-align: right;
-                    position: absolute;
-                    bottom: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 0.6em;
-                    background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
-                  }
                  .key {
                      position: absolute;
                      float: left;
                      width: auto;
-                     min-width: 4.4rem;
+                     min-width: 3.0rem;
                      height: 1.5rem;
                      left: 2.5rem;
                      margin-top: 1.2rem;
@@ -761,6 +766,8 @@
                  .type-icon {
                      position: relative;
                      float: left;
+                     width: 3.15rem;
+                     height: 3.15rem;
                      background-color: GREENYELLOW;
                      background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Objects.png);
                      background-repeat: no-repeat;
@@ -805,10 +812,10 @@
                  }
                  .due-icon {
                      position: relative;
-                     float:right;
+                     float: right;
                      width: 2.5rem;
                      height: 2.5rem;
-                     margin-top: 0.4rem;
+                     margin-top: 0.45rem;
                      background-color: MEDIUMPURPLE;
                      background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/AlarmClock.png);
                      background-repeat: no-repeat;
@@ -820,19 +827,17 @@
                  .due-date {
                      position: relative;
                      float: right;
-                     right: -0.6rem;
                      width: auto;
                      min-width: 2.8rem;
-                     height: auto;
+                     height: 1.3rem;
+                     right: -0.6rem;
                      margin-top: 1.3rem;
-                     padding-top: 0.2rem;
-                     padding-bottom: 0.2rem;
                      padding-left: 0.3rem;
                      padding-right: 0.6rem;
                      text-align: center;
                      font-weight: bold;
                      font-size: 0.7rem;
-                     line-height: 0.7rem;
+                     line-height: 1.0rem;
                  }
                  .attachment {
                      position: relative;
@@ -846,7 +851,6 @@
                      -webkit-background-size: 70%;
                      background-size: 70%;
                      background-position: center;
-
                  }
                  .assignee {
                      position: relative;
@@ -1191,9 +1195,9 @@
     //############################################################################################################################
     //############################################################################################################################
 
-    var jiraFunctions = {
+    var jiraFunctions = (function (module) {
 
-        getSelectedIssueKeyList: function() {
+        module.getSelectedIssueKeyList = function() {
             //Browse
             if (/.*\/browse\/.*/g.test(document.URL)) {
                 return jQuery("a[data-issue-key][id='key-val']").map(function() {
@@ -1209,10 +1213,10 @@
             }
 
             return [];
-        },
+        };
 
-        getCardData: function(issueKey, callback) {
-            jiraFunctions.getIssueData(issueKey, function(data) {
+        module.getCardData= function(issueKey, callback) {
+            module.getIssueData(issueKey, function(data) {
 
                 var issueData = {};
 
@@ -1266,9 +1270,9 @@
 
                 callback(issueData);
             });
-        },
+        };
 
-        getIssueData: function(issueKey, callback, async) {
+        module.getIssueData = function(issueKey, callback, async) {
             async = typeof async !== 'undefined' ? async : true;
             //https://docs.atlassian.com/jira/REST/latest/
             var url = '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
@@ -1293,15 +1297,17 @@
                     callback(responseData);
                 },
             });
-        }
-    }
+        };
 
-    var pivotalTrackerFunctions = {
+        return module;
+    }({}));
 
-        getSelectedIssueKeyList: function() {
+    var pivotalTrackerFunctions = (function (module) {
+
+        module.getSelectedIssueKeyList = function() {
             //Single Story
             if (/.*\/stories\/.*/g.test(document.URL)) {
-                return [document.URL.replace(/.*\/stories\/(.*)\??/, '$1')];
+                return [document.URL.replace(/.*\/stories\/([^?]*).*/, '$1')];  // TODO
             }
 
             // Board
@@ -1312,10 +1318,10 @@
             }
 
             return [];
-        },
+        };
 
-        getCardData: function(issueKey, callback) {
-            pivotalTrackerFunctions.getIssueData(issueKey, function(data) {
+        module.getCardData = function(issueKey, callback) {
+            module.getIssueData(issueKey, function(data) {
 
                 var issueData = {};
 
@@ -1326,9 +1332,6 @@
                 issueData.summary = data.name;
 
                 issueData.description = data.description;
-                if (issueData.description) {
-                    issueData.description = issueData.description
-                }
 
                 if (data.owned_by && data.owned_by.length > 0) {
                     issueData.assignee = data.owner_ids[0].name;
@@ -1361,9 +1364,9 @@
 
                 callback(issueData);
             });
-        },
+        };
 
-        getIssueData: function(issueKey, callback, async) {
+        module.getIssueData = function(issueKey, callback, async) {
             async = typeof async !== 'undefined' ? async : true;
             //http://www.pivotaltracker.com/help/api
             var url = 'https://www.pivotaltracker.com/services/v5/stories/' + issueKey + "?fields=name,kind,description,story_type,owned_by(name),comments(file_attachments(kind)),estimate,deadline";
@@ -1380,6 +1383,79 @@
                     callback(responseData);
                 },
             });
-        }
-    }
+        };
+
+        return module;
+    }({}));
+
+    var trelloFunctions = (function (module) {
+
+        module.getSelectedIssueKeyList = function() {
+            //Card View
+            if (/.*\/c\/.*/g.test(document.URL)) {
+                return [document.URL.replace(/.*\/c\/([^/]*).*/g, '$1')];
+            }
+
+            return [];
+        };
+
+        module.getCardData = function(issueKey, callback) {
+            module.getIssueData(issueKey, function(data) {
+
+                var issueData = {};
+
+                issueData.key = data.idShort;
+
+                //  TODO get kind from label name
+                // issueData.type = data.kind.toLowerCase();
+
+                issueData.summary = data.name;
+
+                issueData.description = data.desc;
+
+                if (data.members && data.members.length > 0) {
+                    issueData.assignee = data.members[0].fullName;
+                    issueData.avatarUrl = "https://trello-avatars.s3.amazonaws.com/"+data.members[0].avatarHash+"/170.png";
+                }
+
+                if (data.due) {
+                    issueData.dueDate = new Date(data.due).format('D d.m.');
+                }
+
+                issueData.hasAttachment = data.attachments > 0;
+                if (issueData.description) {
+                    var printScope = issueData.description.indexOf(printScopeDeviderToken);
+                    if (printScope >= 0) {
+                        issueData.description = issueData.description.substring(0, printScope);
+                        issueData.hasAttachment = true;
+                    }
+                }
+
+                issueData.url = data.shortUrl;
+
+                callback(issueData);
+            });
+        };
+
+        module.getIssueData = function(issueKey, callback, async) {
+            async = typeof async !== 'undefined' ? async : true;
+            //http://www.pivotaltracker.com/help/api
+            var url = "https://trello.com/1/cards/" + issueKey + "?members=true";
+            console.log("IssueUrl: " + url);
+            //console.log("Issue: " + issueKey + " Loading...");
+            jQuery.ajax({
+                type: 'GET',
+                url: url,
+                data: {},
+                dataType: 'json',
+                async: async,
+                success: function(responseData) {
+                    //console.log("Issue: " + issueKey + " Loaded!");
+                    callback(responseData);
+                },
+            });
+        };
+
+        return module;
+    }({}));
 })();
