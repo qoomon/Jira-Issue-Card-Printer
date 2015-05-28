@@ -1,3 +1,4 @@
+// card layout: https://jsfiddle.net/qoomon/cdsy7h8k/#base
 (function() {
     var version = "3.5.0";
     console.log("Version: " + version);
