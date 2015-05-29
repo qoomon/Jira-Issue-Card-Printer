@@ -1,4 +1,3 @@
-// card layout: https://jsfiddle.net/qoomon/cdsy7h8k/#base
 (function() {
     var version = "3.5.0";
     console.log("Version: " + version);
@@ -13,8 +12,6 @@
             || /.*pivotaltracker.com\/n\/projects\/510733.*/g.test(document.URL) // PivotTracker
             || ( /.*trello.com\/.*/g.test(document.URL) && jQuery("span.js-member-name").text() =='Bengt Brodersen'); // Trello
         var isProd = !isDev;
-        var appFunctions = null;
-        var printScopeDeviderToken = "<b>Attachment</b>";
 
         var hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
         if (isDev) {
@@ -23,9 +20,21 @@
         }
         var resourceOrigin = hostOrigin + "resources/";
 
+        var appFunctions = null;
+
         // wait untill all scripts loaded
         appendScript('https://qoomon.github.io/void', function() {
-            main();
+            try {
+                main();
+            } catch (err) {
+                console.log(err.message);
+                if (isProd) {
+                    ga('send', 'exception', {
+                        'exDescription': err.message,
+                        'exFatal': true
+                    });
+                }
+            }
         });
 
     } catch (err) {
@@ -53,13 +62,11 @@
             console.log("App: " + "Trello");
             appFunctions = trelloFunctions;
         } else {
-          alert("Unsupported app.Please create an issue at https://github.com/qoomon/Jira-Issue-Card-Printer");
-          return;
+            alert("Unsupported app.Please create an issue at https://github.com/qoomon/Jira-Issue-Card-Printer");
+            return;
         }
 
         if (isProd){
-            //cors = "https://cors-anywhere.herokuapp.com/";
-            //$("#card").load("https://cors-anywhere.herokuapp.com/"+"https://qoomon.github.io/Jira-Issue-Card-Printer/card.html");
             initGoogleAnalytics();
         }
     }
@@ -122,27 +129,42 @@
         }
         var currentScale = jQuery("html", printDocument).css("font-size").replace("px", "");
         printWindow.matchMedia("print").addListener(function() {
-            jQuery("html", printDocument).css("font-size",currentScale +"px");
-            jQuery(".page", printDocument).css("height", "calc( 100% / " + rowCount    + " )");
-            jQuery(".page", printDocument).css("width",  "calc( 100% / " + columnCount + " )");
 
-            var pageWidth = jQuery(".page", printDocument).width();
-            var cardWidth = jQuery(".card", printDocument).width();
+            jQuery(".card", printDocument).css("height", "calc( 100% / " + rowCount    + " )");
+            jQuery(".card", printDocument).css("width",  "calc( 100% / " + columnCount + " )");
+
+            var pageWidth = jQuery("body", printDocument).outerWidth();
+            var cardWidth = jQuery(".card", printDocument).outerWidth();
 
             var newScale = currentScale * pageWidth / cardWidth;
 
-            jQuery("html", printDocument).css("font-size",newScale +"px");
-
-            jQuery(".card", printDocument).each(function(position, element) {
-
-                var height = jQuery(element).height()
-                  - jQuery(element).find(".card-header").height()
-                  - jQuery(element).find(".card-footer").height()
-                  - jQuery(element).find(".content-header").height()
-                  - 40;
-                jQuery(element).find(".description").css("max-height", height + "px");
-            });
+            //jQuery("html", printDocument).css("font-size",newScale +"px");
         });
+
+        /////////////////////////////////////////
+
+        printWindow.addEventListener("resize", refreshCard);
+        printWindow.matchMedia("print").addListener(refreshCard);
+
+        function refreshCard() {
+            var cardElements = printDocument.querySelectorAll(".card");
+            forEach(cardElements, function (cardElement) {
+                var cardContent = cardElement.querySelectorAll(".card-content")[0];
+                if (cardContent.scrollHeight > cardContent.offsetHeight) {
+                    cardContent.classList.add("zigzag");
+                } else {
+                    cardContent.classList.remove("zigzag");
+                }
+            });
+        }
+
+        function forEach(array, callback) {
+            for (i = 0; i < array.length; i++) {
+                callback(array[i]);
+            }
+        }
+
+        /////////////////////////////////////////
 
         printWindow.print();
         jQuery("html", printDocument).css("font-size",currentScale +"px");
@@ -181,17 +203,18 @@
         printDocument.open();
         printDocument.write("<head/><body/>");
 
-        jQuery("head", printDocument).append(printPanelPageCSS());
-        jQuery("head", printDocument).append(printPanelCardCSS());
+        jQuery("head", printDocument).append(cardCss());
+        //  jQuery("head", printDocument).append(cardJavaScript()); // NOT WORKING
+
 
         console.log("load " + issueKeyList.length + " issues...");
 
         var deferredList = [];
         jQuery.each(issueKeyList, function(index, issueKey) {
-            var page = newPage(issueKey);
+            var page = cardHtml(issueKey);
             page.attr("index", index);
             page.hide();
-            page.find('.key').text(issueKey);
+            page.find('.issue-id').text(issueKey);
             jQuery("body", printDocument).append(page);
             var deferred = addDeferred(deferredList);
             appFunctions.getCardData(issueKey, function(cardData) {
@@ -225,62 +248,62 @@
 
     function fillCard(card, data) {
         //Key
-        card.find('.key').text(data.key);
+        card.find('.issue-id').text(data.key);
 
         //Type
-        card.find(".card").attr("type", data.type);
+        card.find(".issue-icon").attr("type", data.type);
 
         //Summary
-        card.find('.summary').text(data.summary);
+        card.find('.issue-summary').text(data.summary);
 
         //Description
         if (data.description) {
-            card.find('.description').html(data.description);
+            card.find('.issue-description').html(data.description);
         } else {
-            card.find(".description").addClass("hidden");
+            card.find(".issue-description").addClass("hidden");
         }
 
         //Assignee
         if (data.assignee) {
             if (data.avatarUrl) {
-                card.find(".assignee").css("background-image", "url('" + data.avatarUrl + "')");
+                card.find(".issue-assignee").css("background-image", "url('" + data.avatarUrl + "')");
             } else {
-                card.find(".assignee").text(data.assignee[0].toUpperCase());
+                card.find(".issue-assignee").text(data.assignee[0].toUpperCase());
             }
         } else {
-            card.find(".assignee").addClass("hidden");
+            card.find(".issue-assignee").addClass("hidden");
         }
 
         //Due-Date
         if (data.dueDate) {
-            card.find(".due-date").text(data.dueDate);
+            card.find(".issue-due-date").text(data.dueDate);
         } else {
-            card.find(".due").addClass("hidden");
+            card.find(".issue-due-box").addClass("hidden");
         }
 
         //Attachment
         if (data.hasAttachment) {} else {
-            card.find('.attachment').addClass('hidden');
+            card.find('.issue-attachment').addClass('hidden');
         }
 
         //Story Points
         if (data.storyPoints) {
-            card.find(".estimate").text(data.storyPoints);
+            card.find(".issue-estimate").text(data.storyPoints);
         } else {
-            card.find(".estimate").addClass("hidden");
+            card.find(".issue-estimate").addClass("hidden");
         }
 
         //Epic
         if (data.epicKey) {
-            card.find(".epic-key").text(data.epicKey);
-            card.find(".epic-name").text(data.epicName);
+            card.find(".issue-epic-id").text(data.epicKey);
+            card.find(".issue-epic-name").text(data.epicName);
         } else {
-            card.find(".epic").addClass("hidden");
+            card.find(".issue-epic-box").addClass("hidden");
         }
 
         //QR-Code
         var qrCodeUrl = 'https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=' + encodeURIComponent(data.url);
-        card.find(".qr-code").css("background-image", "url('" + qrCodeUrl + "')");
+        card.find(".issue-qr-code").css("background-image", "url('" + qrCodeUrl + "')");
     }
 
     //############################################################################################################################
@@ -454,7 +477,7 @@
                   height: calc(100% - 106px);
                   width: 100%;
 
-                  overflow-y: scroll;
+                  overflow: hidden;
                 }
 
                 #card-print-dialog-content-iframe {
@@ -462,6 +485,7 @@
                   height: 100%;
                   width: 100%;
 
+                  overflow: hidden;
                   border:none;
                 }
 
@@ -511,398 +535,336 @@
         return result;
     }
 
-    function printPanelPageCSS() {
+    // card layout: http://jsfiddle.net/qoomon/ykbLb2pw/
 
-        var result = jQuery(document.createElement('style'))
-            .attr("id", "printPanelPageStyle")
-            .attr("type", "text/css")
-            .html(multilineString(function() {
-                /*!
-    * {
-      box-sizing: border-box;
-    }
-    HTML {
-      font-size: 1.0cm;
-      overflow: hidden;
-    }
-    .page {
-
-      position: relative;
-      overflow: auto;
-      margin-left: auto;
-      margin-right: auto;
-      padding: 1.0cm;
-      margin: 1.0cm;
-      width: auto;
-      height: 15cm;
-      page-break-after: always;
-      page-break-inside: avoid;
-
-      background:white;
-
-      -webkit-box-shadow: 0px 0px 7px 3px rgba(31,31,31,0.4);
-      box-shadow: 0px 0px 7px 3px rgba(31,31,31,0.4);
-
-      border-style: solid;
-      border-color: #bfbfbf;
-      border-width: 0.05cm;
-      -webkit-border-radius: 0.1cm;
-      border-radius: 0.1cm;
-
-      overflow: hidden;
-    }
-
-    @media print {
-
-      @page {
-        margin: 0.0cm;
-      }
-
-      .page {
-        background: white;
-        border-color: light-grey;
-        border-style: dashed;
-        border-width: 1.0px;
-        padding: 0.8cm;
-        margin: 0.0cm;
-
-        -webkit-box-shadow: none;
-        box-shadow: none;
-
-        -webkit-print-color-adjust:exact;
-        print-color-adjust: exact;
-      }
-
-      .multiCardPage {
-        height: auto;
-        page-break-after: avoid;
-        float: left;
-      }
-
-      .page:last-of-type {
-        page-break-after: avoid;
-      }
-    }
-  */
-            }));
-
-        return result;
-    }
-
-    // http://www.cssdesk.com/scHcP
-
-    function newPage(issueKey) {
+    function cardHtml(issueKey) {
         var page = jQuery(document.createElement('div'))
             .attr("id", issueKey)
-            .addClass("page")
-            .addClass("singleCardPage")
+            .addClass("card")
             .html(multilineString(function() {
                 /*!
-                <div class="card">
-                  <div class="author author-page">qoomon.com</div>
-                  <div class="author author-name">Bengt Brodersen</div>
-                  <div class="card-border"></div>
-                  <div class="card-header">
-                    <div class="type-icon badge circular"></div>
-                    <div class="key badge"></div>
-                    <div class="estimate badge circular " contenteditable="true"></div>
-                    <div class="due">
-                      <div class="due-icon badge circular "></div>
-                      <div class="due-date badge" contenteditable="true"></div>
-                    </div>
-                  </div>
-                  <div class="card-content">
-                    <div class="content-header">
-                      <span class="summary" contenteditable="true"></span>
-                    </div>
-                    <div class="description" contenteditable="true"></div>
-                  </div>
-                  <div class="card-footer">
-                    <div class="assignee badge circular"></div>
-                    <div class="qr-code badge"></div>
-                    <div class="attachment badge circular"></div>
-                    <div class="epic badge">
-                      <span class="epic-key"></span>
-                      <span class="epic-name" contenteditable="true"></span>
-                      </div>
-                  </div>
-                </div>
-                */
+    <div class="card-body">
+        <div class="card-content shadow">
+            <div class="issue-summary"></div>
+            <div class="issue-description"></div>
+        </div>
+        <div class="card-header">
+            <div class="issue-id badge"></div>
+            <div class="issue-icon badge" type="story"></div>
+            <div class="issue-estimate badge"></div>
+            <div class="issue-due-box">
+                <div class="issue-due-date badge"></div>
+                <div class="issue-due-icon badge"></div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="issue-qr-code badge"></div>
+            <div class="issue-attachment badge"></div>
+            <div class="issue-assignee badge"></div>
+            <div class="issue-epic-box badge">
+                <span class="issue-epic-id"></span>
+                <span class="issue-epic-name"></span>
+            </div>
+        </div>
+    </div>
+    <div class="author">© qoomon.com Bengt Brodersen</div>
+                  */
             }));
 
         return page;
     }
 
-    function printPanelCardCSS() {
+    function cardCss() {
         var result = jQuery(document.createElement('style'))
             .attr("type", "text/css")
             .html(multilineString(function() {
                 /*!
-                * {
-                     color: black;
-                     font-family:"Droid Serif";
-                 }
-                 body {
-                     margin: 0;
-                 }
-                 .hidden {
-                     visibility: hidden;
-                 }
-                 .card-header:after,
-                 .card-footer:after {
-                     content: "";
-                     display: block;
-                     clear: both;
-                     height:0
-                 }
-                 .card-border,
-                 .badge,
-                 .shadow {
-                     border-style: solid;
-                     border-color: #2f2f2f;
-                     border-top-width: 0.14rem;
-                     border-left-width: 0.14rem;
-                     border-bottom-width: 0.24rem;
-                     border-right-width: 0.24rem;
-                     -webkit-border-radius: 0.25rem;
-                     border-radius: 0.25rem;
-                 }
-                 .circular {
-                     -webkit-border-radius: 50%;
-                     border-radius: 50%;
-                 }
-                 .badge {
-                     width: 3.2rem;
-                     height: 3.2rem;
-                     background: #d0d0d0;
-                 }
-                 .card {
-                     position: relative;
-                     min-width: 17.0rem;
-                     height: 100%;
-                     max-height: 100%;
-                     overflow: hidden;
-                 }
-                 .author{
-                     line-height: 0.8rem;
-                 }
-                 .author-page {
-                     z-index: 999;
-                     position: absolute;
-                     top:2.5rem;
-                     right:0.55rem;
-                     font-size: 0.45rem;
-                     -webkit-transform-origin: 100% 100%;
-                     transform-origin: 100% 100%;
-                     -webkit-transform: rotate(-90deg);
-                     transform: rotate(-90deg);
-                 }
-                 .author-name {
-                     z-index: 0;
-                     position: absolute;
-                     top:3.26rem;
-                     right:-2.6rem;
-                     font-size: 0.35rem;
-                     -webkit-transform-origin: 0% 0%;
-                     transform-origin: 0% 0%;
-                     -webkit-transform: rotate(90deg);
-                     transform: rotate(90deg);
-                 }
-                 .card-border {
-                     position: absolute;
-                     top:2.0rem;
-                     left:0.4rem;
-                     right:0.4rem;
-                     height: calc(100% - 3.3rem);
-                     background: #ffffff;
-                 }
-                 .card-header {
-                   position: relative;
-                 }
-                 .card-content {
-                     position: relative;
-                     margin-top: 0.2rem;
-                     margin-left: 1.0rem;
-                     margin-right: 1.1rem;
-                     margin-bottom: 0.2rem;
-                     min-height: 1.2rem;
-                     width: auto;
-                 }
-                 .content-header {
-                     position: relative;
-                     font-size: 1.1rem;
-                     line-height: 1.1rem;
-                     width: auto;
-                 }
-                 .card-footer {
-                     position: absolute;
-                     bottom: 0;
-                     width: 100%;
-                 }
-                 .summary {
-                     font-weight: bold;
-                 }
-                 .description {
-                     margin-top: 0.4rem;
-                     display:  block;
-                     font-size: 0.6rem;
-                     line-height: 0.6rem;
-                     overflow: hidden;
-                 }
-                 .key {
-                     position: absolute;
-                     float: left;
-                     width: auto;
-                     min-width: 3.0rem;
-                     height: 1.5rem;
-                     left: 2.5rem;
-                     margin-top: 1.2rem;
-                     padding-left: 0.9rem;
-                     padding-right: 0.4rem;
-                     text-align: center;
-                     font-weight: bold;
-                     font-size: 0.8rem;
-                     line-height: 1.2rem;
-                 }
-                 .type-icon {
-                     position: relative;
-                     float: left;
-                     width: 3.15rem;
-                     height: 3.15rem;
-                     background-color: GREENYELLOW;
-                     background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Objects.png);
-                     background-repeat: no-repeat;
-                     -webkit-background-size: 70%;
-                     background-size: 70%;
-                     background-position: center;
-                     z-index: 1;
-                 }
+    * {
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    html, body {
 
-                 .card[type="story"] .type-icon {
-                     background-color: GOLD;
-                     background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Bulb.png);
-                 }
-                 .card[type="bug"] .type-icon {
-                     background-color: CRIMSON;
-                     background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Bug.png);
-                 }
-                 .card[type="epic"] .type-icon {
-                     background-color: ROYALBLUE;
-                     background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/Flash.png);
-                 }
+        background: WHITE;
+        padding: 0px;
+        margin: 0px;
+        font-size: 0.9cm;
 
-                 .estimate {
-                     position: relative;
-                     float: left;
-                     left: -0.60rem;
-                     top:-1.5rem;
-                     height: 1.5rem;
-                     width: 1.5rem;
-                     text-align: center;
-                     font-weight: bold;
-                     font-size: 0.9rem;
-                     line-height: 1.15rem;
-                     margin-top:1.5rem;
-                     z-index: 999;
-                     overflow: hidden;
-                 }
+        overflow: scroll;
 
-                 .due {
-                     position: relative;
-                     float: right;
-                 }
-                 .due-icon {
-                     position: relative;
-                     float: right;
-                     width: 2.5rem;
-                     height: 2.5rem;
-                     margin-top: 0.45rem;
-                     background-color: MEDIUMPURPLE;
-                     background-image: url(https://googledrive.com/host/0Bwgd0mVaLU_KU0N5b3JyRnJaNTA/resources/icons/AlarmClock.png);
-                     background-repeat: no-repeat;
-                     -webkit-background-size: 65%;
-                     background-size: 65%;
-                     background-position: center;
-                     z-index: 1;
-                 }
-                 .due-date {
-                     position: relative;
-                     float: right;
-                     width: auto;
-                     min-width: 2.8rem;
-                     height: 1.3rem;
-                     right: -0.6rem;
-                     margin-top: 1.3rem;
-                     padding-left: 0.3rem;
-                     padding-right: 0.6rem;
-                     text-align: center;
-                     font-weight: bold;
-                     font-size: 0.7rem;
-                     line-height: 1.0rem;
-                 }
-                 .attachment {
-                     position: relative;
-                     float: left;
-                     margin-left: 0.6rem;
-                     width: 2.1rem;
-                     height: 2.1rem;
-                     background-color: LIGHTSKYBLUE;
-                     background-image: url(https://images.weserv.nl/?url=www.iconsdb.com/icons/download/color/2f2f2f/attach-256.png);
-                     background-repeat: no-repeat;
-                     -webkit-background-size: 70%;
-                     background-size: 70%;
-                     background-position: center;
-                 }
-                 .assignee {
-                     position: relative;
-                     float: right;
-                     width: 2.1rem;
-                     height: 2.1rem;
-                     text-align: center;
-                     font-weight: bold;
-                     font-size: 1.4rem;
-                     line-height: 1.8rem;
-                     background-image: url(https://images.weserv.nl/?url=www.iconsdb.com/icons/download/color/aaaaaa/contacts-256.png);
-                     background-repeat: no-repeat;
-                     -webkit-background-size: cover;
-                     background-size: cover;
-                     -webkit-background-size: 100%;
-                     background-size: 100%;
-                     -webkit-filter: contrast(150%) grayscale(100%);
-                     filter: contrast(150%) grayscale(100%);
-                     background-position: center;
-                 }
-                 .qr-code {
-                     position: relative;
-                     float: left;
-                     width: 2.1rem;
-                     height: 2.1rem;
-                     background-image: url(https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=blog.qoomon.com);
-                     background-repeat: no-repeat;
-                     -webkit-background-size: cover;
-                     background-size: cover;
-                     background-position: center;
-                 }
-                 .epic {
-                     width: auto;
-                     height: auto;
-                     position: relative;
-                     float:right;
-                     margin-right:0.6rem;
-                     padding-top: 0.2rem;
-                     padding-bottom: 0.2rem;
-                     padding-left: 0.3rem;
-                     padding-right: 0.3rem;
-                     text-align: left;
-                     font-size: 0.7rem;
-                     line-height: 0.7rem;
-                     max-width: calc( 100% - 10.2rem);
-                 }
-                 .epic-key {
-                 }
-                 .epic-name {
-                     font-weight: bold;
-                 }
+
+    }
+    .author {
+        position: absolute;
+        top:0.6rem;
+        left:calc(50% - 3rem);
+        font-size: 0.5rem;
+    }
+    .card {
+        position: relative;
+        float:left;
+        height: 100%;  height: 12rem;
+        width: 100%;
+        padding: 0.5rem;
+        padding-top: 0.6rem;
+        min-width:21.0rem;
+        min-height:10.0rem;
+
+        border-color: light-grey;
+        border-style: dashed;
+        border-width: 1.0px;
+    }
+    .card-body {
+        position: relative;
+        height: 100%;
+        // find .card-header;
+        padding-top: 2rem;
+        // find .card-footer;
+        padding-bottom: 1.3rem;
+    }
+    .card-content {
+        position: relative;
+        height: 100%;
+        margin-left: 0.4rem;
+        margin-right: 0.4rem;
+        padding-top: 1.2rem;
+        padding-bottom: 1.1rem;
+        padding-left: 0.4rem;
+        padding-right: 0.4rem;
+        background: WHITE;
+    }
+    .card-header {
+        position: absolute;
+        top: 0rem;
+        height: 4.2rem;
+        width: 100%;
+    }
+    .card-footer {
+        position: absolute;
+        bottom: 0rem;
+        height: 2.2rem;
+        width: 100%;
+    }
+    .issue-summary {
+        font-weight: bold;
+        display: -webkit-box;
+        //-webkit-line-clamp: 2;
+        //-webkit-box-orient: vertical;
+    }
+    .issue-description {
+        margin-top: 0.4rem;
+        display: block;
+        font-size: 0.6rem;
+        line-height: 0.6rem;
+        overflow: hidden;
+    }
+    .issue-id {
+        position: absolute;
+        left: 1rem;
+        top: 1.2rem;
+        height: 1.5rem;
+        max-width: 10rem;
+        min-width: 5rem;
+        padding-left: 2.4rem;
+        padding-right: 0.4rem;
+        background-color: WHITESMOKE;
+        line-height: 1.3rem;
+        font-size: 0.8rem;
+        font-weight: bold;
+        text-align: center;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    .issue-icon {
+        position: absolute;
+        left: 0rem;
+        top: 0rem;
+        height: 3.2rem;
+        width: 3.2rem;
+        border-radius: 50% !important;
+        background-color: GREENYELLOW !important;
+        background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Objects.png);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 70%;
+    }
+    .issue-icon[type="story"] {
+        background-color: GOLD !important;
+        background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bulb.png);
+    }
+    .issue-icon[type="bug"] {
+        background-color: CRIMSON !important;
+        background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bug.png);
+    }
+    .issue-icon[type="epic"] {
+        background-color: ROYALBLUE !important;
+        background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Flash.png);
+    }
+    .issue-estimate {
+        position: absolute;
+        left: 2.5rem;
+        top: 0.0rem;
+        height: 1.6rem;
+        width: 1.6rem;
+        border-radius: 49.5% !important;
+        background-color: WHITESMOKE;
+        line-height: 1.4rem;
+        font-size: 0.9rem;
+        font-weight: bold;
+        text-align: center;
+    }
+    .issue-qr-code {
+        position: absolute;
+        left:0rem;
+        top: 0rem;
+        width: 2.2rem;
+        height: 2.2rem;
+        background-image: url(https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=blog.qoomon.com);
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+    }
+    .issue-attachment {
+        position: absolute;
+        left:2.8rem;
+        top: 0rem;
+        width: 2.0rem;
+        height: 2.0rem;
+        border-radius: 50% !important;
+        background-color: LIGHTSKYBLUE !important;
+        background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Attachment.png);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 70%;
+    }
+    .issue-assignee {
+        position: absolute;
+        top:0rem;
+        right:0rem;
+        width: 2.2rem;
+        height: 2.2rem;
+        border-radius: 50% !important;
+        background-color: WHITESMOKE;
+        //background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Person.png);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        //-webkit-filter: contrast(200%) grayscale(100%);
+        //filter: contrast(200%) grayscale(100%);
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.4rem;
+        line-height: 1.8rem;
+    }
+    .issue-epic-box {
+        position: absolute;
+        right:3.0rem;
+        top: 0rem;
+        width: auto;
+        min-width: 6rem;
+        width: auto;
+        max-width: 10rem;
+        height: auto;
+        max-height: 2.2rem;
+        padding-top: 0.1rem;
+        padding-bottom: 0.2rem;
+        padding-left: 0.3rem;
+        padding-right: 0.3rem;
+        text-align: left;
+        font-size: 0.6rem;
+        line-height: 0.8rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+    .issue-epic-id {
+        font-size: 0.5rem;
+        font-weight: bold;
+    }
+    .issue-epic-name {
+        margin-left: 0.1rem;
+        font-size: 0.6rem;
+        font-weight: bold;
+    }
+    .issue-due-date-box {
+        position: absolute;
+        right: 0rem;
+        top: 0rem;
+        overflow: visible !important;
+    }
+    .issue-due-date {
+        position: absolute;
+        top: 1.3rem;
+        right: 1rem;
+        width: 5.3rem;
+        min-width: 2.8rem;
+        height: 1.3rem;
+        padding-left: 0.2rem;
+        padding-right: 1.4rem;
+        text-align: center;
+        font-weight: bold;
+        font-size: 0.7rem;
+        line-height: 1.0rem;
+    }
+    .issue-due-icon {
+        position: absolute;
+        top: 0.5rem;
+        right: 0rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50% !important;
+        background-color: ORCHID !important;
+        background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/AlarmClock.png);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 65%;
+    }
+    .badge, .shadow {
+        border-style: solid;
+        border-color: #555;
+        border-top-width: 0.12rem;
+        border-left-width: 0.12rem;
+        border-bottom-width: 0.21rem;
+        border-right-width: 0.21rem;
+        border-radius: 0.25rem;
+    }
+    .badge {
+        // WHITESMOKE, GAINSBOROM;
+        background-color: WHITESMOKE;
+    }
+    .hidden {
+        display: none;
+    }
+    .zigzag {
+        border-bottom-width: 0rem;
+    }
+    .zigzag::after {
+        position: absolute;
+        bottom: -0.04rem;
+        left:-0.07rem;
+        content:"";
+        width: 100%;
+        border-bottom-width: 0.8rem;
+        border-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/ZigZag.png) 0 0 56 fill round repeat;
+    }
+    @media print {
+        @page {
+            margin: 0.0cm;
+            padding: 0.0cm;
+        }
+        html {
+            -webkit-print-color-adjust:exact;
+            print-color-adjust: exact;
+        }
+        .pageBreak {
+            page-break-after: always;
+            float: none;
+        }
+        .card {
+            height: 100%;
+        }
+      }
+    }
                 */
             }).replace(/{RESOURCE_ORIGIN}/g, resourceOrigin));
         return result;
@@ -1188,7 +1150,7 @@
     }
 
     function resizeIframe(iframe) {
-        iframe.height(iframe[0].contentWindow.document.body.scrollHeight);
+        iframe.height(iframe[0].contentWindow.document.body.height);
     }
 
     // APP Specific Functions
@@ -1242,13 +1204,6 @@
                 }
 
                 issueData.hasAttachment = data.fields.attachment.length > 0;
-                if (issueData.description) {
-                    var printScope = issueData.description.indexOf(printScopeDeviderToken);
-                    if (printScope >= 0) {
-                        issueData.description = issueData.description.substring(0, printScope);
-                        issueData.hasAttachment = true;
-                    }
-                }
 
                 issueData.storyPoints = data.fields.storyPoints;
 
@@ -1342,14 +1297,8 @@
                     issueData.dueDate = new Date(data.deadline).format('D d.m.');
                 }
 
+                // TODO
                 issueData.hasAttachment = false;
-                if (issueData.description) {
-                    var printScope = issueData.description.indexOf(printScopeDeviderToken);
-                    if (printScope >= 0) {
-                        issueData.description = issueData.description.substring(0, printScope);
-                        issueData.hasAttachment = true;
-                    }
-                }
 
                 issueData.storyPoints = data.estimate;
 
@@ -1424,13 +1373,6 @@
                 }
 
                 issueData.hasAttachment = data.attachments > 0;
-                if (issueData.description) {
-                    var printScope = issueData.description.indexOf(printScopeDeviderToken);
-                    if (printScope >= 0) {
-                        issueData.description = issueData.description.substring(0, printScope);
-                        issueData.hasAttachment = true;
-                    }
-                }
 
                 issueData.url = data.shortUrl;
 
