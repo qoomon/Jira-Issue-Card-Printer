@@ -27,24 +27,21 @@
             try {
                 main();
             } catch (err) {
-                console.log(err.message);
-                if (isProd) {
-                    ga('send', 'exception', {
-                        'exDescription': err.message,
-                        'exFatal': true
-                    });
-                }
+                handleError(err);
             }
         });
-
     } catch (err) {
-        console.log(err.message);
-        if (isProd) {
-            ga('send', 'exception', {
-                'exDescription': err.message,
-                'exFatal': true
-            });
-        }
+        handleError(err);
+    }
+
+    function handleError(err){
+      console.log("ERROR: " + err.stack);
+      if (isProd) {
+          ga('send', 'exception', {
+              'exDescription': err.message,
+              'exFatal': true
+          });
+      }
     }
 
     function init() {
@@ -93,9 +90,8 @@
         jQuery("#rowCount").val(readCookie("card_printer_row_count",2));
         jQuery("#columnCount").val(readCookie("card_printer_column_count",1));
         jQuery("#card-scale-range").val(readCookie("card_printer_card_scale",1));
-        jQuery("#multi-card-page-checkbox").attr('checked',readCookie("card_printer_multi_card_page",false) != 'false');
+        jQuery("#single-card-page-checkbox").attr('checked',readCookie("card_printer_single_card_page",false) != 'false');
         jQuery("#hide-description-checkbox").attr('checked',readCookie("card_printer_hide_description",false) != 'false');
-
 
         if (isProd) {
             ga('send', 'pageview');
@@ -109,88 +105,59 @@
     }
 
     function print() {
-        var rowCount = jQuery("#rowCount").val();
-        var columnCount = jQuery("#columnCount").val();
-        var scale = jQuery("#card-scale-range").val();
-        var multiCard = jQuery("#multi-card-page-checkbox").is(':checked');
-        var hideDescription = jQuery("#hide-description-checkbox").is(':checked');
+        try {
+            var rowCount = jQuery("#rowCount").val();
+            var columnCount = jQuery("#columnCount").val();
+            var scale = jQuery("#card-scale-range").val();
+            var singleCard = jQuery("#single-card-page-checkbox").is(':checked');
+            var hideDescription = jQuery("#hide-description-checkbox").is(':checked');
 
-        writeCookie("card_printer_row_count", rowCount);
-        writeCookie("card_printer_column_count",columnCount);
-        writeCookie("card_printer_card_scale",scale);
-        writeCookie("card_printer_multi_card_page",multiCard);
-        writeCookie("card_printer_hide_description",hideDescription);
-
-        var printFrame = jQuery("#card-print-dialog-content-iframe");
-        var printWindow = printFrame[0].contentWindow;
-        var printDocument = printWindow.document;
-        if (isProd) {
-            ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length);
-        }
-        var currentScale = jQuery("html", printDocument).css("font-size").replace("px", "");
-        printWindow.matchMedia("print").addListener(function() {
-
-            jQuery(".card", printDocument).css("height", "calc( 100% / " + rowCount    + " )");
-            jQuery(".card", printDocument).css("width",  "calc( 100% / " + columnCount + " )");
-
-            var pageWidth = jQuery("body", printDocument).outerWidth();
-            var cardWidth = jQuery(".card", printDocument).outerWidth();
-
-            var newScale = currentScale * pageWidth / cardWidth;
-
-            //jQuery("html", printDocument).css("font-size",newScale +"px");
-        });
-
-        /////////////////////////////////////////
-
-        printWindow.addEventListener("resize", refreshCard);
-        printWindow.matchMedia("print").addListener(refreshCard);
-
-        function refreshCard() {
-            var cardElements = printDocument.querySelectorAll(".card");
-            forEach(cardElements, function (cardElement) {
-                var cardContent = cardElement.querySelectorAll(".card-content")[0];
-                if (cardContent.scrollHeight > cardContent.offsetHeight) {
-                    cardContent.classList.add("zigzag");
-                } else {
-                    cardContent.classList.remove("zigzag");
-                }
-            });
-        }
-
-        function forEach(array, callback) {
-            for (i = 0; i < array.length; i++) {
-                callback(array[i]);
+            var printFrame = jQuery("#card-print-dialog-content-iframe");
+            var printWindow = printFrame[0].contentWindow;
+            var printDocument = printWindow.document;
+            if (isProd) {
+                ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length);
             }
-        }
+            var currentScale = jQuery("html", printDocument).css("font-size").replace("px", "");
+            printWindow.matchMedia("print").addListener(function() {
 
-        /////////////////////////////////////////
+                var pageWidth = jQuery("body", printDocument).outerWidth();
+                var cardWidth = jQuery(".card", printDocument).outerWidth();
 
-        printWindow.print();
-        jQuery("html", printDocument).css("font-size",currentScale +"px");
-    }
+                var newScale = currentScale * pageWidth / cardWidth;
 
-    function hideDescription(hide) {
-        var printFrame = jQuery("#card-print-dialog-content-iframe");
-        var printWindow = printFrame[0].contentWindow;
-        var printDocument = printWindow.document;
-        if (hide) {
-            jQuery(".description", printDocument).hide();
-        } else {
-            jQuery(".description", printDocument).show();
-        }
+                //jQuery("html", printDocument).css("font-size",newScale +"px");
+            });
 
-        resizeIframe(printFrame);
-    }
+            /////////////////////////////////////////
 
-    function endableMultiCardPage(enable) {
-        var printFrame = jQuery("#card-print-dialog-content-iframe");
-        var printWindow = printFrame[0].contentWindow;
-        var printDocument = printWindow.document;
-        if (enable) {
-            jQuery(".page", printDocument).addClass("multiCardPage");
-        } else {
-            jQuery(".page", printDocument).removeClass("multiCardPage");
+            printWindow.addEventListener("resize", refreshCard);
+            printWindow.matchMedia("print").addListener(refreshCard);
+
+            function refreshCard() {
+                var cardElements = printDocument.querySelectorAll(".card");
+                forEach(cardElements, function (cardElement) {
+                    var cardContent = cardElement.querySelectorAll(".card-body")[0];
+                    if (cardContent.scrollHeight > cardContent.offsetHeight) {
+                        cardContent.classList.add("zigzag");
+                    } else {
+                        cardContent.classList.remove("zigzag");
+                    }
+                });
+            }
+
+            function forEach(array, callback) {
+                for (i = 0; i < array.length; i++) {
+                    callback(array[i]);
+                }
+            }
+
+            /////////////////////////////////////////
+
+            printWindow.print();
+            jQuery("html", printDocument).css("font-size",currentScale +"px");
+        } catch (err) {
+            handleError(err);
         }
     }
 
@@ -201,7 +168,7 @@
         var printDocument = printWindow.document;
 
         printDocument.open();
-        printDocument.write("<head/><body/>");
+        printDocument.write("<head/><body><div id='preload'><div class='zigzag'/></div></body>");
 
         jQuery("head", printDocument).append(cardCss());
         //  jQuery("head", printDocument).append(cardJavaScript()); // NOT WORKING
@@ -313,8 +280,6 @@
     // http://www.cssdesk.com/T9hXg
 
     function printOverlayHTML() {
-
-
         var result = jQuery(document.createElement('div'))
             .attr("id", "card-print-overlay")
             .html(multilineString(function() {
@@ -333,9 +298,9 @@
                   <div id="card-print-dialog-footer">
                     <div class="buttons">
                       <label style="margin-right:10px"><input id="card-scale-range" type="range" min="0.4" max="1.6" step="0.1" value="1.0" />Scale</label>
-                      <label style="margin-right:10px"><input id="multi-card-page-checkbox" type="checkbox"/>Multi Card Page</label>
                       <label style="margin-right:10px;"><input id="rowCount" type="text" class="text" maxlength="1" style="width: 10px;" value="2"/>Row Count</label>
                       <label style="margin-right:10px;"><input id="columnCount" type="text" class="text" maxlength="1" style="width: 10px;" value="1"/>Column Count</label>
+                      <label style="margin-right:10px"><input id="single-card-page-checkbox" type="checkbox"/>Single Card Page</label>
                       <label style="margin-right:10px"><input id="hide-description-checkbox" type="checkbox"/>Hide Description</label>
                       <input id="card-print-dialog-print" type="button" class="aui-button aui-button-primary" value="Print" />
                       <a id="card-print-dialog-cancel" title="Cancel" class="cancel">Cancel</a>
@@ -358,31 +323,100 @@
                 return false;
             });
 
-        // enable multe card page
+        // enable single card page
 
-        result.find("#multi-card-page-checkbox")
-            .click(function() {
-                endableMultiCardPage(this.checked);
-                return true;
-            });
+        result.find("#single-card-page-checkbox").click(function() {
+            writeCookie("card_printer_single_card_page",this.checked);
+
+            var printFrame = result.find("#card-print-dialog-content-iframe");
+            var printWindow = printFrame[0].contentWindow;
+            var printDocument = printWindow.document;
+
+            jQuery("#styleSingleCardPage", printDocument).remove();
+            if(this.checked){
+                var style= document.createElement('style');
+                style.id = 'styleSingleCardPage';
+                style.type ='text/css';
+                style.innerHTML = ".card { page-break-after: always; float: none; }"
+                jQuery("head", printDocument).append(style);
+
+                resizeIframe(printFrame);
+            }
+            return true;
+        });
 
         // hide description
 
-        result.find("#hide-description-checkbox")
-            .click(function() {
-                hideDescription(this.checked);
-                return true;
-            });
+        result.find("#hide-description-checkbox").click(function() {
+            writeCookie("card_printer_hide_description",this.checked);
+
+            var printFrame = result.find("#card-print-dialog-content-iframe");
+            var printWindow = printFrame[0].contentWindow;
+            var printDocument = printWindow.document;
+
+            jQuery("#styleHideDescription", printDocument).remove();
+            if(this.checked){
+                var style= document.createElement('style');
+                style.id = 'styleHideDescription';
+                style.type ='text/css';
+                style.innerHTML = ".issue-description { display: none; }"
+                jQuery("head", printDocument).append(style);
+
+                resizeIframe(printFrame);
+            }
+            return true;
+        });
 
         // scale card
 
         result.find("#card-scale-range").on("input", function() {
+            writeCookie("card_printer_card_scale",jQuery(this).val());
+
+            var printFrame = result.find("#card-print-dialog-content-iframe");
+            var printWindow = printFrame[0].contentWindow;
+            var printDocument = printWindow.document;
+
+            jQuery("html", printDocument).css("font-size", jQuery(this).val() + "cm");
+
+            resizeIframe(printFrame);
+        });
+
+        // grid
+
+        result.find("#rowCount").on("input", function() {
+            writeCookie("card_printer_row_count", jQuery(this).val());
+
             var printFrame = jQuery("#card-print-dialog-content-iframe");
             var printWindow = printFrame[0].contentWindow;
             var printDocument = printWindow.document;
-            jQuery("html", printDocument).css("font-size", jQuery(this).val() + "cm");
+
+            jQuery("#styleRowCount", printDocument).remove();
+            var style= document.createElement('style');
+            style.id = 'styleRowCount';
+            style.type ='text/css';
+            style.innerHTML = ".card { heigth: calc( 100% / " + jQuery(this).val() + "); }"
+            jQuery("head", printDocument).append(style);
+
             resizeIframe(printFrame);
         });
+
+        result.find("#columnCount").on("input", function() {
+            writeCookie("card_printer_column_count",jQuery(this).val());
+
+            var printFrame = jQuery("#card-print-dialog-content-iframe");
+            var printWindow = printFrame[0].contentWindow;
+            var printDocument = printWindow.document;
+
+            jQuery("#styleColumnCount", printDocument).remove();
+            var style= document.createElement('style');
+            style.id = 'styleColumnCount';
+            style.type ='text/css';
+            style.innerHTML = ".card { width: calc( 100% / " + jQuery(this).val() + "); }"
+            jQuery("head", printDocument).append(style);
+
+            resizeIframe(printFrame);
+        });
+
 
         // print
 
@@ -543,8 +577,8 @@
             .addClass("card")
             .html(multilineString(function() {
                 /*!
-    <div class="card-body">
-        <div class="card-content shadow">
+    <div class="card-content">
+        <div class="card-body shadow">
             <div class="issue-summary"></div>
             <div class="issue-description"></div>
         </div>
@@ -583,16 +617,21 @@
         box-sizing: border-box;
         overflow: hidden;
     }
-    html, body {
-
+    html {
         background: WHITE;
-        padding: 0px;
-        margin: 0px;
-        font-size: 0.9cm;
-
-        overflow: scroll;
-
-
+        padding: 0rem;
+        margin: 0rem;
+        font-size: 1.0cm;
+        overflow-y: scroll;
+    }
+    body {
+        padding: 0rem;
+        margin: 0rem;
+    }
+    #preload {
+        position: fixed;
+        top: 0rem;
+        left: 100%;
     }
     .author {
         position: absolute;
@@ -603,18 +642,18 @@
     .card {
         position: relative;
         float:left;
-        height: 100%;  height: 12rem;
+        height: 100%;
         width: 100%;
         padding: 0.5rem;
         padding-top: 0.6rem;
-        min-width:21.0rem;
+        min-width:19.0rem;
         min-height:10.0rem;
 
         border-color: light-grey;
         border-style: dashed;
-        border-width: 1.0px;
+        border-width: 0.05cm;
     }
-    .card-body {
+    .card-content {
         position: relative;
         height: 100%;
         // find .card-header;
@@ -622,7 +661,7 @@
         // find .card-footer;
         padding-bottom: 1.3rem;
     }
-    .card-content {
+    .card-body {
         position: relative;
         height: 100%;
         margin-left: 0.4rem;
@@ -835,6 +874,7 @@
     .hidden {
         display: none;
     }
+
     .zigzag {
         border-bottom-width: 0rem;
     }
@@ -856,12 +896,9 @@
             -webkit-print-color-adjust:exact;
             print-color-adjust: exact;
         }
-        .pageBreak {
-            page-break-after: always;
-            float: none;
-        }
         .card {
             height: 100%;
+            width: 100%;
         }
       }
     }
