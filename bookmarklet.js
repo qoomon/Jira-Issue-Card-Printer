@@ -1033,14 +1033,14 @@
            font-weight: bold;
            font-size: 1.8rem;
            line-height: 2.2rem;
-           background-image: url(https://images.weserv.nl/?url=www.iconsdb.com/icons/download/color/aaaaaa/contacts-256.png);
+           //background-image: url(https://images.weserv.nl/?url=www.iconsdb.com/icons/download/color/aaaaaa/contacts-256.png);
            background-repeat: no-repeat;
            -webkit-background-size: cover;
            background-size: cover;
            -webkit-background-size: 100%;
            background-size: 100%;
-           -webkit-filter: contrast(150%) grayscale(100%);
-           filter: contrast(150%) grayscale(100%);
+           //-webkit-filter: contrast(150%) grayscale(100%);
+           //filter: contrast(150%) grayscale(100%);
            background-position: center;
        }
        .qr-code {
