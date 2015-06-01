@@ -261,34 +261,34 @@
 
 
     function scaleCards(){
-      var printFrame = result.find("#card-print-dialog-content-iframe");
-      var printWindow = printFrame[0].contentWindow;
-      var printDocument = printWindow.document;
-
-      jQuery("html", printDocument).css("font-size", "1cm");
-
-      var currentFontSize = jQuery("html", printDocument).css("font-size").replace("px", "");
-
-      //scale width
-      // substract one pixel due to rounding problems
-      var cardMaxWidth = jQuery("body", printDocument).width() / jQuery(this).val() - 1;
-      var cardMinWidth = jQuery(".card", printDocument).outerWidth();
-
-      var scaleWidth = cardMaxWidth / cardMinWidth;
-
-
-      // //scale height
+      // var printFrame = jQuery("#card-print-dialog-content-iframe");
+      // var printWindow = printFrame[0].contentWindow;
+      // var printDocument = printWindow.document;
+      //
+      // jQuery("html", printDocument).css("font-size", "1cm");
+      //
+      // var currentFontSize = jQuery("html", printDocument).css("font-size").replace("px", "");
+      //
+      // //scale width
       // // substract one pixel due to rounding problems
-      // var cardMaxHeight = jQuery("body", printDocument).height() / jQuery(this).val() - 1;
-      // var cardMinHeight = jQuery(".card", printDocument).outerHeight();
+      // var cardMaxWidth = jQuery("body", printDocument).width() / jQuery(this).val() - 1;
+      // var cardMinWidth = jQuery(".card", printDocument).outerWidth();
       //
       // var scaleWidth = cardMaxWidth / cardMinWidth;
-
-
-      var scale = scaleWidth;
-      var fontSize = currentFontSize * scale;
-
-      jQuery("html", printDocument).css("font-size",fontSize +"px");
+      //
+      //
+      // // //scale height
+      // // // substract one pixel due to rounding problems
+      // // var cardMaxHeight = jQuery("body", printDocument).height() / jQuery(this).val() - 1;
+      // // var cardMinHeight = jQuery(".card", printDocument).outerHeight();
+      // //
+      // // var scaleWidth = cardMaxWidth / cardMinWidth;
+      //
+      //
+      // var scale = scaleWidth;
+      // var fontSize = currentFontSize * scale;
+      //
+      // jQuery("html", printDocument).css("font-size",fontSize +"px");
     }
     // http://www.cssdesk.com/T9hXg
 
@@ -653,7 +653,7 @@
     }
     .author {
         position: absolute;
-        top:0.6rem;
+        top:0.8rem;
         left:calc(50% - 3rem);
         font-size: 0.5rem;
     }
@@ -662,8 +662,7 @@
         float:left;
         height: 100%;
         width: 100%;
-        padding: 0.5rem;
-        padding-top: 0.6rem;
+        padding: 0.5cm;
         min-width:19.0rem;
         min-height:10.0rem;
 
