@@ -1,19 +1,13 @@
 (function() {
     var version = "3.5.0";
     console.log("Version: " + version);
+    var global = {};
 
     try {
-        var global = {};
-
         // load jQuery
         if (window.jQuery === undefined) {
             appendScript('//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js');
         }
-
-        global.isDev = /.*jira.atlassian.com\/secure\/RapidBoard.jspa\?.*projectKey=ANERDS.*/g.test(document.URL) // Jira
-            || /.*pivotaltracker.com\/n\/projects\/510733.*/g.test(document.URL) // PivotTracker
-            || ( /.*trello.com\/.*/g.test(document.URL) && jQuery("span.js-member-name").text() =='Bengt Brodersen'); // Trello
-        global.isProd = !global.isDev;
 
         // wait untill all scripts loaded
         appendScript('https://qoomon.github.io/void', function() {
@@ -74,7 +68,7 @@
 
         jQuery("#rowCount").val(readCookie("card_printer_row_count",2));
         jQuery("#columnCount").val(readCookie("card_printer_column_count",1));
-        jQuery("#card-scale-range").val(readCookie("card_printer_card_scale",1));
+        jQuery("#font-scale-range").val(readCookie("card_printer_font_scale",1));
         jQuery("#single-card-page-checkbox").attr('checked',readCookie("card_printer_single_card_page",false) != 'false');
         jQuery("#hide-description-checkbox").attr('checked',readCookie("card_printer_hide_description",false) != 'false');
 
@@ -93,6 +87,11 @@
         addStringFunctions();
         addDateFunctions();
 
+        global.isDev = /.*jira.atlassian.com\/secure\/RapidBoard.jspa\?.*projectKey=ANERDS.*/g.test(document.URL) // Jira
+            || /.*pivotaltracker.com\/n\/projects\/510733.*/g.test(document.URL) // PivotTracker
+            || ( /.*trello.com\/.*/g.test(document.URL) && jQuery("span.js-member-name").text() =='Bengt Brodersen'); // Trello
+        global.isProd = !global.isDev;
+
         global.hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
         if (global.isDev) {
             console.log("DEVELOPMENT");
@@ -107,35 +106,18 @@
 
     function print() {
         try {
-            var rowCount = jQuery("#rowCount").val();
-            var columnCount = jQuery("#columnCount").val();
-            var scale = jQuery("#card-scale-range").val();
-            var singleCard = jQuery("#single-card-page-checkbox").is(':checked');
-            var hideDescription = jQuery("#hide-description-checkbox").is(':checked');
-
             var printFrame = jQuery("#card-print-dialog-content-iframe");
             var printWindow = printFrame[0].contentWindow;
             var printDocument = printWindow.document;
             if (global.isProd) {
                 ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length);
             }
-            var currentScale = jQuery("html", printDocument).css("font-size").replace("px", "");
-            printWindow.matchMedia("print").addListener(function() {
-
-                var pageWidth = jQuery("body", printDocument).outerWidth();
-                var cardWidth = jQuery(".card", printDocument).outerWidth();
-
-                var newScale = currentScale * pageWidth / cardWidth;
-
-                //jQuery("html", printDocument).css("font-size",newScale +"px");
-            });
-
-            /////////////////////////////////////////
+            /////////////////////////////////////////  SCRIPT SHOULD ADDED TO PRINT PAGE
 
             printWindow.addEventListener("resize", refreshCard);
             printWindow.matchMedia("print").addListener(refreshCard);
-
             function refreshCard() {
+
                 var cardElements = printDocument.querySelectorAll(".card");
                 forEach(cardElements, function (cardElement) {
                     var cardContent = cardElement.querySelectorAll(".card-body")[0];
@@ -156,7 +138,6 @@
             /////////////////////////////////////////
 
             printWindow.print();
-            jQuery("html", printDocument).css("font-size",currentScale +"px");
         } catch (err) {
             handleError(err);
         }
@@ -278,6 +259,37 @@
     //############################################################################################################################
     //############################################################################################################################
 
+
+    function scaleCards(){
+      var printFrame = result.find("#card-print-dialog-content-iframe");
+      var printWindow = printFrame[0].contentWindow;
+      var printDocument = printWindow.document;
+
+      jQuery("html", printDocument).css("font-size", "1cm");
+
+      var currentFontSize = jQuery("html", printDocument).css("font-size").replace("px", "");
+
+      //scale width
+      // substract one pixel due to rounding problems
+      var cardMaxWidth = jQuery("body", printDocument).width() / jQuery(this).val() - 1;
+      var cardMinWidth = jQuery(".card", printDocument).outerWidth();
+
+      var scaleWidth = cardMaxWidth / cardMinWidth;
+
+
+      // //scale height
+      // // substract one pixel due to rounding problems
+      // var cardMaxHeight = jQuery("body", printDocument).height() / jQuery(this).val() - 1;
+      // var cardMinHeight = jQuery(".card", printDocument).outerHeight();
+      //
+      // var scaleWidth = cardMaxWidth / cardMinWidth;
+
+
+      var scale = scaleWidth;
+      var fontSize = currentFontSize * scale;
+
+      jQuery("html", printDocument).css("font-size",fontSize +"px");
+    }
     // http://www.cssdesk.com/T9hXg
 
     function printOverlayHTML() {
@@ -298,7 +310,7 @@
                   </div>
                   <div id="card-print-dialog-footer">
                     <div class="buttons">
-                      <label style="margin-right:10px"><input id="card-scale-range" type="range" min="0.4" max="1.6" step="0.1" value="1.0" />Scale</label>
+                      <label style="margin-right:10px"><input id="font-scale-range" type="range" min="0.4" max="1.6" step="0.1" value="1.0" />Font Scale</label>
                       <label style="margin-right:10px;"><input id="rowCount" type="text" class="text" maxlength="1" style="width: 10px;" value="2"/>Row Count</label>
                       <label style="margin-right:10px;"><input id="columnCount" type="text" class="text" maxlength="1" style="width: 10px;" value="1"/>Column Count</label>
                       <label style="margin-right:10px"><input id="single-card-page-checkbox" type="checkbox"/>Single Card Page</label>
@@ -368,10 +380,10 @@
             return true;
         });
 
-        // scale card
+        // scale font
 
-        result.find("#card-scale-range").on("input", function() {
-            writeCookie("card_printer_card_scale",jQuery(this).val());
+        result.find("#font-scale-range").on("input", function() {
+            writeCookie("card_printer_font_scale",jQuery(this).val());
 
             var printFrame = result.find("#card-print-dialog-content-iframe");
             var printWindow = printFrame[0].contentWindow;
@@ -395,8 +407,10 @@
             var style= document.createElement('style');
             style.id = 'styleRowCount';
             style.type ='text/css';
-            style.innerHTML = ".card { heigth: calc( 100% / " + jQuery(this).val() + "); }"
+            style.innerHTML = ".card { height: calc( 100% / " + jQuery(this).val() + "); }"
             jQuery("head", printDocument).append(style);
+
+            //scale to fit
 
             resizeIframe(printFrame);
         });
@@ -414,6 +428,9 @@
             style.type ='text/css';
             style.innerHTML = ".card { width: calc( 100% / " + jQuery(this).val() + "); }"
             jQuery("head", printDocument).append(style);
+
+            //scale to fit
+            scaleCards();
 
             resizeIframe(printFrame);
         });
