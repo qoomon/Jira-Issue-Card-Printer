@@ -3,24 +3,17 @@
     console.log("Version: " + version);
 
     try {
+        var global = {};
+
         // load jQuery
         if (window.jQuery === undefined) {
             appendScript('//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js');
         }
 
-        var isDev = /.*jira.atlassian.com\/secure\/RapidBoard.jspa\?.*projectKey=ANERDS.*/g.test(document.URL) // Jira
+        global.isDev = /.*jira.atlassian.com\/secure\/RapidBoard.jspa\?.*projectKey=ANERDS.*/g.test(document.URL) // Jira
             || /.*pivotaltracker.com\/n\/projects\/510733.*/g.test(document.URL) // PivotTracker
             || ( /.*trello.com\/.*/g.test(document.URL) && jQuery("span.js-member-name").text() =='Bengt Brodersen'); // Trello
-        var isProd = !isDev;
-
-        var hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
-        if (isDev) {
-            console.log("DEVELOPMENT");
-            hostOrigin = "https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/";
-        }
-        var resourceOrigin = hostOrigin + "resources/";
-
-        var appFunctions = null;
+        global.isProd = !global.isDev;
 
         // wait untill all scripts loaded
         appendScript('https://qoomon.github.io/void', function() {
@@ -35,41 +28,32 @@
     }
 
     function handleError(err){
-      console.log("ERROR: " + err.stack);
-      if (isProd) {
-          ga('send', 'exception', {
-              'exDescription': err.message,
-              'exFatal': true
-          });
-      }
-    }
-
-    function init() {
-
-        addStringFunctions();
-        addDateFunctions();
-
-        if (jQuery("meta[name='application-name'][ content='JIRA']").length > 0) {
-            console.log("App: " + "Jira");
-            appFunctions = jiraFunctions;
-        } else if (/.*pivotaltracker.com\/.*/g.test(document.URL)) {
-            console.log("App: " + "PivotalTracker");
-            appFunctions = pivotalTrackerFunctions;
-        } else if (/.*trello.com\/.*/g.test(document.URL)) {
-            console.log("App: " + "Trello");
-            appFunctions = trelloFunctions;
-        } else {
-            alert("Unsupported app.Please create an issue at https://github.com/qoomon/Jira-Issue-Card-Printer");
-            return;
-        }
-
-        if (isProd){
-            initGoogleAnalytics();
+        console.log("ERROR: " + err.stack);
+        if (global.isProd) {
+            ga('send', 'exception', {
+                'exDescription': err.message,
+                'exFatal': true
+            });
         }
     }
 
     function main() {
         init();
+
+        // determine application
+        if (jQuery("meta[name='application-name'][ content='JIRA']").length > 0) {
+            console.log("App: " + "Jira");
+            global.appFunctions = jiraFunctions;
+        } else if (/.*pivotaltracker.com\/.*/g.test(document.URL)) {
+            console.log("App: " + "PivotalTracker");
+            global.appFunctions = pivotalTrackerFunctions;
+        } else if (/.*trello.com\/.*/g.test(document.URL)) {
+            console.log("App: " + "Trello");
+            global.appFunctions = trelloFunctions;
+        } else {
+            alert("Unsupported app.Please create an issue at https://github.com/qoomon/Jira-Issue-Card-Printer");
+            return;
+        }
 
         //preconditions
         if (jQuery("#card-print-overlay").length > 0) {
@@ -77,7 +61,8 @@
             return;
         }
 
-        var issueKeyList = appFunctions.getSelectedIssueKeyList();
+        // collect selcted issues
+        var issueKeyList = global.appFunctions.getSelectedIssueKeyList();
         if (issueKeyList.length <= 0) {
             alert("Please select at least one issue.");
             return;
@@ -93,15 +78,31 @@
         jQuery("#single-card-page-checkbox").attr('checked',readCookie("card_printer_single_card_page",false) != 'false');
         jQuery("#hide-description-checkbox").attr('checked',readCookie("card_printer_hide_description",false) != 'false');
 
-        if (isProd) {
-            ga('send', 'pageview');
-        }
-
         jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
         renderCards(issueKeyList, function() {
             jQuery("#card-print-dialog-title").text("Card Print");
             //print();
         });
+
+        if (global.isProd) {
+            ga('send', 'pageview');
+        }
+    }
+
+    function init() {
+        addStringFunctions();
+        addDateFunctions();
+
+        global.hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
+        if (global.isDev) {
+            console.log("DEVELOPMENT");
+            global.hostOrigin = "https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/";
+        }
+        global.resourceOrigin = global.hostOrigin + "resources/";
+
+        if (global.isProd){
+            initGoogleAnalytics();
+        }
     }
 
     function print() {
@@ -115,7 +116,7 @@
             var printFrame = jQuery("#card-print-dialog-content-iframe");
             var printWindow = printFrame[0].contentWindow;
             var printDocument = printWindow.document;
-            if (isProd) {
+            if (global.isProd) {
                 ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length);
             }
             var currentScale = jQuery("html", printDocument).css("font-size").replace("px", "");
@@ -184,9 +185,9 @@
             page.find('.issue-id').text(issueKey);
             jQuery("body", printDocument).append(page);
             var deferred = addDeferred(deferredList);
-            appFunctions.getCardData(issueKey, function(cardData) {
+            global.appFunctions.getCardData(issueKey, function(cardData) {
                 //console.log("cardData: " + cardData);
-                if (isProd) {
+                if (global.isProd) {
                     ga('send', 'event', 'task', 'generate', 'card', cardData.type);
                 }
                 fillCard(page, cardData);
@@ -903,7 +904,7 @@
       }
     }
                 */
-            }).replace(/{RESOURCE_ORIGIN}/g, resourceOrigin));
+            }).replace(/{RESOURCE_ORIGIN}/g, global.resourceOrigin));
         return result;
     }
 
