@@ -1,5 +1,5 @@
 (function() {
-    var version = "4.0.0";
+    var version = "4.0.1";
     console.log("Version: " + version);
 
     var global = {};
@@ -261,6 +261,35 @@
 
       var columnCount = jQuery("#columnCount").val();
       var rowCount = jQuery("#rowCount").val();
+
+      // scale
+
+      jQuery("html", printDocument).css("font-size", "1cm");
+
+      // scale horizontal
+      // substract one pixel due to rounding problems
+      var cardMaxWidth = jQuery(".card", printDocument).outerWidth() / columnCount - 1;
+      var cardMinWidth = jQuery(".card", printDocument).css("min-width").replace("px", "");
+      var scaleWidth = cardMaxWidth / cardMinWidth;
+      console.log("cardMaxWidth: "+cardMaxWidth);
+      console.log("cardMinWidth: "+cardMinWidth);
+      console.log("scaleWidth: "+scaleWidth);
+
+      // scale vertical
+      // substract one pixel due to rounding problems
+      var cardMaxHeight = jQuery(".card", printDocument).outerHeight() / rowCount - 1;
+      var cardMinHeight = jQuery(".card", printDocument).css("min-height").replace("px", "");
+      var scaleHeight = cardMaxHeight / cardMinHeight;
+      console.log("cardMaxHeight: "+cardMaxHeight);
+      console.log("cardMinHeight: "+cardMinHeight);
+      console.log("scaleHeight: "+scaleHeight);
+      scaleHeight = 1;
+      // scale min
+      var scale = Math.min(scaleWidth, scaleHeight);
+      if(scale < 1) {
+          jQuery("html", printDocument).css("font-size",scale +"cm");
+      }
+
       // size
 
       // size horizontal
@@ -278,28 +307,6 @@
       style.type ='text/css';
       style.innerHTML = ".card { height: calc( 100% / " + rowCount + "); }"
       jQuery("head", printDocument).append(style);
-
-
-      // scale
-      jQuery("html", printDocument).css("font-size", "1cm");
-
-      // scale horizontal
-      // substract one pixel due to rounding problems
-      var cardMaxWidth = jQuery(".card", printDocument).outerWidth() / columnCount - 1;
-      var cardMinWidth = jQuery(".card", printDocument).css("min-width").replace("px", "");
-      var scaleWidth = cardMaxWidth / cardMinWidth;
-
-      // scale vertical
-      // substract one pixel due to rounding problems
-      var cardMaxHeight = jQuery(".card", printDocument).outerHeight() / rowCount - 1;
-      var cardMinHeight = jQuery(".card", printDocument).css("min-height").replace("px", "");
-      var scaleHeight = cardMaxHeight / cardMinHeight;
-
-      // scale min
-      var scale = Math.min(scaleWidth, scaleHeight);
-      if(scale < 1) {
-          jQuery("html", printDocument).css("font-size",scale +"cm");
-      }
     }
 
     function cropCards() {
