@@ -361,9 +361,8 @@
                 style.type ='text/css';
                 style.innerHTML = ".card { page-break-after: always; float: none; }"
                 jQuery("head", printDocument).append(style);
-
-                refreshCard();
             }
+            refreshCard();
             return true;
         });
 
@@ -383,9 +382,8 @@
                 style.type ='text/css';
                 style.innerHTML = ".issue-description { display: none; }"
                 jQuery("head", printDocument).append(style);
-
-                refreshCard();
             }
+            refreshCard();
             return true;
         });
 
