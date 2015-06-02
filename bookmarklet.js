@@ -132,10 +132,11 @@
         var printDocument = printWindow.document;
 
         printDocument.open();
-        printDocument.write("<head/><body><div id='preload'><div class='zigzag'/></div></body>");
+        printDocument.write("<head/><body></body>");
 
         jQuery("head", printDocument).append(cardCss());
-        //  jQuery("head", printDocument).append(cardJavaScript()); // NOT WORKING
+        jQuery("body", printDocument).append("<div id='preload'/>");
+        jQuery("#preload", printDocument).append("<div class='zigzag'/>");
 
         console.log("load " + issueKeyList.length + " issues...");
 
@@ -904,22 +905,28 @@
         left:-0.07rem;
         content:"";
         width: 100%;
+        border-style:solid;
         border-bottom-width: 0.8rem;
         border-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/ZigZag.png) 0 0 56 fill round repeat;
     }
     @media print {
         @page {
-            margin: 0.0cm;
-            padding: 0.0cm;
+            margin: 0.0px ;
+            padding: 0.0px ;
+        }
+        #Header, #Footer {
+            display: none !important;
         }
         html {
             -webkit-print-color-adjust:exact;
             print-color-adjust: exact;
         }
-        .card {
+
+        .page {
             height: 100%;
             width: 100%;
             page-break-inside: avoid;
+            page-break-after: alway;
         }
       }
     }
