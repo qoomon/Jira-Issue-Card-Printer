@@ -71,9 +71,9 @@
 
         jQuery("#rowCount").val(readCookie("card_printer_row_count",2));
         jQuery("#columnCount").val(readCookie("card_printer_column_count",1));
-        jQuery("#font-scale-range").val(readCookie("card_printer_font_scale",1));
-        jQuery("#single-card-page-checkbox").attr('checked',readCookie("card_printer_single_card_page",false) != 'false');
-        jQuery("#hide-description-checkbox").attr('checked',readCookie("card_printer_hide_description",false) != 'false');
+        //jQuery("#font-scale-range").val(readCookie("card_printer_font_scale",1));
+        jQuery("#single-card-page-checkbox").attr('checked',readCookie("card_printer_single_card_page", 'true' ) == 'true');
+        jQuery("#hide-description-checkbox").attr('checked',readCookie("card_printer_hide_description", 'false') == 'true');
 
         jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
         renderCards(issueKeyList, function() {
