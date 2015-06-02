@@ -1,35 +1,33 @@
 (function() {
     var version = "3.5.0";
     console.log("Version: " + version);
+
     var global = {};
+    global.isDev = /.*jira.atlassian.com\/secure\/RapidBoard.jspa\?.*projectKey=ANERDS.*/g.test(document.URL) // Jira
+        || /.*pivotaltracker.com\/n\/projects\/510733.*/g.test(document.URL) // PivotTracker
+        || ( /.*trello.com\/.*/g.test(document.URL) && jQuery("span.js-member-name").text() =='Bengt Brodersen'); // Trello
+    global.isProd = !global.isDev;
 
-    try {
-        // load jQuery
-        if (window.jQuery === undefined) {
-            appendScript('//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js');
-        }
-
-        // wait untill all scripts loaded
-        appendScript('https://qoomon.github.io/void', function() {
-            try {
-                main();
-            } catch (err) {
-                handleError(err);
-            }
-        });
-    } catch (err) {
-        handleError(err);
-    }
-
-    function handleError(err){
-        console.log("ERROR: " + err.stack);
+    window.addEventListener("error", function(event) {
+        var error = event.error;
+        console.log("ERROR: " + error.stack);
         if (global.isProd) {
             ga('send', 'exception', {
-                'exDescription': err.message,
+                'exDescription': error.message,
                 'exFatal': true
             });
         }
+    });
+
+    // load jQuery
+    if (window.jQuery === undefined) {
+        appendScript('//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js');
     }
+
+    // wait untill all scripts loaded
+    appendScript('https://qoomon.github.io/void', function() {
+        main();
+    });
 
     function main() {
         init();
@@ -66,6 +64,11 @@
         jQuery("body").append(printOverlayHTML());
         jQuery("#card-print-overlay").prepend(printOverlayStyle());
 
+        var printFrame = jQuery("#card-print-dialog-content-iframe");
+        var printWindow = printFrame[0].contentWindow;
+        printWindow.addEventListener("resize", function(){redrawCards;});
+        printWindow.matchMedia("print").addListener(function(){redrawCards;});
+
         jQuery("#rowCount").val(readCookie("card_printer_row_count",2));
         jQuery("#columnCount").val(readCookie("card_printer_column_count",1));
         jQuery("#font-scale-range").val(readCookie("card_printer_font_scale",1));
@@ -87,11 +90,6 @@
         addStringFunctions();
         addDateFunctions();
 
-        global.isDev = /.*jira.atlassian.com\/secure\/RapidBoard.jspa\?.*projectKey=ANERDS.*/g.test(document.URL) // Jira
-            || /.*pivotaltracker.com\/n\/projects\/510733.*/g.test(document.URL) // PivotTracker
-            || ( /.*trello.com\/.*/g.test(document.URL) && jQuery("span.js-member-name").text() =='Bengt Brodersen'); // Trello
-        global.isProd = !global.isDev;
-
         global.hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
         if (global.isDev) {
             console.log("DEVELOPMENT");
@@ -105,24 +103,13 @@
     }
 
     function print() {
-        try {
-            var printFrame = jQuery("#card-print-dialog-content-iframe");
-            var printWindow = printFrame[0].contentWindow;
-            var printDocument = printWindow.document;
-            if (global.isProd) {
-                ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length);
-            }
-            /////////////////////////////////////////  SCRIPT SHOULD ADDED TO PRINT PAGE
-
-            printWindow.addEventListener("resize", function(){redrawCards;});
-            printWindow.matchMedia("print").addListener(function(){redrawCards;});
-
-            /////////////////////////////////////////
-
-            printWindow.print();
-        } catch (err) {
-            handleError(err);
+        if (global.isProd) {
+            ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length);
         }
+
+        var printFrame = jQuery("#card-print-dialog-content-iframe");
+        var printWindow = printFrame[0].contentWindow;
+        printWindow.print();
     }
 
     function renderCards(issueKeyList, callback) {
