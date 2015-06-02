@@ -114,26 +114,8 @@
             }
             /////////////////////////////////////////  SCRIPT SHOULD ADDED TO PRINT PAGE
 
-            printWindow.addEventListener("resize", refreshCard);
-            printWindow.matchMedia("print").addListener(refreshCard);
-            function refreshCard() {
-
-                var cardElements = printDocument.querySelectorAll(".card");
-                forEach(cardElements, function (cardElement) {
-                    var cardContent = cardElement.querySelectorAll(".card-body")[0];
-                    if (cardContent.scrollHeight > cardContent.offsetHeight) {
-                        cardContent.classList.add("zigzag");
-                    } else {
-                        cardContent.classList.remove("zigzag");
-                    }
-                });
-            }
-
-            function forEach(array, callback) {
-                for (i = 0; i < array.length; i++) {
-                    callback(array[i]);
-                }
-            }
+            printWindow.addEventListener("resize", function(){refreshCard;});
+            printWindow.matchMedia("print").addListener(function(){refreshCard;});
 
             /////////////////////////////////////////
 
@@ -155,7 +137,6 @@
         jQuery("head", printDocument).append(cardCss());
         //  jQuery("head", printDocument).append(cardJavaScript()); // NOT WORKING
 
-
         console.log("load " + issueKeyList.length + " issues...");
 
         var deferredList = [];
@@ -173,7 +154,7 @@
                 }
                 fillCard(page, cardData);
                 page.show();
-                resizeIframe(printFrame);
+                refreshCard();
                 deferred.resolve();
             });
         });
@@ -190,10 +171,16 @@
         });
     }
 
-    function closePrintPreview() {
-        jQuery("#card-print-overlay").remove();
-        jQuery("#card-print-overlay-style").remove();
+    function refreshCard() {
+
+        scaleCards();
+
+        cropCards();
+
+        var printFrame = jQuery("#card-print-dialog-content-iframe");
+        resizeIframe(printFrame);
     }
+
 
     function fillCard(card, data) {
         //Key
@@ -255,41 +242,63 @@
         card.find(".issue-qr-code").css("background-image", "url('" + qrCodeUrl + "')");
     }
 
-    //############################################################################################################################
-    //############################################################################################################################
-    //############################################################################################################################
-
-
     function scaleCards(){
-      // var printFrame = jQuery("#card-print-dialog-content-iframe");
-      // var printWindow = printFrame[0].contentWindow;
-      // var printDocument = printWindow.document;
-      //
-      // jQuery("html", printDocument).css("font-size", "1cm");
-      //
-      // var currentFontSize = jQuery("html", printDocument).css("font-size").replace("px", "");
-      //
-      // //scale width
-      // // substract one pixel due to rounding problems
-      // var cardMaxWidth = jQuery("body", printDocument).width() / jQuery(this).val() - 1;
-      // var cardMinWidth = jQuery(".card", printDocument).outerWidth();
-      //
-      // var scaleWidth = cardMaxWidth / cardMinWidth;
-      //
-      //
-      // // //scale height
-      // // // substract one pixel due to rounding problems
-      // // var cardMaxHeight = jQuery("body", printDocument).height() / jQuery(this).val() - 1;
-      // // var cardMinHeight = jQuery(".card", printDocument).outerHeight();
-      // //
-      // // var scaleWidth = cardMaxWidth / cardMinWidth;
-      //
-      //
-      // var scale = scaleWidth;
-      // var fontSize = currentFontSize * scale;
-      //
-      // jQuery("html", printDocument).css("font-size",fontSize +"px");
+      var printFrame = jQuery("#card-print-dialog-content-iframe");
+      var printWindow = printFrame[0].contentWindow;
+      var printDocument = printWindow.document;
+
+      jQuery("html", printDocument).css("font-size", "1cm");
+
+      // scale width
+      // substract one pixel due to rounding problems
+      var cardMaxWidth = jQuery(".card", printDocument).outerWidth() / jQuery("#columnCount").val() - 1;
+      var cardMinWidth = jQuery(".card", printDocument).css("min-width").replace("px", "");
+      var scaleWidth = cardMaxWidth / cardMinWidth;
+
+      // scale height
+      // substract one pixel due to rounding problems
+      var cardMaxHeight = jQuery(".card", printDocument).outerHeight() / jQuery("#rowCount").val() - 1;
+      var cardMinHeight = jQuery(".card", printDocument).css("min-height").replace("px", "");
+      var scaleHeight = cardMaxHeight / cardMinHeight;
+
+      // scale min
+      var scale = Math.min(scaleWidth, scaleHeight);
+      if(scale < 1) {
+          jQuery("html", printDocument).css("font-size",scale +"cm");
+      }
     }
+
+    function cropCards() {
+        var printFrame = jQuery("#card-print-dialog-content-iframe");
+        var printWindow = printFrame[0].contentWindow;
+        var printDocument = printWindow.document;
+
+        var cardElements = printDocument.querySelectorAll(".card");
+        forEach(cardElements, function (cardElement) {
+            var cardContent = cardElement.querySelectorAll(".card-body")[0];
+            if (cardContent.scrollHeight > cardContent.offsetHeight) {
+                cardContent.classList.add("zigzag");
+            } else {
+                cardContent.classList.remove("zigzag");
+            }
+        });
+    }
+
+    function forEach(array, callback) {
+        for (i = 0; i < array.length; i++) {
+            callback(array[i]);
+        }
+    }
+
+    function closePrintPreview() {
+        jQuery("#card-print-overlay").remove();
+        jQuery("#card-print-overlay-style").remove();
+    }
+
+    //############################################################################################################################
+    //############################################################################################################################
+    //############################################################################################################################
+
     // http://www.cssdesk.com/T9hXg
 
     function printOverlayHTML() {
@@ -353,7 +362,7 @@
                 style.innerHTML = ".card { page-break-after: always; float: none; }"
                 jQuery("head", printDocument).append(style);
 
-                resizeIframe(printFrame);
+                refreshCard();
             }
             return true;
         });
@@ -375,7 +384,7 @@
                 style.innerHTML = ".issue-description { display: none; }"
                 jQuery("head", printDocument).append(style);
 
-                resizeIframe(printFrame);
+                refreshCard();
             }
             return true;
         });
@@ -391,7 +400,7 @@
 
             jQuery("html", printDocument).css("font-size", jQuery(this).val() + "cm");
 
-            resizeIframe(printFrame);
+            refreshCard();
         });
 
         // grid
@@ -410,9 +419,7 @@
             style.innerHTML = ".card { height: calc( 100% / " + jQuery(this).val() + "); }"
             jQuery("head", printDocument).append(style);
 
-            //scale to fit
-
-            resizeIframe(printFrame);
+            refreshCard();
         });
 
         result.find("#columnCount").on("input", function() {
@@ -429,10 +436,7 @@
             style.innerHTML = ".card { width: calc( 100% / " + jQuery(this).val() + "); }"
             jQuery("head", printDocument).append(style);
 
-            //scale to fit
-            scaleCards();
-
-            resizeIframe(printFrame);
+            refreshCard();
         });
 
 
@@ -916,6 +920,7 @@
         .card {
             height: 100%;
             width: 100%;
+            page-break-inside: avoid;
         }
       }
     }
