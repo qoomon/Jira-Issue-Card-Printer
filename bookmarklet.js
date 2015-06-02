@@ -911,22 +911,15 @@
     }
     @media print {
         @page {
-            margin: 0.0px ;
-            padding: 0.0px ;
-        }
-        #Header, #Footer {
-            display: none !important;
+            margin: 0.0mm;
+            padding: 0.0mm;
         }
         html {
             -webkit-print-color-adjust:exact;
             print-color-adjust: exact;
         }
-
-        .page {
-            height: 100%;
-            width: 100%;
+        .card {
             page-break-inside: avoid;
-            page-break-after: alway;
         }
       }
     }
