@@ -1,5 +1,5 @@
 (function() {
-    var version = "4.0.1";
+    var version = "4.0.3";
     console.log("Version: " + version);
 
     var global = {};
@@ -259,36 +259,15 @@
       var printWindow = printFrame[0].contentWindow;
       var printDocument = printWindow.document;
 
+
       var columnCount = jQuery("#columnCount").val();
       var rowCount = jQuery("#rowCount").val();
 
-      // scale
+      var cardCount = jQuery(".card", printDocument).length;
+      var pageCount = Math.ceil(cardCount / (columnCount * rowCount))
 
-      jQuery("html", printDocument).css("font-size", "1cm");
-
-      // scale horizontal
-      // substract one pixel due to rounding problems
-      var cardMaxWidth = jQuery(".card", printDocument).outerWidth() / columnCount - 1;
-      var cardMinWidth = jQuery(".card", printDocument).css("min-width").replace("px", "");
-      var scaleWidth = cardMaxWidth / cardMinWidth;
-      console.log("cardMaxWidth: "+cardMaxWidth);
-      console.log("cardMinWidth: "+cardMinWidth);
-      console.log("scaleWidth: "+scaleWidth);
-
-      // scale vertical
-      // substract one pixel due to rounding problems
-      var cardMaxHeight = jQuery(".card", printDocument).outerHeight() / rowCount - 1;
-      var cardMinHeight = jQuery(".card", printDocument).css("min-height").replace("px", "");
-      var scaleHeight = cardMaxHeight / cardMinHeight;
-      console.log("cardMaxHeight: "+cardMaxHeight);
-      console.log("cardMinHeight: "+cardMinHeight);
-      console.log("scaleHeight: "+scaleHeight);
-      scaleHeight = 1;
-      // scale min
-      var scale = Math.min(scaleWidth, scaleHeight);
-      if(scale < 1) {
-          jQuery("html", printDocument).css("font-size",scale +"cm");
-      }
+      console.log("cardCount: "+cardCount);
+      console.log("pageCount: "+pageCount);
 
       // size
 
@@ -297,7 +276,7 @@
       var style= document.createElement('style');
       style.id = 'styleColumnCount';
       style.type ='text/css';
-      style.innerHTML = ".card { width: calc( 100% / " + columnCount + "); }"
+      style.innerHTML = ".card { width: calc( 100% / " + columnCount + " - 0.0001px  ); }"
       jQuery("head", printDocument).append(style);
 
       // size horizontal
@@ -305,8 +284,36 @@
       var style= document.createElement('style');
       style.id = 'styleRowCount';
       style.type ='text/css';
-      style.innerHTML = ".card { height: calc( 100% / " + rowCount + "); }"
+      style.innerHTML = ".card { height: calc( 100% / " + rowCount + " - 0.0001px ); }"
       jQuery("head", printDocument).append(style);
+
+      // scale
+
+      jQuery("html", printDocument).css("font-size", "1cm");
+
+      // scale horizontal
+      // substract one pixel due to rounding problems
+      var cardMaxWidth = Math.floor(jQuery(".card", printDocument).outerWidth() / columnCount) ;
+      var cardMinWidth = jQuery(".card", printDocument).css("min-width").replace("px", "") ;
+      var scaleWidth = cardMaxWidth / cardMinWidth;
+      console.log("cardMaxWidth: "+cardMaxWidth);
+      console.log("cardMinWidth: "+cardMinWidth);
+      console.log("scaleWidth: "+scaleWidth);
+
+      // scale vertical
+      // substract one pixel due to rounding problems
+      var cardMaxHeight = Math.floor(jQuery(".card", printDocument).outerHeight() * 2 / rowCount) ;
+      var cardMinHeight = jQuery(".card", printDocument).css("min-height").replace("px", "") ;
+      var scaleHeight = cardMaxHeight / cardMinHeight;
+      console.log("cardMaxHeight: "+cardMaxHeight);
+      console.log("cardMinHeight: "+cardMinHeight);
+      console.log("scaleHeight: "+scaleHeight);
+
+      // scale min
+      var scale = Math.min(scaleWidth, scaleHeight, 1);
+      if(scale < 1) {
+          jQuery("html", printDocument).css("font-size",scale +"cm");
+      }
     }
 
     function cropCards() {
@@ -664,7 +671,7 @@
         min-width:19.0rem;
         min-height:10.0rem;
 
-        border-color: light-grey;
+        border-color: LightGray;
         border-style: dotted;
         border-width: 0.03cm;
     }
