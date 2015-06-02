@@ -365,7 +365,7 @@
                   </div>
                   <div id="card-print-dialog-footer">
                     <div class="buttons">
-                      <label style="margin-right:10px"><input id="font-scale-range" type="range" min="0.4" max="1.6" step="0.1" value="1.0" />Font Scale</label>
+                      <label style="display:none; margin-right:10px"><input id="font-scale-range" type="range" min="0.4" max="1.6" step="0.1" value="1.0" />Font Scale</label>
                       <label style="margin-right:10px;"><input id="rowCount" type="text" class="text" maxlength="1" style="width: 10px;" value="2"/>Row Count</label>
                       <label style="margin-right:10px;"><input id="columnCount" type="text" class="text" maxlength="1" style="width: 10px;" value="1"/>Column Count</label>
                       <label style="margin-right:10px"><input id="single-card-page-checkbox" type="checkbox"/>Single Card Page</label>
