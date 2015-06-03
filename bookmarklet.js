@@ -1,5 +1,5 @@
 (function() {
-    var version = "4.0.1";
+    var version = "4.0.6";
     console.log("Version: " + version);
 
     var global = {};
@@ -42,6 +42,9 @@
         } else if (/.*trello.com\/.*/g.test(document.URL)) {
             console.log("App: " + "Trello");
             global.appFunctions = trelloFunctions;
+        } else if (/.*\/youtrack\/.*/g.test(document.URL)) {
+            console.log("App: " + "YouTrack");
+            global.appFunctions = youTrackFunctions;
         } else {
             alert("Unsupported app.Please create an issue at https://github.com/qoomon/Jira-Issue-Card-Printer");
             return;
@@ -66,8 +69,8 @@
 
         var printFrame = jQuery("#card-print-dialog-content-iframe");
         var printWindow = printFrame[0].contentWindow;
-        printWindow.addEventListener("resize", function(){redrawCards;});
-        printWindow.matchMedia("print").addListener(function(){redrawCards;});
+        printWindow.addEventListener("resize", function(){redrawCards();});
+        printWindow.matchMedia("print").addListener(function(){redrawCards();});
 
         jQuery("#rowCount").val(readCookie("card_printer_row_count",2));
         jQuery("#columnCount").val(readCookie("card_printer_column_count",1));
@@ -103,12 +106,14 @@
     }
 
     function print() {
+        var printFrame = jQuery("#card-print-dialog-content-iframe");
+        var printWindow = printFrame[0].contentWindow;
+        var printDocument = printWindow.document;
+
         if (global.isProd) {
             ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length);
         }
 
-        var printFrame = jQuery("#card-print-dialog-content-iframe");
-        var printWindow = printFrame[0].contentWindow;
         printWindow.print();
     }
 
@@ -259,36 +264,15 @@
       var printWindow = printFrame[0].contentWindow;
       var printDocument = printWindow.document;
 
+
       var columnCount = jQuery("#columnCount").val();
       var rowCount = jQuery("#rowCount").val();
 
-      // scale
+      var cardCount = jQuery(".card", printDocument).length;
+      var pageCount = Math.ceil(cardCount / (columnCount * rowCount))
 
-      jQuery("html", printDocument).css("font-size", "1cm");
-
-      // scale horizontal
-      // substract one pixel due to rounding problems
-      var cardMaxWidth = jQuery(".card", printDocument).outerWidth() / columnCount - 1;
-      var cardMinWidth = jQuery(".card", printDocument).css("min-width").replace("px", "");
-      var scaleWidth = cardMaxWidth / cardMinWidth;
-      console.log("cardMaxWidth: "+cardMaxWidth);
-      console.log("cardMinWidth: "+cardMinWidth);
-      console.log("scaleWidth: "+scaleWidth);
-
-      // scale vertical
-      // substract one pixel due to rounding problems
-      var cardMaxHeight = jQuery(".card", printDocument).outerHeight() / rowCount - 1;
-      var cardMinHeight = jQuery(".card", printDocument).css("min-height").replace("px", "");
-      var scaleHeight = cardMaxHeight / cardMinHeight;
-      console.log("cardMaxHeight: "+cardMaxHeight);
-      console.log("cardMinHeight: "+cardMinHeight);
-      console.log("scaleHeight: "+scaleHeight);
-      scaleHeight = 1;
-      // scale min
-      var scale = Math.min(scaleWidth, scaleHeight);
-      if(scale < 1) {
-          jQuery("html", printDocument).css("font-size",scale +"cm");
-      }
+      console.log("cardCount: "+cardCount);
+      console.log("pageCount: "+pageCount);
 
       // size
 
@@ -297,7 +281,7 @@
       var style= document.createElement('style');
       style.id = 'styleColumnCount';
       style.type ='text/css';
-      style.innerHTML = ".card { width: calc( 100% / " + columnCount + "); }"
+      style.innerHTML = ".card { width: calc( 100% / " + columnCount + " - 0.0001px  ); }"
       jQuery("head", printDocument).append(style);
 
       // size horizontal
@@ -305,8 +289,36 @@
       var style= document.createElement('style');
       style.id = 'styleRowCount';
       style.type ='text/css';
-      style.innerHTML = ".card { height: calc( 100% / " + rowCount + "); }"
+      style.innerHTML = ".card { height: calc( 100% / " + rowCount + " - 0.0001px ); }"
       jQuery("head", printDocument).append(style);
+
+      // scale
+
+      jQuery("html", printDocument).css("font-size", "1cm");
+
+      // scale horizontal
+      // substract one pixel due to rounding problems
+      var cardMaxWidth = Math.floor(jQuery(".card", printDocument).outerWidth() / columnCount) ;
+      var cardMinWidth = jQuery(".card", printDocument).css("min-width").replace("px", "") ;
+      var scaleWidth = cardMaxWidth / cardMinWidth;
+      console.log("cardMaxWidth: "+cardMaxWidth);
+      console.log("cardMinWidth: "+cardMinWidth);
+      console.log("scaleWidth: "+scaleWidth);
+
+      // scale vertical
+      // substract one pixel due to rounding problems
+      var cardMaxHeight = Math.floor(jQuery(".card", printDocument).outerHeight() * 2 / rowCount) ;
+      var cardMinHeight = jQuery(".card", printDocument).css("min-height").replace("px", "") ;
+      var scaleHeight = cardMaxHeight / cardMinHeight;
+      console.log("cardMaxHeight: "+cardMaxHeight);
+      console.log("cardMinHeight: "+cardMinHeight);
+      console.log("scaleHeight: "+scaleHeight);
+
+      // scale min
+      var scale = Math.min(scaleWidth, scaleHeight, 1);
+      if(scale < 1) {
+          jQuery("html", printDocument).css("font-size",scale +"cm");
+      }
     }
 
     function cropCards() {
@@ -351,6 +363,7 @@
                   <div id="card-print-dialog-header">
                     <div id="card-print-dialog-title">Card Print</div>
                     <div id="info">
+                      <label id="info-line">Jira - PivotalTracker - Trello - YouTrack</label>
                       <input id="report-issue" type="button" class="aui-button" value="Report Issues" />
                       <input id="about" type="button" class="aui-button" value="About" />
                     </div>
@@ -561,6 +574,11 @@
                   display: inline-block;
                   height 30px;
                 }
+                #info-line {
+                  padding-left: 3rem;
+                  padding-right: 3rem;
+                  font-weight: bold;
+                }
 
                 #card-print-dialog-title{
                   position: relative;
@@ -664,7 +682,7 @@
         min-width:19.0rem;
         min-height:10.0rem;
 
-        border-color: light-grey;
+        border-color: LightGray;
         border-style: dotted;
         border-width: 0.03cm;
     }
@@ -808,7 +826,7 @@
         text-align: center;
         font-weight: bold;
         font-size: 1.4rem;
-        line-height: 1.8rem;
+        line-height: 1.9rem;
     }
     .issue-epic-box {
         position: absolute;
@@ -895,13 +913,16 @@
     }
     .zigzag::after {
         position: absolute;
-        bottom: -0.04rem;
+        bottom: -0.00rem;
         left:-0.07rem;
         content:"";
         width: 100%;
         border-style:solid;
-        border-bottom-width: 0.8rem;
-        border-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/ZigZag.png) 0 0 56 fill round repeat;
+        border-bottom-width: 1rem;
+        border-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/Tearing.png);
+        border-image-width: 0 0 0.7rem 0;
+        border-image-slice: 56 0 56 1;
+        border-image-repeat: round round;
     }
     @media print {
         @page {
@@ -1215,9 +1236,7 @@
         module.getSelectedIssueKeyList = function() {
             //Browse
             if (/.*\/browse\/.*/g.test(document.URL)) {
-                return jQuery("a[data-issue-key][id='key-val']").map(function() {
-                    return jQuery(this).attr('data-issue-key');
-                });
+                return [document.URL.replace(/.*\/browse\/([^?]*).*/, '$1')];
             }
 
             // RapidBoard
@@ -1297,10 +1316,101 @@
                     // add custom fields with field names
                     jQuery.each(responseData.names, function(key, value) {
                         if (key.startsWith("customfield_")) {
-                            var newFieldId = value.toCamelCase();
-                            //console.log("add new field: " + newFieldId + " with value from " + key);
-                            responseData.fields[value.toCamelCase()] = responseData.fields[key];
+                            var fieldName = value.toCamelCase();
+                            //console.log("add new field: " + fieldName + " with value from " + key);
+                            responseData.fields[fieldName] = responseData.fields[key];
                         }
+                    });
+                    callback(responseData);
+                },
+            });
+        };
+
+        return module;
+    }({}));
+
+    var youTrackFunctions = (function (module) {
+
+        module.getSelectedIssueKeyList = function() {
+            //Detail View
+            if (/.*\/issue\/.*/g.test(document.URL)) {
+                return [document.URL.replace(/.*\/issue\/([^?]*).*/, '$1')];
+            }
+
+            // Agile Board
+            if (/.*\/rest\/agile.*/g.test(document.URL)) {
+                return jQuery('div.sb-task-focused').map(function() {
+                    return jQuery(this).attr('id');
+                });
+            }
+
+            return [];
+        };
+
+        module.getCardData= function(issueKey, callback) {
+            module.getIssueData(issueKey, function(data) {
+
+                var issueData = {};
+
+                issueData.key = data.id;
+
+                issueData.type = data.field.type[0];
+
+                issueData.summary = data.field.summary;
+
+                issueData.description = data.field.description;
+
+                if (data.field.assignee) {
+                    issueData.assignee = data.field.assignee[0].fullName;
+                    // var avatarUrl = data.fields.assignee.avatarUrls['48x48'];
+                    // if (avatarUrl.indexOf("ownerId=") >= 0) {
+                    //     issueData.avatarUrl = avatarUrl;
+                    // }
+                }
+                //
+                // if (data.fields.duedate) {
+                //     issueData.dueDate = new Date(data.fields.duedate).format('D d.m.');
+                // }
+                //
+                if (data.field.attachments) {
+                    issueData.hasAttachment = data.field.attachments.length > 0;
+                }
+                //
+                // issueData.storyPoints = data.fields.storyPoints;
+                //
+                // issueData.epicKey = data.fields.epicLink;
+                // if (issueData.epicKey) {
+                //     jiraFunctions.getIssueData(issueData.epicKey, function(data) {
+                //         issueData.epicName = data.fields.epicName;
+                //     }, false);
+                // }
+                //
+                issueData.url = window.location.origin + "/youtrack/issue/" + issueData.key;
+
+                callback(issueData);
+            });
+        };
+
+        module.getIssueData = function(issueKey, callback, async) {
+            async = typeof async !== 'undefined' ? async : true;
+            //https://docs.atlassian.com/jira/REST/latest/
+            var url = '/youtrack/rest/issue/' + issueKey + '?';
+            console.log("IssueUrl: " + url);
+            //console.log("Issue: " + issueKey + " Loading...");
+            jQuery.ajax({
+                type: 'GET',
+                url: url,
+                data: {},
+                dataType: 'json',
+                async: async,
+                success: function(responseData) {
+                    //console.log("Issue: " + issueKey + " Loaded!");
+                    jQuery.each(responseData.field, function(key, value) {
+                        // add fields with field names
+                        var fieldName = value.name.toCamelCase();
+                        //console.log("add new field: " + newFieldId + " with value from " + fieldName);
+                        responseData.field[fieldName] = value.value;
+
                     });
                     callback(responseData);
                 },
@@ -1315,7 +1425,7 @@
         module.getSelectedIssueKeyList = function() {
             //Single Story
             if (/.*\/stories\/.*/g.test(document.URL)) {
-                return [document.URL.replace(/.*\/stories\/([^?]*).*/, '$1')];  // TODO
+                return [document.URL.replace(/.*\/stories\/([^?]*).*/, '$1')];
             }
 
             // Board
