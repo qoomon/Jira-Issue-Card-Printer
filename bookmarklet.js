@@ -42,6 +42,9 @@
         } else if (/.*trello.com\/.*/g.test(document.URL)) {
             console.log("App: " + "Trello");
             global.appFunctions = trelloFunctions;
+        } else if (/.*\/youtrack\/.*/g.test(document.URL)) {
+            console.log("App: " + "YouTrack");
+            global.appFunctions = youTrackFunctions;
         } else {
             alert("Unsupported app.Please create an issue at https://github.com/qoomon/Jira-Issue-Card-Printer");
             return;
@@ -1224,9 +1227,7 @@
         module.getSelectedIssueKeyList = function() {
             //Browse
             if (/.*\/browse\/.*/g.test(document.URL)) {
-                return jQuery("a[data-issue-key][id='key-val']").map(function() {
-                    return jQuery(this).attr('data-issue-key');
-                });
+                return [document.URL.replace(/.*\/browse\/([^?]*).*/, '$1')];
             }
 
             // RapidBoard
@@ -1306,10 +1307,101 @@
                     // add custom fields with field names
                     jQuery.each(responseData.names, function(key, value) {
                         if (key.startsWith("customfield_")) {
-                            var newFieldId = value.toCamelCase();
-                            //console.log("add new field: " + newFieldId + " with value from " + key);
-                            responseData.fields[value.toCamelCase()] = responseData.fields[key];
+                            var fieldName = value.toCamelCase();
+                            //console.log("add new field: " + fieldName + " with value from " + key);
+                            responseData.fields[fieldName] = responseData.fields[key];
                         }
+                    });
+                    callback(responseData);
+                },
+            });
+        };
+
+        return module;
+    }({}));
+
+    var youTrackFunctions = (function (module) {
+
+        module.getSelectedIssueKeyList = function() {
+            //Detail View
+            if (/.*\/issue\/.*/g.test(document.URL)) {
+                return [document.URL.replace(/.*\/issue\/([^?]*).*/, '$1')];
+            }
+
+            // Agile Board
+            if (/.*\/rest\/agile.*/g.test(document.URL)) {
+                return jQuery('div.sb-task-focused').map(function() {
+                    return jQuery(this).attr('id');
+                });
+            }
+
+            return [];
+        };
+
+        module.getCardData= function(issueKey, callback) {
+            module.getIssueData(issueKey, function(data) {
+
+                var issueData = {};
+
+                issueData.key = data.id;
+
+                issueData.type = data.field.type[0];
+
+                issueData.summary = data.field.summary;
+
+                issueData.description = data.field.description;
+
+                if (data.field.assignee) {
+                    issueData.assignee = data.field.assignee[0].fullName;
+                    // var avatarUrl = data.fields.assignee.avatarUrls['48x48'];
+                    // if (avatarUrl.indexOf("ownerId=") >= 0) {
+                    //     issueData.avatarUrl = avatarUrl;
+                    // }
+                }
+                //
+                // if (data.fields.duedate) {
+                //     issueData.dueDate = new Date(data.fields.duedate).format('D d.m.');
+                // }
+                //
+                if (data.field.attachments) {
+                    issueData.hasAttachment = data.field.attachments.length > 0;
+                }
+                //
+                // issueData.storyPoints = data.fields.storyPoints;
+                //
+                // issueData.epicKey = data.fields.epicLink;
+                // if (issueData.epicKey) {
+                //     jiraFunctions.getIssueData(issueData.epicKey, function(data) {
+                //         issueData.epicName = data.fields.epicName;
+                //     }, false);
+                // }
+                //
+                issueData.url = window.location.origin + "/youtrack/issue/" + issueData.key;
+
+                callback(issueData);
+            });
+        };
+
+        module.getIssueData = function(issueKey, callback, async) {
+            async = typeof async !== 'undefined' ? async : true;
+            //https://docs.atlassian.com/jira/REST/latest/
+            var url = '/youtrack/rest/issue/' + issueKey + '?';
+            console.log("IssueUrl: " + url);
+            //console.log("Issue: " + issueKey + " Loading...");
+            jQuery.ajax({
+                type: 'GET',
+                url: url,
+                data: {},
+                dataType: 'json',
+                async: async,
+                success: function(responseData) {
+                    //console.log("Issue: " + issueKey + " Loaded!");
+                    jQuery.each(responseData.field, function(key, value) {
+                        // add fields with field names
+                        var fieldName = value.name.toCamelCase();
+                        //console.log("add new field: " + newFieldId + " with value from " + fieldName);
+                        responseData.field[fieldName] = value.value;
+
                     });
                     callback(responseData);
                 },
@@ -1324,7 +1416,7 @@
         module.getSelectedIssueKeyList = function() {
             //Single Story
             if (/.*\/stories\/.*/g.test(document.URL)) {
-                return [document.URL.replace(/.*\/stories\/([^?]*).*/, '$1')];  // TODO
+                return [document.URL.replace(/.*\/stories\/([^?]*).*/, '$1')];
             }
 
             // Board
