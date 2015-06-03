@@ -1,5 +1,5 @@
 (function() {
-    var version = "4.0.4";
+    var version = "4.0.5";
     console.log("Version: " + version);
 
     var global = {};
@@ -105,6 +105,7 @@
     function print() {
         var printFrame = jQuery("#card-print-dialog-content-iframe");
         var printWindow = printFrame[0].contentWindow;
+        var printDocument = printWindow.document;
 
         if (global.isProd) {
             ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length);
