@@ -1,5 +1,5 @@
 (function() {
-    var version = "4.0.5";
+    var version = "4.0.6";
     console.log("Version: " + version);
 
     var global = {};
@@ -66,8 +66,8 @@
 
         var printFrame = jQuery("#card-print-dialog-content-iframe");
         var printWindow = printFrame[0].contentWindow;
-        printWindow.addEventListener("resize", function(){redrawCards;});
-        printWindow.matchMedia("print").addListener(function(){redrawCards;});
+        printWindow.addEventListener("resize", function(){redrawCards();});
+        printWindow.matchMedia("print").addListener(function(){redrawCards();});
 
         jQuery("#rowCount").val(readCookie("card_printer_row_count",2));
         jQuery("#columnCount").val(readCookie("card_printer_column_count",1));
