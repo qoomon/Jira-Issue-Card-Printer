@@ -363,6 +363,7 @@
                   <div id="card-print-dialog-header">
                     <div id="card-print-dialog-title">Card Print</div>
                     <div id="info">
+                      <label id="info-line">CardPrinter for - Jira - PivotalTracker - Trello - YouTrack</label>
                       <input id="report-issue" type="button" class="aui-button" value="Report Issues" />
                       <input id="about" type="button" class="aui-button" value="About" />
                     </div>
@@ -572,6 +573,11 @@
                   float: right;
                   display: inline-block;
                   height 30px;
+                }
+                #info-line {
+                  padding-left: 3rem;
+                  padding-right: 3rem;
+                  font-weight: bold;
                 }
 
                 #card-print-dialog-title{
