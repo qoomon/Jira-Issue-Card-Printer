@@ -363,7 +363,7 @@
                   <div id="card-print-dialog-header">
                     <div id="card-print-dialog-title">Card Print</div>
                     <div id="info">
-                      <label id="info-line">CardPrinter for - Jira - PivotalTracker - Trello - YouTrack</label>
+                      <label id="info-line">Jira - PivotalTracker - Trello - YouTrack</label>
                       <input id="report-issue" type="button" class="aui-button" value="Report Issues" />
                       <input id="about" type="button" class="aui-button" value="About" />
                     </div>
@@ -913,13 +913,16 @@
     }
     .zigzag::after {
         position: absolute;
-        bottom: -0.04rem;
+        bottom: -0.00rem;
         left:-0.07rem;
         content:"";
         width: 100%;
         border-style:solid;
-        border-bottom-width: 0.8rem;
-        border-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/Tearing.png) 0 0 56 fill round repeat;
+        border-bottom-width: 1rem;
+        border-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/Tearing.png);
+        border-image-width: 0 0 0.7rem 0;
+        border-image-slice: 56 0 56 1;
+        border-image-repeat: round round;
     }
     @media print {
         @page {
