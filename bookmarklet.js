@@ -817,7 +817,7 @@
         text-align: center;
         font-weight: bold;
         font-size: 1.4rem;
-        line-height: 1.8rem;
+        line-height: 1.9rem;
     }
     .issue-epic-box {
         position: absolute;
