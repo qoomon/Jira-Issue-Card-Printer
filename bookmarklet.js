@@ -919,7 +919,7 @@
         width: 100%;
         border-style:solid;
         border-bottom-width: 0.8rem;
-        border-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/ZigZag.png) 0 0 56 fill round repeat;
+        border-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/Tearing.png) 0 0 56 fill round repeat;
     }
     @media print {
         @page {
