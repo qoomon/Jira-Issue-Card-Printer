@@ -264,15 +264,11 @@
       var printWindow = printFrame[0].contentWindow;
       var printDocument = printWindow.document;
 
-
       var columnCount = jQuery("#columnCount").val();
       var rowCount = jQuery("#rowCount").val();
 
       var cardCount = jQuery(".card", printDocument).length;
       var pageCount = Math.ceil(cardCount / (columnCount * rowCount))
-
-      console.log("cardCount: "+cardCount);
-      console.log("pageCount: "+pageCount);
 
       // size
 
@@ -301,18 +297,13 @@
       var cardMaxWidth = Math.floor(jQuery(".card", printDocument).outerWidth() / columnCount) ;
       var cardMinWidth = jQuery(".card", printDocument).css("min-width").replace("px", "") ;
       var scaleWidth = cardMaxWidth / cardMinWidth;
-      console.log("cardMaxWidth: "+cardMaxWidth);
-      console.log("cardMinWidth: "+cardMinWidth);
-      console.log("scaleWidth: "+scaleWidth);
 
       // scale vertical
       // substract one pixel due to rounding problems
+      // dont know why to multiply outer height with 2
       var cardMaxHeight = Math.floor(jQuery(".card", printDocument).outerHeight() * 2 / rowCount) ;
       var cardMinHeight = jQuery(".card", printDocument).css("min-height").replace("px", "") ;
       var scaleHeight = cardMaxHeight / cardMinHeight;
-      console.log("cardMaxHeight: "+cardMaxHeight);
-      console.log("cardMinHeight: "+cardMinHeight);
-      console.log("scaleHeight: "+scaleHeight);
 
       // scale min
       var scale = Math.min(scaleWidth, scaleHeight, 1);
