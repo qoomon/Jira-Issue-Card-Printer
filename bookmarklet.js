@@ -762,6 +762,10 @@
         background-color: ROYALBLUE !important;
         background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Flash.png);
     }
+    .issue-icon[type="task"] {
+        background-color: ORANGE !important;
+        background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Task.png);
+    }
     .issue-estimate {
         position: absolute;
         left: 2.5rem;
