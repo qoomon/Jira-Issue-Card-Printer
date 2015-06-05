@@ -143,7 +143,7 @@
             global.appFunctions.getCardData(issueKey, function(cardData) {
                 //console.log("cardData: " + cardData);
                 if (global.isProd) {
-                    ga('send', 'event', 'task', 'generate', 'card', cardData.type);
+                    ga('send', 'event', 'task', 'generate', cardData.type);
                 }
                 fillCard(page, cardData);
                 page.show();
