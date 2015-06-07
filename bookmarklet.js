@@ -839,7 +839,7 @@ body {
     top: 0.0rem;
     height: 1.6rem;
     width: 1.6rem;
-    border-radius: 49.5% !important;
+    border-radius: 50% !important;
     background-color: WHITESMOKE;
     line-height: 1.4rem;
     font-size: 0.9rem;
