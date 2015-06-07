@@ -831,7 +831,7 @@ body {
 }
 .issue-icon[type="task"] {
     background-color: ORANGE !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Task.png);
+    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Gear.png);
 }
 .issue-estimate {
     position: absolute;
@@ -1322,7 +1322,7 @@ body {
 
         issueData.summary = data.fields.summary;
 
-        issueData.description = data.renderedFields.description.replace(/<p>/, "");
+        issueData.description = data.renderedFields.description.replace(/^<p>(.*)<\/p>$/, "$1");
 
         if (data.fields.assignee) {
           issueData.assignee = data.fields.assignee.displayName;
