@@ -974,8 +974,8 @@ body {
 }
 .zigzag::after {
     position: absolute;
-    bottom: -0.00rem;
-    left:-0.07rem;
+    bottom: 0.03rem;
+    left:-0.16rem;
     content:"";
     width: 100%;
     border-style:solid;
@@ -1000,7 +1000,7 @@ body {
   }
 }
 */
-      }).replace(/{RESOURCE_ORIGIN}/g, global.resourceOrigin));
+    }).replace(/https:\/\/qoomon.github.io\/Jira-Issue-Card-Printer\/resources/g, global.resourceOrigin));
     return result;
   }
 
