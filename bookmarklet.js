@@ -1322,7 +1322,7 @@ body {
 
         issueData.summary = data.fields.summary;
 
-        issueData.description = data.renderedFields.description.replace(/<p>/, "");
+        issueData.description = data.renderedFields.description.replace(/^<p>(.*)<\/p>$/, "$1");
 
         if (data.fields.assignee) {
           issueData.assignee = data.fields.assignee.displayName;
