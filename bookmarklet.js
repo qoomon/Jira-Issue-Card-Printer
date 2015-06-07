@@ -831,7 +831,7 @@ body {
 }
 .issue-icon[type="task"] {
     background-color: ORANGE !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Task.png);
+    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Gear.png);
 }
 .issue-estimate {
     position: absolute;
