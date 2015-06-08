@@ -726,9 +726,9 @@ body {
 }
 .author {
     position: absolute;
-    top:0.8rem;
+    top:0.6rem;
     left:calc(50% - 3rem);
-    font-size: 0.5rem;
+    font-size: 0.6rem;
 }
 .card {
     position: relative;
