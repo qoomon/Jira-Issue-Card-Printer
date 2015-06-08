@@ -811,7 +811,7 @@ body {
     height: 3.2rem;
     width: 3.2rem;
     border-radius: 50% !important;
-    background-color: GREENYELLOW !important;
+    background-color: LIGHTSEAGREEN !important;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Objects.png);
     background-repeat: no-repeat;
     background-position: center;
@@ -830,8 +830,16 @@ body {
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Flash.png);
 }
 .issue-icon[type="task"] {
-    background-color: ORANGE !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Gear.png);
+    background-color: PEACHPUFF !important;
+    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Task.png);
+}
+.issue-icon[type="new feature"] {
+    background-color: LIMEGREEN !important;
+    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Plus.png);
+}
+.issue-icon[type="improvement"] {
+    background-color: CORNFLOWERBLUE !important;
+    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Arrow.png);
 }
 .issue-estimate {
     position: absolute;
