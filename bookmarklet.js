@@ -815,7 +815,7 @@ body {
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Objects.png);
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 70%;
+    background-size: 63%;
 }
 .issue-icon[type="story"] {
     background-color: GOLD !important;
