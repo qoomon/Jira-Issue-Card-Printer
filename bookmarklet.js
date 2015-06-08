@@ -830,7 +830,7 @@ body {
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Flash.png);
 }
 .issue-icon[type="task"] {
-    background-color: PEACHPUFF !important;
+    background-color: WHEAT !important;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Task.png);
 }
 .issue-icon[type="new feature"] {
