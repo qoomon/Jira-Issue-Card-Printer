@@ -962,7 +962,7 @@ body {
 }
 .badge, .shadow {
     border-style: solid;
-    border-color: #555;
+    border-color: #333;
     border-top-width: 0.12rem;
     border-left-width: 0.12rem;
     border-bottom-width: 0.21rem;
@@ -971,7 +971,7 @@ body {
 }
 .badge {
     // WHITESMOKE, GAINSBOROM;
-    background-color: WHITESMOKE;
+    background-color: #E339E3;
 }
 .hidden {
     display: none;
