@@ -808,8 +808,8 @@ body {
     position: absolute;
     left: 0rem;
     top: 0rem;
-    height: 3.2rem;
-    width: 3.2rem;
+    height: 3.0rem;
+    width: 3.0rem;
     border-radius: 50% !important;
     background-color: LIGHTSEAGREEN !important;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Objects.png);
