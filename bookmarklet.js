@@ -85,7 +85,7 @@
     jQuery("#hide-due-date-checkbox").attr('checked', readCookie("card_printer_hide_due_date", 'false') == 'true');
     jQuery("#hide-status-checkbox").attr('checked', readCookie("card_printer_hide_status", 'true') == 'true');
 
-    jQuery("#card-print-dialog-title").text("Card Print   -   Loading " + issueKeyList.length + " issues...");
+    jQuery("#card-print-dialog-title").text("Card Printer - Loading issues...");
     renderCards(issueKeyList, function() {
       jQuery("#card-print-dialog-title").text("Card Print");
       //print();
@@ -394,7 +394,7 @@
   <div id="card-print-dialog-header">
     <div id="card-print-dialog-title">Card Print</div>
     <div id="info">
-      <label id="info-line">Card Printer supports...&nbsp;&nbsp;&nbsp;<b>Jira</b> - <b>PivotalTracker</b> - <b>Trello</b> - <b>YouTrack</b></label>
+      <label id="info-line"><b>Jira</b> - <b>PivotalTracker</b> - <b>Trello</b> - <b>YouTrack</b></label>
       <input id="report-issue" type="button" class="aui-button" value="Report Issues" />
       <input id="about" type="button" class="aui-button" value="About" />
     </div>
@@ -817,7 +817,7 @@ body {
     background-position: center;
     background-size: 70%;
 }
-.issue-icon[type="story"] {
+.issue-icon[type="story"], .issue-icon[type="user story"]{
     background-color: GOLD !important;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bulb.png);
 }
@@ -971,7 +971,7 @@ body {
 }
 .badge {
     // WHITESMOKE, GAINSBOROM;
-    background-color: #E339E3;
+    background-color: #E0E0E0;
 }
 .hidden {
     display: none;
