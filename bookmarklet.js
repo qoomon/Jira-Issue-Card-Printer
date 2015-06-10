@@ -87,7 +87,7 @@
 
     jQuery("#card-print-dialog-title").text("Card Printer - Loading issues...");
     renderCards(issueKeyList, function() {
-      jQuery("#card-print-dialog-title").text("Card Print");
+      jQuery("#card-print-dialog-title").text("Card Printer");
       //print();
     });
 
@@ -392,7 +392,7 @@
 /*!
 <div id="card-print-dialog">
   <div id="card-print-dialog-header">
-    <div id="card-print-dialog-title">Card Print</div>
+    <div id="card-print-dialog-title">Card Printer</div>
     <div id="info">
       <label id="info-line"><b>Jira</b> - <b>PivotalTracker</b> - <b>Trello</b> - <b>YouTrack</b></label>
       <input id="report-issue" type="button" class="aui-button" value="Report Issues" />
