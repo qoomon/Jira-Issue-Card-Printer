@@ -787,10 +787,10 @@ body {
     line-height: 0.6rem;
     overflow: hidden;
 }
-.description p:first-of-type {
+.issue-description p:first-of-type {
     margin-top: 0rem;
 }
-.description p:last-of-type {
+.issue-description p:last-of-type {
     margin-bottom: 0rem;
 }
 .issue-id {
