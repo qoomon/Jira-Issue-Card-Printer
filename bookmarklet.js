@@ -783,8 +783,8 @@ body {
 .issue-description {
     margin-top: 0.4rem;
     display: block;
-    font-size: 0.6rem;
-    line-height: 0.6rem;
+    font-size: 0.5rem;
+    line-height: 0.52rem;
     overflow: hidden;
 }
 .issue-description p:first-of-type {
