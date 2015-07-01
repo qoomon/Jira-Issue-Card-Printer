@@ -787,6 +787,12 @@ body {
     line-height: 0.6rem;
     overflow: hidden;
 }
+.description p:first-of-type {
+    margin-top: 0rem;
+}
+.description p:last-of-type {
+    margin-bottom: 0rem;
+}
 .issue-id {
     position: absolute;
     left: 1rem;
@@ -1329,8 +1335,6 @@ body {
         issueData.type = data.fields.issuetype.name.toLowerCase();
 
         issueData.summary = data.fields.summary;
-
-        issueData.description = data.renderedFields.description.replace(/^<p>(.*)<\/p>$/, "$1");
 
         if (data.fields.assignee) {
           issueData.assignee = data.fields.assignee.displayName;
