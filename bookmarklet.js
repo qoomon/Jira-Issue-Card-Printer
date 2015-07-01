@@ -1335,6 +1335,8 @@ body {
         issueData.type = data.fields.issuetype.name.toLowerCase();
 
         issueData.summary = data.fields.summary;
+        
+        issueData.description = data.renderedFields.description;
 
         if (data.fields.assignee) {
           issueData.assignee = data.fields.assignee.displayName;
