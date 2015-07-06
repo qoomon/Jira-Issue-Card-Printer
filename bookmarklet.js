@@ -798,9 +798,9 @@ body {
     left: 1rem;
     top: 1.2rem;
     height: 1.5rem;
-    max-width: 10rem;
+    max-width: calc(85% - 5rem);
     min-width: 5rem;
-    padding-left: 2.4rem;
+    padding-left: 2.1rem;
     padding-right: 0.4rem;
     background-color: WHITESMOKE;
     line-height: 1.3rem;
