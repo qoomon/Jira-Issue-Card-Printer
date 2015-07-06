@@ -1,5 +1,5 @@
 (function() {
-  var version = "4.0.6";
+  var version = "4.0.8";
   console.log("Version: " + version);
 
   var global = {};
@@ -726,9 +726,9 @@ body {
 }
 .author {
     position: absolute;
-    top:0.8rem;
+    top:0.6rem;
     left:calc(50% - 3rem);
-    font-size: 0.5rem;
+    font-size: 0.6rem;
 }
 .card {
     position: relative;
@@ -783,18 +783,24 @@ body {
 .issue-description {
     margin-top: 0.4rem;
     display: block;
-    font-size: 0.6rem;
-    line-height: 0.6rem;
+    font-size: 0.5rem;
+    line-height: 0.52rem;
     overflow: hidden;
+}
+.issue-description p:first-of-type {
+    margin-top: 0rem;
+}
+.issue-description p:last-of-type {
+    margin-bottom: 0rem;
 }
 .issue-id {
     position: absolute;
     left: 1rem;
     top: 1.2rem;
     height: 1.5rem;
-    max-width: 10rem;
+    max-width: calc(85% - 5rem);
     min-width: 5rem;
-    padding-left: 2.4rem;
+    padding-left: 2.1rem;
     padding-right: 0.4rem;
     background-color: WHITESMOKE;
     line-height: 1.3rem;
@@ -815,7 +821,7 @@ body {
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Objects.png);
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 70%;
+    background-size: 63%;
 }
 .issue-icon[type="story"], .issue-icon[type="user story"]{
     background-color: GOLD !important;
@@ -830,7 +836,7 @@ body {
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Flash.png);
 }
 .issue-icon[type="task"] {
-    background-color: PEACHPUFF !important;
+    background-color: WHEAT !important;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Task.png);
 }
 .issue-icon[type="new feature"] {
@@ -1329,8 +1335,8 @@ body {
         issueData.type = data.fields.issuetype.name.toLowerCase();
 
         issueData.summary = data.fields.summary;
-
-        issueData.description = data.renderedFields.description.replace(/^<p>(.*)<\/p>$/, "$1");
+        
+        issueData.description = data.renderedFields.description;
 
         if (data.fields.assignee) {
           issueData.assignee = data.fields.assignee.displayName;
