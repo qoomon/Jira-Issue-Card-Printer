@@ -827,7 +827,7 @@ body {
     background-color: GOLD !important;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bulb.png);
 }
-.issue-icon[type="bug"] {
+.issue-icon[type="bug"], .issue-icon[type="correction"] {
     background-color: CRIMSON !important;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bug.png);
 }
