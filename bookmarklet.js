@@ -1,5 +1,5 @@
 (function() {
-  var version = "4.0.8";
+  var version = "4.1.0";
   console.log("Version: " + version);
 
   var global = {};
@@ -1310,6 +1310,32 @@ body {
   var jiraFunctions = (function(module) {
 
     module.getSelectedIssueKeyList = function() {
+
+      //JQL
+      if (/.*\/browse\/.*\?jql=.*/g.test(document.URL) || /.*\/issues\/\?jql=.*/g.test(document.URL)) {
+        var jql = document.URL.replace(/.*\?jql=(.*)/, '$1');
+        var jqlIssues = [];
+        var url = '/rest/api/2/search?jql=' + jql + "&maxResults=1000";
+        console.log("IssueUrl: " + url);
+        //console.log("Issue: " + issueKey + " Loading...");
+        jQuery.ajax({
+          type: 'GET',
+          url: url,
+          data: {},
+          dataType: 'json',
+          async: false,
+          success: function(responseData) {
+            console.log("responseData: " + responseData.issues);
+          
+            jQuery.each(responseData.issues, function(key, value) {
+                jqlIssues.push(value.key);
+            });
+          },
+        });
+        console.log("jqlIssues: " + jqlIssues);
+        return jqlIssues;
+      }
+      
       //Browse
       if (/.*\/browse\/.*/g.test(document.URL)) {
         return [document.URL.replace(/.*\/browse\/([^?]*).*/, '$1')];
