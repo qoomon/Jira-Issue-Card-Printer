@@ -1340,6 +1340,11 @@ body {
       if (/.*\/browse\/.*/g.test(document.URL)) {
         return [document.URL.replace(/.*\/browse\/([^?]*).*/, '$1')];
       }
+      
+      //Project
+      if (/.*\/projects\/.*/g.test(document.URL)) {
+        return [document.URL.replace(/.*\/projects\/[^\/]*\/[^\/]*\/([^?]*).*/, '$1')];
+      }
 
       // RapidBoard
       if (/.*\/secure\/RapidBoard.jspa.*/g.test(document.URL)) {
