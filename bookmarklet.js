@@ -1,5 +1,5 @@
 (function() {
-  var version = "4.0.8";
+  var version = "4.1.1";
   console.log("Version: " + version);
 
   var global = {};
@@ -808,7 +808,7 @@ body {
     font-weight: bold;
     text-align: center;
     white-space: nowrap;
-    text-overflow: ellipsis;
+    direction: rtl;
 }
 .issue-icon {
     position: absolute;
@@ -827,7 +827,7 @@ body {
     background-color: GOLD !important;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bulb.png);
 }
-.issue-icon[type="bug"] {
+.issue-icon[type="bug"], .issue-icon[type="correction"] {
     background-color: CRIMSON !important;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bug.png);
 }
@@ -1310,9 +1310,40 @@ body {
   var jiraFunctions = (function(module) {
 
     module.getSelectedIssueKeyList = function() {
+
+      //Issues
+      if (/.*\/issues\/\?jql=.*/g.test(document.URL)) {
+        var jql = document.URL.replace(/.*\?jql=(.*)/, '$1');
+        var jqlIssues = [];
+        var url = '/rest/api/2/search?jql=' + jql + "&maxResults=1000";
+        console.log("IssueUrl: " + url);
+        //console.log("Issue: " + issueKey + " Loading...");
+        jQuery.ajax({
+          type: 'GET',
+          url: url,
+          data: {},
+          dataType: 'json',
+          async: false,
+          success: function(responseData) {
+            console.log("responseData: " + responseData.issues);
+          
+            jQuery.each(responseData.issues, function(key, value) {
+                jqlIssues.push(value.key);
+            });
+          },
+        });
+        console.log("jqlIssues: " + jqlIssues);
+        return jqlIssues;
+      }
+      
       //Browse
       if (/.*\/browse\/.*/g.test(document.URL)) {
         return [document.URL.replace(/.*\/browse\/([^?]*).*/, '$1')];
+      }
+      
+      //Project
+      if (/.*\/projects\/.*/g.test(document.URL)) {
+        return [document.URL.replace(/.*\/projects\/[^\/]*\/[^\/]*\/([^?]*).*/, '$1')];
       }
 
       // RapidBoard
