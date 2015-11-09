@@ -1311,8 +1311,8 @@ body {
 
     module.getSelectedIssueKeyList = function() {
 
-      //JQL
-      if (/.*\/browse\/.*\?jql=.*/g.test(document.URL) || /.*\/issues\/\?jql=.*/g.test(document.URL)) {
+      //Issues
+      if (/.*\/issues\/\?jql=.*/g.test(document.URL)) {
         var jql = document.URL.replace(/.*\?jql=(.*)/, '$1');
         var jqlIssues = [];
         var url = '/rest/api/2/search?jql=' + jql + "&maxResults=1000";
