@@ -310,27 +310,13 @@
     var cardCount = jQuery(".card", printDocument).length;
     var pageCount = Math.ceil(cardCount / (columnCount * rowCount))
 
-    // size
-
-    // size horizontal
-    jQuery("#styleColumnCount", printDocument).remove();
-    var style = document.createElement('style');
-    style.id = 'styleColumnCount';
-    style.type = 'text/css';
-    style.innerHTML = ".card { width: calc( 100% / " + columnCount + " - 0.0001px  ); }"
-    jQuery("head", printDocument).append(style);
-
-    // size horizontal
-    jQuery("#styleRowCount", printDocument).remove();
-    var style = document.createElement('style');
-    style.id = 'styleRowCount';
-    style.type = 'text/css';
-    style.innerHTML = ".card { height: calc( 100% / " + rowCount + " - 0.0001px );  }"
-    jQuery("head", printDocument).append(style);
+   
 
     // scale
 
     jQuery("html", printDocument).css("font-size", "1cm");
+    jQuery("#styleColumnCount", printDocument).remove();
+    jQuery("#styleRowCount", printDocument).remove();
 
     // scale horizontal
     // substract one pixel due to rounding problems
@@ -348,9 +334,24 @@
     // scale min
     var scale = Math.min(scaleWidth, scaleHeight, 1);
     if (scale < 1) {
-      console.log("scale: " + scale )
       jQuery("html", printDocument).css("font-size", scale + "cm");
     }
+
+    // size
+
+    // size horizontal
+    var style = document.createElement('style');
+    style.id = 'styleColumnCount';
+    style.type = 'text/css';
+    style.innerHTML = ".card { width: calc( 100% / " + columnCount + " - 0.0001px  ); }"
+    jQuery("head", printDocument).append(style);
+
+    // size horizontal
+    var style = document.createElement('style');
+    style.id = 'styleRowCount';
+    style.type = 'text/css';
+    style.innerHTML = ".card { height: calc( 100% / " + rowCount + " - 0.0001px );  }"
+    jQuery("head", printDocument).append(style);
   }
 
   function cropCards() {
