@@ -1,5 +1,5 @@
 (function() {
-  var version = "4.1.1";
+  var version = "4.2.0";
   console.log("Version: " + version);
 
   var global = {};
