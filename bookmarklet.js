@@ -661,7 +661,7 @@
     return result;
   }
 
-  // card layout: http://jsfiddle.net/qoomon/ykbLb2pw/
+  // card layout: http://jsfiddle.net/qoomon/ykbLb2pw/76
 
   function cardHtml(issueKey) {
     var page = jQuery(document.createElement('div'))
