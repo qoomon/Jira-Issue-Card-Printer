@@ -1,5 +1,5 @@
 (function() {
-  var version = "4.1.1";
+  var version = "4.2.0";
   console.log("Version: " + version);
 
   var global = {};
@@ -310,27 +310,13 @@
     var cardCount = jQuery(".card", printDocument).length;
     var pageCount = Math.ceil(cardCount / (columnCount * rowCount))
 
-    // size
-
-    // size horizontal
-    jQuery("#styleColumnCount", printDocument).remove();
-    var style = document.createElement('style');
-    style.id = 'styleColumnCount';
-    style.type = 'text/css';
-    style.innerHTML = ".card { width: calc( 100% / " + columnCount + " - 0.0001px  ); }"
-    jQuery("head", printDocument).append(style);
-
-    // size horizontal
-    jQuery("#styleRowCount", printDocument).remove();
-    var style = document.createElement('style');
-    style.id = 'styleRowCount';
-    style.type = 'text/css';
-    style.innerHTML = ".card { height: calc( 100% / " + rowCount + " - 0.0001px ); }"
-    jQuery("head", printDocument).append(style);
-
+   
     // scale
 
+    // reset scale
     jQuery("html", printDocument).css("font-size", "1cm");
+    jQuery("#styleColumnCount", printDocument).remove();
+    jQuery("#styleRowCount", printDocument).remove();
 
     // scale horizontal
     // substract one pixel due to rounding problems
@@ -345,11 +331,27 @@
     var cardMinHeight = jQuery(".card", printDocument).css("min-height").replace("px", "");
     var scaleHeight = cardMaxHeight / cardMinHeight;
 
-    // scale min
+    // scale down
     var scale = Math.min(scaleWidth, scaleHeight, 1);
     if (scale < 1) {
       jQuery("html", printDocument).css("font-size", scale + "cm");
     }
+
+    // size
+
+    // size horizontal
+    var style = document.createElement('style');
+    style.id = 'styleColumnCount';
+    style.type = 'text/css';
+    style.innerHTML = ".card { width: calc( 100% / " + columnCount + " - 0.0001px  ); }"
+    jQuery("head", printDocument).append(style);
+
+    // size horizontal
+    var style = document.createElement('style');
+    style.id = 'styleRowCount';
+    style.type = 'text/css';
+    style.innerHTML = ".card { height: calc( 100% / " + rowCount + " - 0.0001px );  }"
+    jQuery("head", printDocument).append(style);
   }
 
   function cropCards() {
@@ -660,7 +662,7 @@
     return result;
   }
 
-  // card layout: http://jsfiddle.net/qoomon/ykbLb2pw/
+  // card layout: http://jsfiddle.net/qoomon/ykbLb2pw/76
 
   function cardHtml(issueKey) {
     var page = jQuery(document.createElement('div'))
@@ -668,31 +670,35 @@
       .addClass("card")
       .html(multilineString(function() {
 /*!
-<div class="card-content">
-    <div class="card-body shadow">
-        <div class="issue-summary"></div>
-        <div class="issue-description"></div>
-    </div>
-    <div class="card-header">
-        <div class="issue-id badge"></div>
-        <div class="issue-icon badge" type="story"></div>
-        <div class="issue-estimate badge"></div>
-        <div class="issue-due-box">
-            <div class="issue-due-date badge"></div>
-            <div class="issue-due-icon badge"></div>
+    <div class="card-content">
+        <div class="card-body shadow">
+            <div class="issue-summary"></div>
+            <div class="issue-description"></div>
+        </div>
+        <div class="card-header">
+            <div class="issue-id badge"></div>
+            <div class="issue-id-fadeout"></div>
+            <div class="issue-icon badge" type="story"></div>
+            <div class="issue-estimate badge"></div>
+            <div class="issue-due-box">
+                <div class="issue-due-date badge"></div>
+                <div class="issue-due-icon badge"></div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="issue-qr-code badge"></div>
+            <div class="issue-attachment badge"></div>
+            <div class="issue-assignee badge"></div>
+            <div class="issue-epic-box badge"> 
+              <span class="issue-epic-id"></span>
+              <span class="issue-epic-name"></span>
+            </div>
         </div>
     </div>
-    <div class="card-footer">
-        <div class="issue-qr-code badge"></div>
-        <div class="issue-attachment badge"></div>
-        <div class="issue-assignee badge"></div>
-        <div class="issue-epic-box badge">
-            <span class="issue-epic-id"></span>
-            <span class="issue-epic-name"></span>
-        </div>
+    <div class="author">
+        <span>©BengtBrodersen</span><br>
+        qoomon.com
     </div>
-</div>
-<div class="author">© qoomon.com Bengt Brodersen</div>
 */
       }));
 
@@ -712,7 +718,7 @@ html {
     background: WHITE;
     padding: 0rem;
     margin: 0rem;
-    font-size: 1.0cm;
+    font-size: 1.3cm;
     overflow-y: scroll;
 }
 body {
@@ -725,10 +731,19 @@ body {
     left: 100%;
 }
 .author {
+    color: DIMGREY;
     position: absolute;
-    top:0.6rem;
-    left:calc(50% - 3rem);
+    top:0.35rem;
+    left:calc(50% - 2rem);
     font-size: 0.6rem;
+    overflow:visible;
+    line-height: 0.38rem;
+}
+.author > span {
+    position: relative;
+    left: 0.23rem;
+    font-size: 0.6em;
+    text-align: center;
 }
 .card {
     position: relative;
@@ -736,9 +751,8 @@ body {
     height: 100%;
     width: 100%;
     padding: 0.5cm;
-    min-width:19.0rem;
+    min-width:14.5rem;
     min-height:10.0rem;
-
     border-color: LightGray;
     border-style: dotted;
     border-width: 0.03cm;
@@ -756,7 +770,7 @@ body {
     height: 100%;
     margin-left: 0.4rem;
     margin-right: 0.4rem;
-    padding-top: 1.2rem;
+    padding-top: 1.1rem;
     padding-bottom: 1.1rem;
     padding-left: 0.4rem;
     padding-right: 0.4rem;
@@ -776,15 +790,13 @@ body {
 }
 .issue-summary {
     font-weight: bold;
-    display: -webkit-box;
-    //-webkit-line-clamp: 2;
-    //-webkit-box-orient: vertical;
+    font-size: 0.9rem;
 }
 .issue-description {
-    margin-top: 0.4rem;
+    margin-top: 0.1rem;
     display: block;
-    font-size: 0.5rem;
-    line-height: 0.52rem;
+    font-size: 0.6rem;
+    line-height: 0.62rem;
     overflow: hidden;
 }
 .issue-description p:first-of-type {
@@ -798,8 +810,8 @@ body {
     left: 1rem;
     top: 1.2rem;
     height: 1.5rem;
-    max-width: calc(85% - 5rem);
-    min-width: 5rem;
+    max-width: calc(100% - 7.5rem);
+    min-width: 4rem;
     padding-left: 2.1rem;
     padding-right: 0.4rem;
     background-color: WHITESMOKE;
@@ -809,6 +821,15 @@ body {
     text-align: center;
     white-space: nowrap;
     direction: rtl;
+}
+.issue-id-fadeout {
+    position: absolute;
+    left: 2.4rem;
+    top: 1.2rem;
+    width: 1.2rem;
+    height: 1.3rem;
+    z-index: 0;
+    background: linear-gradient(to left, rgba(224, 224, 224, 0) 0%, rgba(224, 224, 224, 1) 60%);
 }
 .issue-icon {
     position: absolute;
@@ -823,7 +844,7 @@ body {
     background-position: center;
     background-size: 63%;
 }
-.issue-icon[type="story"], .issue-icon[type="user story"]{
+.issue-icon[type="story"], .issue-icon[type="user story"] {
     background-color: GOLD !important;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bulb.png);
 }
@@ -873,7 +894,7 @@ body {
 }
 .issue-attachment {
     position: absolute;
-    left:2.8rem;
+    left:2.5rem;
     top: 0rem;
     width: 2.0rem;
     height: 2.0rem;
@@ -905,12 +926,12 @@ body {
 }
 .issue-epic-box {
     position: absolute;
-    right:3.0rem;
+    right:2.5rem;
     top: 0rem;
     width: auto;
-    min-width: 6rem;
+    min-width: 2rem;
     width: auto;
-    max-width: 10rem;
+    max-width: calc(100% - 7.5rem);
     height: auto;
     max-height: 2.2rem;
     padding-top: 0.1rem;
@@ -918,15 +939,13 @@ body {
     padding-left: 0.3rem;
     padding-right: 0.3rem;
     text-align: left;
-    font-size: 0.6rem;
-    line-height: 0.8rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    font-size: 0.5rem;
+    line-height: 0.55rem;
 }
 .issue-epic-id {
     font-size: 0.5rem;
     font-weight: bold;
+    max-width: 1rem;
 }
 .issue-epic-name {
     margin-left: 0.1rem;
@@ -982,7 +1001,6 @@ body {
 .hidden {
     display: none;
 }
-
 .zigzag {
     border-bottom-width: 0rem;
 }
@@ -1011,7 +1029,7 @@ body {
     .card {
         page-break-inside: avoid;
     }
-  }
+}
 }
 */
     }).replace(/https:\/\/qoomon.github.io\/Jira-Issue-Card-Printer\/resources/g, global.resourceOrigin));
@@ -1291,6 +1309,19 @@ body {
       }
     };
   }
+  
+  function httpGet(url){
+    var response;
+    jQuery.ajax({
+        url: 'https://jsonp.afeld.me/?url=' + url,
+        success: function (data) {
+            result = data
+        },
+        async: false
+    });
+    return response;
+  }
+
 
   function multilineString(commentFunction) {
     return commentFunction.toString()
