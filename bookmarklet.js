@@ -311,9 +311,9 @@
     var pageCount = Math.ceil(cardCount / (columnCount * rowCount))
 
    
-
     // scale
 
+    // reset scale
     jQuery("html", printDocument).css("font-size", "1cm");
     jQuery("#styleColumnCount", printDocument).remove();
     jQuery("#styleRowCount", printDocument).remove();
@@ -331,7 +331,7 @@
     var cardMinHeight = jQuery(".card", printDocument).css("min-height").replace("px", "");
     var scaleHeight = cardMaxHeight / cardMinHeight;
 
-    // scale min
+    // scale down
     var scale = Math.min(scaleWidth, scaleHeight, 1);
     if (scale < 1) {
       jQuery("html", printDocument).css("font-size", scale + "cm");
@@ -750,7 +750,7 @@ body {
     height: 100%;
     width: 100%;
     padding: 0.5cm;
-    min-width:14.0rem;
+    min-width:14.5rem;
     min-height:10.0rem;
     border-color: LightGray;
     border-style: dotted;
