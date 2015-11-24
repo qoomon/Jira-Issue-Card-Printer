@@ -87,7 +87,7 @@
 
     jQuery("#card-print-dialog-title").text("Card Printer " + version + " - Loading issues...");
     renderCards(issueKeyList, function() {
-      jQuery("#card-print-dialog-title").text("Card Printer" + version);
+      jQuery("#card-print-dialog-title").text("Card Printer " + version);
       //print();
     });
 
