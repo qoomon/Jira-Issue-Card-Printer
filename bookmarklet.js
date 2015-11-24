@@ -1291,6 +1291,19 @@ body {
       }
     };
   }
+  
+  function httpGet(url){
+    var response;
+    jQuery.ajax({
+        url: 'https://jsonp.afeld.me/?url=' + url,
+        success: function (data) {
+            result = data
+        },
+        async: false
+    });
+    return response;
+  }
+
 
   function multilineString(commentFunction) {
     return commentFunction.toString()
