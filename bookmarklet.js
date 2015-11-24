@@ -677,6 +677,7 @@
         </div>
         <div class="card-header">
             <div class="issue-id badge"></div>
+            <div class="issue-id-fadeout"></div>
             <div class="issue-icon badge" type="story"></div>
             <div class="issue-estimate badge"></div>
             <div class="issue-due-box">
@@ -820,6 +821,15 @@ body {
     text-align: center;
     white-space: nowrap;
     direction: rtl;
+}
+.issue-id-fadeout {
+    position: absolute;
+    left: 2.4rem;
+    top: 1.2rem;
+    width: 1.2rem;
+    height: 1.3rem;
+    z-index: 0;
+    background: linear-gradient(to left, rgba(224, 224, 224, 0) 0%, rgba(224, 224, 224, 1) 60%);
 }
 .issue-icon {
     position: absolute;
@@ -1020,7 +1030,7 @@ body {
         page-break-inside: avoid;
     }
 }
-
+}
 */
     }).replace(/https:\/\/qoomon.github.io\/Jira-Issue-Card-Printer\/resources/g, global.resourceOrigin));
     return result;
