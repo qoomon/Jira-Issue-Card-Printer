@@ -322,14 +322,14 @@
     // substract one pixel due to rounding problems
     var cardMaxWidth = Math.floor(jQuery(".card", printDocument).outerWidth() / columnCount);
     var cardMinWidth = jQuery(".card", printDocument).css("min-width").replace("px", "");
-    var scaleWidth = cardMaxWidth / cardMinWidth;
+    var scaleWidth = cardMaxWidth / cardMinWidth - (columnCount * 0.02);
 
     // scale vertical
     // substract one pixel due to rounding problems
     // dont know why to multiply outer height with 2
     var cardMaxHeight = Math.floor(jQuery(".card", printDocument).outerHeight() * 2 / rowCount);
     var cardMinHeight = jQuery(".card", printDocument).css("min-height").replace("px", "");
-    var scaleHeight = cardMaxHeight / cardMinHeight;
+    var scaleHeight = cardMaxHeight / cardMinHeight - (rowCount * 0.02);
 
     // scale down
     var scale = Math.min(scaleWidth, scaleHeight, 1);
