@@ -85,9 +85,9 @@
     jQuery("#hide-due-date-checkbox").attr('checked', readCookie("card_printer_hide_due_date", 'false') == 'true');
     jQuery("#hide-status-checkbox").attr('checked', readCookie("card_printer_hide_status", 'true') == 'true');
 
-    jQuery("#card-print-dialog-title").text("Card Printer - Loading issues...");
+    jQuery("#card-print-dialog-title").text("Card Printer " + version + " - Loading issues...");
     renderCards(issueKeyList, function() {
-      jQuery("#card-print-dialog-title").text("Card Printer");
+      jQuery("#card-print-dialog-title").text("Card Printer" + version);
       //print();
     });
 
