@@ -3,15 +3,17 @@ Beautiful Jira Issue Card Printer
 
 I've written a little bookmarklet for converting Jira issues in a pretty card layout for printing.
 
-### Card Layout
-![Card Layout](http://4.bp.blogspot.com/-BgfPtVWFxVo/VLTjiqpPzjI/AAAAAAAAGLw/PgF3D6eq35c/s1600/Screen%2BShot%2B2015-01-13%2Bat%2B10.19.22.png)
-
 So long
 Bengt
 
+### Card Layout
+![Card Layout](http://4.bp.blogspot.com/-BgfPtVWFxVo/VLTjiqpPzjI/AAAAAAAAGLw/PgF3D6eq35c/s1600/Screen%2BShot%2B2015-01-13%2Bat%2B10.19.22.png)
+
 ### Installation
-Drag'n'drop following link into your bookmark folder.
-Alternative copy link address, create a new bookmark and paste link in the url field.
+Create Bookmark with folowing content.
+```
+javascript:(function(){ var script = document.createElement("script"); script.src = "https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarklet.js"; document.body.appendChild(script); document.body.removeChild(script);})();
+```
 
 ### Usage
 Just select Issue(s) then run the Bookmarklet.
