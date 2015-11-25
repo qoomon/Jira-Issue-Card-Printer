@@ -1,6 +1,6 @@
 (function() {
   var global = {};
-  global.version = "4.2.2";
+  global.version = "4.2.3";
   global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
   global.isDev = document.currentScript == null;
   global.isProd = !global.isDev;
@@ -330,7 +330,6 @@
     var cardCount = jQuery(".card", printDocument).length;
     var pageCount = Math.ceil(cardCount / (columnCount * rowCount))
 
-
     // scale
 
     // reset scale
@@ -342,14 +341,14 @@
     // substract one pixel due to rounding problems
     var cardMaxWidth = Math.floor(jQuery(".card", printDocument).outerWidth() / columnCount);
     var cardMinWidth = jQuery(".card", printDocument).css("min-width").replace("px", "");
-    var scaleWidth = cardMaxWidth / cardMinWidth;
+    var scaleWidth = cardMaxWidth / cardMinWidth - 0.01;
 
     // scale vertical
     // substract one pixel due to rounding problems
     // dont know why to multiply outer height with 2
-    var cardMaxHeight = Math.floor(jQuery(".card", printDocument).outerHeight() * 2 / rowCount);
+    var cardMaxHeight = Math.floor(jQuery(".card", printDocument).outerHeight()  / rowCount);
     var cardMinHeight = jQuery(".card", printDocument).css("min-height").replace("px", "");
-    var scaleHeight = cardMaxHeight / cardMinHeight;
+    var scaleHeight = cardMaxHeight / cardMinHeight - 0.01;
 
     // scale down
     var scale = Math.min(scaleWidth, scaleHeight, 1);
@@ -363,14 +362,14 @@
     var style = document.createElement('style');
     style.id = 'styleColumnCount';
     style.type = 'text/css';
-    style.innerHTML = ".card { width: calc( 100% / " + columnCount + " - 0.0001px  ); }"
+    style.innerHTML = ".card { width: calc( 100% / " + columnCount + " - 0.001px  ); }"
     jQuery("head", printDocument).append(style);
 
     // size horizontal
     var style = document.createElement('style');
     style.id = 'styleRowCount';
     style.type = 'text/css';
-    style.innerHTML = ".card { height: calc( 100% / " + rowCount + " - 0.0001px );  }"
+    style.innerHTML = ".card { height: calc( 100% / " + rowCount + " - 0.001px );  }"
     jQuery("head", printDocument).append(style);
   }
 
