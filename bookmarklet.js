@@ -1,11 +1,8 @@
 (function() {
-  var version = "4.2.0";
-  console.log("Version: " + version);
-
   var global = {};
-  global.isDev = /.*jira.atlassian.com\/secure\/RapidBoard.jspa\?.*projectKey=ANERDS.*/g.test(document.URL) // Jira
-    || /.*pivotaltracker.com\/n\/projects\/510733.*/g.test(document.URL) // PivotTracker
-    || (/.*trello.com\/.*/g.test(document.URL) && jQuery("span.js-member-name").text() == 'Bengt Brodersen'); // Trello
+  global.version = "4.2.2";
+  global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
+  global.isDev = document.currentScript == null;
   global.isProd = !global.isDev;
 
   window.addEventListener("error", function(event) {
@@ -26,12 +23,15 @@
 
   // wait untill all scripts loaded
   appendScript('https://qoomon.github.io/void', function() {
-    main();
+    init().then(function(){
+      main();
+    }).catch(function(cause){
+      alert("ERROR on init! Please create an issue at " + global.issueTrackingUrl);
+    });
   });
 
   function main() {
-    init();
-
+    console.log("Run...")
     // determine application
     if (jQuery("meta[name='application-name'][ content='JIRA']").length > 0) {
       console.log("App: " + "Jira");
@@ -46,7 +46,7 @@
       console.log("App: " + "YouTrack");
       global.appFunctions = youTrackFunctions;
     } else {
-      alert("Unsupported app.Please create an issue at https://github.com/qoomon/Jira-Issue-Card-Printer");
+      alert("Unsupported app. Please create an issue at " + global.issueTrackingUrl);
       return;
     }
 
@@ -64,8 +64,8 @@
     }
 
     // open print preview
-    jQuery("body").append(printOverlayHTML());
-    jQuery("#card-print-overlay").prepend(printOverlayStyle());
+    jQuery("body").append(printPreviewElement());
+    jQuery("#card-print-overlay").prepend(printOverlayStyleElement());
 
     var printFrame = jQuery("#card-print-dialog-content-iframe");
     var printWindow = printFrame[0].contentWindow;
@@ -85,9 +85,9 @@
     jQuery("#hide-due-date-checkbox").attr('checked', readCookie("card_printer_hide_due_date", 'false') == 'true');
     jQuery("#hide-status-checkbox").attr('checked', readCookie("card_printer_hide_status", 'true') == 'true');
 
-    jQuery("#card-print-dialog-title").text("Card Printer " + version + " - Loading issues...");
-    renderCards(issueKeyList, function() {
-      jQuery("#card-print-dialog-title").text("Card Printer " + version);
+    jQuery("#card-print-dialog-title").text("Card Printer " + global.version + " - Loading issues...");
+    renderCards(issueKeyList).then(function() {
+      jQuery("#card-print-dialog-title").text("Card Printer " + global.version);
       //print();
     });
 
@@ -97,6 +97,9 @@
   }
 
   function init() {
+    var promises = [];
+
+    console.log("Init...")
     addStringFunctions();
     addDateFunctions();
 
@@ -110,6 +113,24 @@
     if (global.isProd) {
       initGoogleAnalytics();
     }
+
+    promises.push(httpGetCors(global.hostOrigin + "card.html").then(function(data){
+      global.cardHtml = data;
+    }));
+
+    promises.push(httpGetCors(global.hostOrigin + "card.css").then(function(data){
+      global.cardCss = data.replace(/https:\/\/qoomon.github.io\/Jira-Issue-Card-Printer\/resources/g, global.resourceOrigin);
+    }));
+
+    promises.push(httpGetCors(global.hostOrigin + "printPreview.html").then(function(data){
+      global.printPreviewHtml = data
+    }));
+
+    promises.push(httpGetCors(global.hostOrigin + "printPreview.css").then(function(data){
+      global.printPreviewCss = data.replace(/https:\/\/qoomon.github.io\/Jira-Issue-Card-Printer\/resources/g, global.resourceOrigin);
+    }));
+
+    return Promise.all(promises);
   }
 
   function print() {
@@ -124,7 +145,8 @@
     printWindow.print();
   }
 
-  function renderCards(issueKeyList, callback) {
+  function renderCards(issueKeyList) {
+    var promises = [];
 
     var printFrame = jQuery("#card-print-dialog-content-iframe");
     var printWindow = printFrame[0].contentWindow;
@@ -133,41 +155,39 @@
     printDocument.open();
     printDocument.write("<head/><body></body>");
 
-    jQuery("head", printDocument).append(cardCss());
+    jQuery("head", printDocument).append(cardElementStyle());
     jQuery("body", printDocument).append("<div id='preload'/>");
     jQuery("#preload", printDocument).append("<div class='zigzag'/>");
 
     console.log("load " + issueKeyList.length + " issues...");
 
-    var deferredList = [];
     jQuery.each(issueKeyList, function(index, issueKey) {
-      var page = cardHtml(issueKey);
-      page.attr("index", index);
-      page.hide();
-      page.find('.issue-id').text(issueKey);
-      jQuery("body", printDocument).append(page);
-      var deferred = addDeferred(deferredList);
-      global.appFunctions.getCardData(issueKey, function(cardData) {
+      var card = cardElement(issueKey);
+      card.attr("index", index);
+      card.hide();
+      card.find('.issue-id').text(issueKey);
+      jQuery("body", printDocument).append(card);
+
+      promises.push(global.appFunctions.getCardData(issueKey).then(function(cardData) {
         //console.log("cardData: " + cardData);
         if (global.isProd) {
           ga('send', 'event', 'card', 'generate', cardData.type);
         }
-        fillCard(page, cardData);
-        page.show();
+        fillCard(card, cardData);
         redrawCards();
-        deferred.resolve();
-      });
+        card.show();
+      }));
     });
-    console.log("wait for issues loaded...");
 
-    applyDeferred(deferredList, function() {
+    console.log("wait for issues loaded...");
+    return Promise.all(promises).then(function() {
       console.log("...all issues loaded.");
+
       jQuery(printWindow).load(function() {
         console.log("...all resources loaded.");
-        callback();
-      })
-      printDocument.close();
+      });
       console.log("wait for resources loaded...");
+      printDocument.close();
     });
   }
 
@@ -310,7 +330,7 @@
     var cardCount = jQuery(".card", printDocument).length;
     var pageCount = Math.ceil(cardCount / (columnCount * rowCount))
 
-   
+
     // scale
 
     // reset scale
@@ -322,14 +342,14 @@
     // substract one pixel due to rounding problems
     var cardMaxWidth = Math.floor(jQuery(".card", printDocument).outerWidth() / columnCount);
     var cardMinWidth = jQuery(".card", printDocument).css("min-width").replace("px", "");
-    var scaleWidth = cardMaxWidth / cardMinWidth - (columnCount * 0.02);
+    var scaleWidth = cardMaxWidth / cardMinWidth;
 
     // scale vertical
     // substract one pixel due to rounding problems
     // dont know why to multiply outer height with 2
     var cardMaxHeight = Math.floor(jQuery(".card", printDocument).outerHeight() * 2 / rowCount);
     var cardMinHeight = jQuery(".card", printDocument).css("min-height").replace("px", "");
-    var scaleHeight = cardMaxHeight / cardMinHeight - (rowCount * 0.02);
+    var scaleHeight = cardMaxHeight / cardMinHeight;
 
     // scale down
     var scale = Math.min(scaleWidth, scaleHeight, 1);
@@ -387,40 +407,8 @@
 
   // http://www.cssdesk.com/T9hXg
 
-  function printOverlayHTML() {
-    var result = jQuery(document.createElement('div'))
-      .attr("id", "card-print-overlay")
-      .html(multilineString(function() {
-/*!
-<div id="card-print-dialog">
-  <div id="card-print-dialog-header">
-    <div id="card-print-dialog-title">Card Printer</div>
-    <div id="info">
-      <label id="info-line"><b>Jira</b> - <b>PivotalTracker</b> - <b>Trello</b> - <b>YouTrack</b></label>
-      <input id="report-issue" type="button" class="aui-button" value="Report Issues" />
-      <input id="about" type="button" class="aui-button" value="About" />
-    </div>
-  </div>
-  <div id="card-print-dialog-content">
-    <iframe id="card-print-dialog-content-iframe"></iframe>
-  </div>
-  <div id="card-print-dialog-footer">
-    <div class="buttons">
-      <label style="display:none; margin-right:10px"><input id="font-scale-range" type="range" min="0.4" max="1.6" step="0.1" value="1.0" />Font Scale</label>
-      <label style="margin-right:10px;"><input id="rowCount" type="text" class="text" maxlength="1" style="width: 10px;" value="2"/>Row Count</label>
-      <label style="margin-right:10px;"><input id="columnCount" type="text" class="text" maxlength="1" style="width: 10px;" value="1"/>Column Count</label>
-      <label style="margin-right:10px"><input id="single-card-page-checkbox" type="checkbox"/>Single Card Per Page</label>
-      <label style="margin-right:10px"><input id="hide-description-checkbox" type="checkbox"/>Hide Description</label>
-      <label style="margin-right:10px"><input id="hide-assignee-checkbox" type="checkbox"/>Hide Assignee</label>
-      <label style="margin-right:10px"><input id="hide-due-date-checkbox" type="checkbox"/>Hide Due Date</label>
-      <label style="display:none; margin-right:10px"><input id="hide-status-checkbox" type="checkbox"/>Hide Status</label>
-      <input id="card-print-dialog-print" type="button" class="aui-button aui-button-primary" value="Print" />
-      <a id="card-print-dialog-cancel" title="Cancel" class="cancel">Cancel</a>
-    </div>
-  </div>
-</div>
-*/
-      }));
+  function printPreviewElement() {
+    var result = jQuery('<div/>').html(global.printPreviewHtml).contents();
 
     // info
     result.find("#report-issue").click(function(event) {
@@ -524,515 +512,46 @@
       });
 
     result.click(function(event) {
-      if (event.target == this) {
-        closePrintPreview();
-      }
+        if (event.target == this) {
+          closePrintPreview();
+        }
       return true;
     });
 
     jQuery(document).keyup(function(e) {
-      if (e.keyCode == 27) { // esc
+      if (e.keyCode == 27) { // ESC
         closePrintPreview();
       }
     });
 
     // prevent background scrolling
     result.scroll(function(event) {
-      return false;
+        return false;
     });
 
     return result;
   }
 
-  function printOverlayStyle() {
+  function printOverlayStyleElement() {
     var result = jQuery(document.createElement('style'))
       .attr("id", "card-print-overlay-style")
       .attr("type", "text/css")
-      .html(multilineString(function() {
-/*!
-#card-print-overlay {
-  position: fixed;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  left: 0;
-  background:rgba(0, 0, 0, 0.5);
-
-  box-sizing: border-box;
-  word-wrap:break-word;
-  z-index: 99999;
-
-}
-
-#card-print-dialog {
-  position: relative;
-
-  top: 60px;
-  right:0px;
-  left:0px;
-
-  height: calc(100% - 120px);
-  width: 1000px;
-  margin: auto;
-
-  border-style: solid;
-  border-color: #cccccc;
-  border-width: 1px;
-  -webkit-border-radius: 4px;
-  border-radius: 4px;
-
-  overflow: hidden;
-}
-
-#card-print-dialog-header {
-  position: relative;
-  background: #f0f0f0;
-  height: 25px;
-
-  border-bottom: 1px solid #cccccc;
-
-  padding: 15px 20px 15px 20px;
-}
-
-#card-print-dialog-content {
-  position: relative;
-  background: white;
-  height: calc(100% - 106px);
-  width: 100%;
-
-  overflow: hidden;
-}
-
-#card-print-dialog-content-iframe {
-  position: relative;
-  height: 100%;
-  width: 100%;
-
-  overflow: hidden;
-  border:none;
-}
-
-#card-print-dialog-footer {
-  position: relative;
-  background: #f0f0f0;
-  border-top: 1px solid #cccccc;
-  height: 30px;
-  padding: 10px;
-  text-align: right;
-}
-
-#buttons {
-  position: relative;
-  float: right;
-  display: inline-block;
-  height 30px;
-}
-
-#info {
-  position: relative;
-  float: right;
-  display: inline-block;
-  height 30px;
-}
-#info-line {
-  padding-left: 3rem;
-  padding-right: 3rem;
-}
-
-#card-print-dialog-title{
-  position: relative;
-  float: left;
-  color: rgb(51, 51, 51);
-  display: block;
-  font-family: Arial, sans-serif;
-  font-size: 20px;
-  font-weight: normal;
-  height: 30px;
-  line-height: 30px;
-}
-.cancel{
-  cursor: pointer;
-  font-size: 14px;
-  display: inline-block;
-  padding: 5px 10px;
-  vertical-align: baseline;
-}
-*/
-      }));
+      .html(global.printPreviewCss);
     return result;
   }
 
   // card layout: http://jsfiddle.net/qoomon/ykbLb2pw/76
 
-  function cardHtml(issueKey) {
-    var page = jQuery(document.createElement('div'))
+  function cardElement(issueKey) {
+    var result = jQuery('<div/>').html(global.cardHtml).contents()
       .attr("id", issueKey)
-      .addClass("card")
-      .html(multilineString(function() {
-/*!
-    <div class="card-content">
-        <div class="card-body shadow">
-            <div class="issue-summary"></div>
-            <div class="issue-description"></div>
-        </div>
-        <div class="card-header">
-            <div class="issue-id badge"></div>
-            <div class="issue-id-fadeout"></div>
-            <div class="issue-icon badge" type="story"></div>
-            <div class="issue-estimate badge"></div>
-            <div class="issue-due-box">
-                <div class="issue-due-date badge"></div>
-                <div class="issue-due-icon badge"></div>
-            </div>
-        </div>
-        <div class="card-footer">
-            <div class="issue-qr-code badge"></div>
-            <div class="issue-attachment badge"></div>
-            <div class="issue-assignee badge"></div>
-            <div class="issue-epic-box badge"> 
-              <span class="issue-epic-id"></span>
-              <span class="issue-epic-name"></span>
-            </div>
-        </div>
-    </div>
-    <div class="author">
-        <span>©BengtBrodersen</span><br>
-        qoomon.com
-    </div>
-*/
-      }));
-
-    return page;
+    return result;
   }
 
-  function cardCss() {
+  function cardElementStyle() {
     var result = jQuery(document.createElement('style'))
       .attr("type", "text/css")
-      .html(multilineString(function() {
-/*!
-* {
-    box-sizing: border-box;
-    overflow: hidden;
-}
-html {
-    background: WHITE;
-    padding: 0rem;
-    margin: 0rem;
-    font-size: 1.3cm;
-    overflow-y: scroll;
-}
-body {
-    padding: 0rem;
-    margin: 0rem;
-}
-#preload {
-    position: fixed;
-    top: 0rem;
-    left: 100%;
-}
-.author {
-    color: DIMGREY;
-    position: absolute;
-    top:0.35rem;
-    left:calc(50% - 2rem);
-    font-size: 0.6rem;
-    overflow:visible;
-    line-height: 0.38rem;
-}
-.author > span {
-    position: relative;
-    left: 0.23rem;
-    font-size: 0.6em;
-    text-align: center;
-}
-.card {
-    position: relative;
-    float:left;
-    height: 100%;
-    width: 100%;
-    padding: 0.5cm;
-    min-width:14.5rem;
-    min-height:10.0rem;
-    border-color: LightGray;
-    border-style: dotted;
-    border-width: 0.03cm;
-}
-.card-content {
-    position: relative;
-    height: 100%;
-    // find .card-header;
-    padding-top: 2rem;
-    // find .card-footer;
-    padding-bottom: 1.3rem;
-}
-.card-body {
-    position: relative;
-    height: 100%;
-    margin-left: 0.4rem;
-    margin-right: 0.4rem;
-    padding-top: 1.1rem;
-    padding-bottom: 1.1rem;
-    padding-left: 0.4rem;
-    padding-right: 0.4rem;
-    background: WHITE;
-}
-.card-header {
-    position: absolute;
-    top: 0rem;
-    height: 4.2rem;
-    width: 100%;
-}
-.card-footer {
-    position: absolute;
-    bottom: 0rem;
-    height: 2.2rem;
-    width: 100%;
-}
-.issue-summary {
-    font-weight: bold;
-    font-size: 0.9rem;
-}
-.issue-description {
-    margin-top: 0.1rem;
-    display: block;
-    font-size: 0.6rem;
-    line-height: 0.62rem;
-    overflow: hidden;
-}
-.issue-description p:first-of-type {
-    margin-top: 0rem;
-}
-.issue-description p:last-of-type {
-    margin-bottom: 0rem;
-}
-.issue-id {
-    position: absolute;
-    left: 1rem;
-    top: 1.2rem;
-    height: 1.5rem;
-    max-width: calc(100% - 7.5rem);
-    min-width: 4rem;
-    padding-left: 2.1rem;
-    padding-right: 0.4rem;
-    background-color: WHITESMOKE;
-    line-height: 1.3rem;
-    font-size: 0.8rem;
-    font-weight: bold;
-    text-align: center;
-    white-space: nowrap;
-    direction: rtl;
-}
-.issue-id-fadeout {
-    position: absolute;
-    left: 2.4rem;
-    top: 1.2rem;
-    width: 1.2rem;
-    height: 1.3rem;
-    z-index: 0;
-    background: linear-gradient(to left, rgba(224, 224, 224, 0) 0%, rgba(224, 224, 224, 1) 60%);
-}
-.issue-icon {
-    position: absolute;
-    left: 0rem;
-    top: 0rem;
-    height: 3.0rem;
-    width: 3.0rem;
-    border-radius: 50% !important;
-    background-color: LIGHTSEAGREEN !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Objects.png);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 63%;
-}
-.issue-icon[type="story"], .issue-icon[type="user story"] {
-    background-color: GOLD !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bulb.png);
-}
-.issue-icon[type="bug"], .issue-icon[type="correction"] {
-    background-color: CRIMSON !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bug.png);
-}
-.issue-icon[type="epic"] {
-    background-color: ROYALBLUE !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Flash.png);
-}
-.issue-icon[type="task"] {
-    background-color: WHEAT !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Task.png);
-}
-.issue-icon[type="new feature"] {
-    background-color: LIMEGREEN !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Plus.png);
-}
-.issue-icon[type="improvement"] {
-    background-color: CORNFLOWERBLUE !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Arrow.png);
-}
-.issue-estimate {
-    position: absolute;
-    left: 2.5rem;
-    top: 0.0rem;
-    height: 1.6rem;
-    width: 1.6rem;
-    border-radius: 50% !important;
-    background-color: WHITESMOKE;
-    line-height: 1.4rem;
-    font-size: 0.9rem;
-    font-weight: bold;
-    text-align: center;
-}
-.issue-qr-code {
-    position: absolute;
-    left:0rem;
-    top: 0rem;
-    width: 2.2rem;
-    height: 2.2rem;
-    background-image: url(https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=blog.qoomon.com);
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-}
-.issue-attachment {
-    position: absolute;
-    left:2.5rem;
-    top: 0rem;
-    width: 2.0rem;
-    height: 2.0rem;
-    border-radius: 50% !important;
-    background-color: LIGHTSKYBLUE !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Attachment.png);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 70%;
-}
-.issue-assignee {
-    position: absolute;
-    top:0rem;
-    right:0rem;
-    width: 2.2rem;
-    height: 2.2rem;
-    border-radius: 50% !important;
-    background-color: WHITESMOKE;
-    //background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Person.png);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-    //-webkit-filter: contrast(200%) grayscale(100%);
-    //filter: contrast(200%) grayscale(100%);
-    text-align: center;
-    font-weight: bold;
-    font-size: 1.4rem;
-    line-height: 1.9rem;
-}
-.issue-epic-box {
-    position: absolute;
-    right:2.5rem;
-    top: 0rem;
-    width: auto;
-    min-width: 2rem;
-    width: auto;
-    max-width: calc(100% - 7.5rem);
-    height: auto;
-    max-height: 2.2rem;
-    padding-top: 0.1rem;
-    padding-bottom: 0.2rem;
-    padding-left: 0.3rem;
-    padding-right: 0.3rem;
-    text-align: left;
-    font-size: 0.5rem;
-    line-height: 0.55rem;
-}
-.issue-epic-id {
-    font-size: 0.5rem;
-    font-weight: bold;
-    max-width: 1rem;
-}
-.issue-epic-name {
-    margin-left: 0.1rem;
-    font-size: 0.6rem;
-    font-weight: bold;
-}
-.issue-due-date-box {
-    position: absolute;
-    right: 0rem;
-    top: 0rem;
-    overflow: visible !important;
-}
-.issue-due-date {
-    position: absolute;
-    top: 1.3rem;
-    right: 1rem;
-    width: 5.3rem;
-    min-width: 2.8rem;
-    height: 1.3rem;
-    padding-left: 0.2rem;
-    padding-right: 1.4rem;
-    text-align: center;
-    font-weight: bold;
-    font-size: 0.7rem;
-    line-height: 1.0rem;
-}
-.issue-due-icon {
-    position: absolute;
-    top: 0.5rem;
-    right: 0rem;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50% !important;
-    background-color: ORCHID !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/AlarmClock.png);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 65%;
-}
-.badge, .shadow {
-    border-style: solid;
-    border-color: #333;
-    border-top-width: 0.12rem;
-    border-left-width: 0.12rem;
-    border-bottom-width: 0.21rem;
-    border-right-width: 0.21rem;
-    border-radius: 0.25rem;
-}
-.badge {
-    // WHITESMOKE, GAINSBOROM;
-    background-color: #E0E0E0;
-}
-.hidden {
-    display: none;
-}
-.zigzag {
-    border-bottom-width: 0rem;
-}
-.zigzag::after {
-    position: absolute;
-    bottom: 0.03rem;
-    left:-0.16rem;
-    content:"";
-    width: 100%;
-    border-style:solid;
-    border-bottom-width: 1rem;
-    border-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/Tearing.png);
-    border-image-width: 0 0 0.7rem 0;
-    border-image-slice: 56 0 56 1;
-    border-image-repeat: round round;
-}
-@media print {
-    @page {
-        margin: 0.0mm;
-        padding: 0.0mm;
-    }
-    html {
-        -webkit-print-color-adjust:exact;
-        print-color-adjust: exact;
-    }
-    .card {
-        page-break-inside: avoid;
-    }
-}
-}
-*/
-    }).replace(/https:\/\/qoomon.github.io\/Jira-Issue-Card-Printer\/resources/g, global.resourceOrigin));
+      .html(global.cardCss);
     return result;
   }
 
@@ -1077,16 +596,6 @@ body {
   //############################################################################################################################
   //############################################################################################################################
   //############################################################################################################################
-
-  function addDeferred(deferredList) {
-    var deferred = new jQuery.Deferred()
-    deferredList.push(deferred);
-    return deferred;
-  }
-
-  function applyDeferred(deferredList, callback) {
-    jQuery.when.apply(jQuery, deferredList).done(callback);
-  }
 
   function readCookie(name, defaultValue) {
     var cookies = document.cookie.split('; ');
@@ -1309,17 +818,9 @@ body {
       }
     };
   }
-  
-  function httpGet(url){
-    var response;
-    jQuery.ajax({
-        url: 'https://jsonp.afeld.me/?url=' + url,
-        success: function (data) {
-            result = data
-        },
-        async: false
-    });
-    return response;
+
+  function httpGetCors(url, callback){
+    return jQuery.get('https://jsonp.afeld.me/?url=' + url, callback);
   }
 
 
@@ -1357,7 +858,7 @@ body {
           async: false,
           success: function(responseData) {
             console.log("responseData: " + responseData.issues);
-          
+
             jQuery.each(responseData.issues, function(key, value) {
                 jqlIssues.push(value.key);
             });
@@ -1366,12 +867,12 @@ body {
         console.log("jqlIssues: " + jqlIssues);
         return jqlIssues;
       }
-      
+
       //Browse
       if (/.*\/browse\/.*/g.test(document.URL)) {
         return [document.URL.replace(/.*\/browse\/([^?]*).*/, '$1')];
       }
-      
+
       //Project
       if (/.*\/projects\/.*/g.test(document.URL)) {
         return [document.URL.replace(/.*\/projects\/[^\/]*\/[^\/]*\/([^?]*).*/, '$1')];
@@ -1387,17 +888,14 @@ body {
       return [];
     };
 
-    module.getCardData = function(issueKey, callback) {
-      module.getIssueData(issueKey, function(data) {
+    module.getCardData = function(issueKey) {
+      var promises = [];
+      var issueData = {};
 
-        var issueData = {};
-
+      promises.push(module.getIssueData(issueKey).then(function(data) {
         issueData.key = data.key;
-
         issueData.type = data.fields.issuetype.name.toLowerCase();
-
         issueData.summary = data.fields.summary;
-        
         issueData.description = data.renderedFields.description;
 
         if (data.fields.assignee) {
@@ -1413,14 +911,13 @@ body {
         }
 
         issueData.hasAttachment = data.fields.attachment.length > 0;
-
         issueData.storyPoints = data.fields.storyPoints;
-
         issueData.epicKey = data.fields.epicLink;
+
         if (issueData.epicKey) {
-          jiraFunctions.getIssueData(issueData.epicKey, function(data) {
+          promises.push(module.getIssueData(issueData.epicKey).then(function(data) {
             issueData.epicName = data.fields.epicName;
-          }, false);
+          }));
         }
 
         issueData.url = window.location.origin + "/browse/" + issueData.key;
@@ -1432,35 +929,30 @@ body {
             issueData.dueDate = new Date(data.fields.desiredDate).format('D d.m.');
           }
         }
+      }));
 
-        callback(issueData);
-      });
+      return new Promise(function(resolve, reject) {
+        Promise.all(promises)
+          .then(function(){resolve(issueData);})
+          .catch(function(cause){reject(cause);});
+     });
     };
 
-    module.getIssueData = function(issueKey, callback, async) {
-      async = typeof async !== 'undefined' ? async : true;
+    module.getIssueData = function(issueKey) {
       //https://docs.atlassian.com/jira/REST/latest/
       var url = '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
-      jQuery.ajax({
-        type: 'GET',
-        url: url,
-        data: {},
-        dataType: 'json',
-        async: async,
-        success: function(responseData) {
-          //console.log("Issue: " + issueKey + " Loaded!");
-          // add custom fields with field names
-          jQuery.each(responseData.names, function(key, value) {
-            if (key.startsWith("customfield_")) {
-              var fieldName = value.toCamelCase();
-              //console.log("add new field: " + fieldName + " with value from " + key);
-              responseData.fields[fieldName] = responseData.fields[key];
-            }
-          });
-          callback(responseData);
-        },
+      return jQuery.getJSON(url).then(function(responseData) {
+        //console.log("Issue: " + issueKey + " Loaded!");
+        // add custom fields with field names
+        jQuery.each(responseData.names, function(key, value) {
+          if (key.startsWith("customfield_")) {
+            var fieldName = value.toCamelCase();
+            //console.log("add new field: " + fieldName + " with value from " + key);
+            responseData.fields[fieldName] = responseData.fields[key];
+          }
+        });
       });
     };
 
@@ -1485,17 +977,14 @@ body {
       return [];
     };
 
-    module.getCardData = function(issueKey, callback) {
-      module.getIssueData(issueKey, function(data) {
+    module.getCardData = function(issueKey) {
+      var promises = [];
+      var issueData = {};
 
-        var issueData = {};
-
+      promises.push(module.getIssueData(issueKey, function(data) {
         issueData.key = data.id;
-
         issueData.type = data.field.type[0];
-
         issueData.summary = data.field.summary;
-
         issueData.description = data.field.description;
 
         if (data.field.assignee) {
@@ -1524,34 +1013,27 @@ body {
         // }
         //
         issueData.url = window.location.origin + "/youtrack/issue/" + issueData.key;
+      }));
 
-        callback(issueData);
+      return new Promise(function(resolve, reject) {
+        Promise.all(promises)
+          .then(function(){resolve(issueData);})
+          .catch(function(cause){reject(cause);});
       });
     };
 
-    module.getIssueData = function(issueKey, callback, async) {
-      async = typeof async !== 'undefined' ? async : true;
-      //https://docs.atlassian.com/jira/REST/latest/
+    module.getIssueData = function(issueKey) {
       var url = '/youtrack/rest/issue/' + issueKey + '?';
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
-      jQuery.ajax({
-        type: 'GET',
-        url: url,
-        data: {},
-        dataType: 'json',
-        async: async,
-        success: function(responseData) {
-          //console.log("Issue: " + issueKey + " Loaded!");
-          jQuery.each(responseData.field, function(key, value) {
-            // add fields with field names
-            var fieldName = value.name.toCamelCase();
-            //console.log("add new field: " + newFieldId + " with value from " + fieldName);
-            responseData.field[fieldName] = value.value;
-
-          });
-          callback(responseData);
-        },
+      return jQuery.getJSON(url).then(function(responseData) {
+        //console.log("Issue: " + issueKey + " Loaded!");
+        jQuery.each(responseData.field, function(key, value) {
+          // add fields with field names
+          var fieldName = value.name.toCamelCase();
+          //console.log("add new field: " + newFieldId + " with value from " + fieldName);
+          responseData.field[fieldName] = value.value;
+        });
       });
     };
 
@@ -1576,17 +1058,14 @@ body {
       return [];
     };
 
-    module.getCardData = function(issueKey, callback) {
-      module.getIssueData(issueKey, function(data) {
+    module.getCardData = function(issueKey) {
+      var promises = [];
+      var issueData = {};
 
-        var issueData = {};
-
+      promises.push(module.getIssueData(issueKey, function(data) {
         issueData.key = data.id;
-
         issueData.type = data.kind.toLowerCase();
-
         issueData.summary = data.name;
-
         issueData.description = data.description;
 
         if (data.owned_by && data.owned_by.length > 0) {
@@ -1599,7 +1078,6 @@ body {
 
         // TODO
         issueData.hasAttachment = false;
-
         issueData.storyPoints = data.estimate;
 
         // TODO
@@ -1611,28 +1089,21 @@ body {
         // }
 
         issueData.url = data.url;
+      }));
 
-        callback(issueData);
+      return new Promise(function(resolve, reject) {
+        Promise.all(promises)
+          .then(function(){resolve(issueData);})
+          .catch(function(cause){reject(cause);});
       });
     };
 
     module.getIssueData = function(issueKey, callback, async) {
-      async = typeof async !== 'undefined' ? async : true;
       //http://www.pivotaltracker.com/help/api
       var url = 'https://www.pivotaltracker.com/services/v5/stories/' + issueKey + "?fields=name,kind,description,story_type,owned_by(name),comments(file_attachments(kind)),estimate,deadline";
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
-      jQuery.ajax({
-        type: 'GET',
-        url: url,
-        data: {},
-        dataType: 'json',
-        async: async,
-        success: function(responseData) {
-          //console.log("Issue: " + issueKey + " Loaded!");
-          callback(responseData);
-        },
-      });
+      return jQuery.getJSON(url);
     };
 
     return module;
@@ -1650,17 +1121,16 @@ body {
     };
 
     module.getCardData = function(issueKey, callback) {
-      module.getIssueData(issueKey, function(data) {
+      var promises = [];
+      var issueData = {};
 
-        var issueData = {};
-
+      promises.push(module.getIssueData(issueKey, function(data) {
         issueData.key = data.idShort;
 
         //  TODO get kind from label name
         // issueData.type = data.kind.toLowerCase();
 
         issueData.summary = data.name;
-
         issueData.description = data.desc;
 
         if (data.members && data.members.length > 0) {
@@ -1673,30 +1143,21 @@ body {
         }
 
         issueData.hasAttachment = data.attachments > 0;
-
         issueData.url = data.shortUrl;
+      }));
 
-        callback(issueData);
+      return new Promise(function(resolve, reject) {
+        Promise.all(promises)
+          .then(function(){resolve(issueData);})
+          .catch(function(cause){reject(cause);});
       });
     };
 
     module.getIssueData = function(issueKey, callback, async) {
-      async = typeof async !== 'undefined' ? async : true;
-      //http://www.pivotaltracker.com/help/api
       var url = "https://trello.com/1/cards/" + issueKey + "?members=true";
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
-      jQuery.ajax({
-        type: 'GET',
-        url: url,
-        data: {},
-        dataType: 'json',
-        async: async,
-        success: function(responseData) {
-          //console.log("Issue: " + issueKey + " Loaded!");
-          callback(responseData);
-        },
-      });
+      return jQuery.getJSON(url);
     };
 
     return module;

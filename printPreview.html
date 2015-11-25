@@ -1,0 +1,29 @@
+<div id="card-print-overlay">
+  <div id="card-print-dialog">
+    <div id="card-print-dialog-header">
+      <div id="card-print-dialog-title">Card Printer</div>
+      <div id="info">
+        <label id="info-line"><b>Jira</b> - <b>PivotalTracker</b> - <b>Trello</b> - <b>YouTrack</b></label>
+        <input id="report-issue" type="button" class="aui-button" value="Report Issues" />
+        <input id="about" type="button" class="aui-button" value="About" />
+      </div>
+    </div>
+    <div id="card-print-dialog-content">
+      <iframe id="card-print-dialog-content-iframe"></iframe>
+    </div>
+    <div id="card-print-dialog-footer">
+      <div class="buttons">
+        <label style="display:none; margin-right:10px"><input id="font-scale-range" type="range" min="0.4" max="1.6" step="0.1" value="1.0" />Font Scale</label>
+        <label style="margin-right:10px;"><input id="rowCount" type="text" class="text" maxlength="1" style="width: 10px;" value="2"/>Row Count</label>
+        <label style="margin-right:10px;"><input id="columnCount" type="text" class="text" maxlength="1" style="width: 10px;" value="1"/>Column Count</label>
+        <label style="margin-right:10px"><input id="single-card-page-checkbox" type="checkbox"/>Single Card Per Page</label>
+        <label style="margin-right:10px"><input id="hide-description-checkbox" type="checkbox"/>Hide Description</label>
+        <label style="margin-right:10px"><input id="hide-assignee-checkbox" type="checkbox"/>Hide Assignee</label>
+        <label style="margin-right:10px"><input id="hide-due-date-checkbox" type="checkbox"/>Hide Due Date</label>
+        <label style="display:none; margin-right:10px"><input id="hide-status-checkbox" type="checkbox"/>Hide Status</label>
+        <input id="card-print-dialog-print" type="button" class="aui-button aui-button-primary" value="Print" />
+        <a id="card-print-dialog-cancel" title="Cancel" class="cancel">Cancel</a>
+      </div>
+    </div>
+  </div>
+</div>
