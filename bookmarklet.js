@@ -1,11 +1,7 @@
 (function() {
-  var version = "4.2.1";
-  console.log("Version: " + version);
-
   var global = {};
-  global.isDev = /.*jira.atlassian.com\/secure\/RapidBoard.jspa\?.*projectKey=ANERDS.*/g.test(document.URL) // Jira
-    || /.*pivotaltracker.com\/n\/projects\/510733.*/g.test(document.URL) // PivotTracker
-    || (/.*trello.com\/.*/g.test(document.URL) && jQuery("span.js-member-name").text() == 'Bengt Brodersen'); // Trello
+  global.version = "4.2.1";
+  global.isDev = document.scripts[document.scripts.length-1].src == "";
   global.isProd = !global.isDev;
 
   window.addEventListener("error", function(event) {
@@ -26,12 +22,15 @@
 
   // wait untill all scripts loaded
   appendScript('https://qoomon.github.io/void', function() {
-    main();
+    init().then(function(){ 
+      main();
+    }).catch(function(){
+      alert("ERROR on init!");
+    });
   });
 
   function main() {
-    init();
-
+    console.log("Run...")
     // determine application
     if (jQuery("meta[name='application-name'][ content='JIRA']").length > 0) {
       console.log("App: " + "Jira");
@@ -62,6 +61,8 @@
       alert("Please select at least one issue.");
       return;
     }
+    
+    
 
     // open print preview
     jQuery("body").append(printOverlayHTML());
@@ -85,9 +86,9 @@
     jQuery("#hide-due-date-checkbox").attr('checked', readCookie("card_printer_hide_due_date", 'false') == 'true');
     jQuery("#hide-status-checkbox").attr('checked', readCookie("card_printer_hide_status", 'true') == 'true');
 
-    jQuery("#card-print-dialog-title").text("Card Printer " + version + " - Loading issues...");
+    jQuery("#card-print-dialog-title").text("Card Printer " + global.version + " - Loading issues...");
     renderCards(issueKeyList, function() {
-      jQuery("#card-print-dialog-title").text("Card Printer " + version);
+      jQuery("#card-print-dialog-title").text("Card Printer " + global.version);
       //print();
     });
 
@@ -97,6 +98,7 @@
   }
 
   function init() {
+    console.log("Init...")
     addStringFunctions();
     addDateFunctions();
 
@@ -110,6 +112,13 @@
     if (global.isProd) {
       initGoogleAnalytics();
     }
+    
+    var promises = [];
+    promises.push(httpGetCors(global.hostOrigin + "card.html", function(data){
+      global.cardHtml = data;
+      console.log("foooooo: " + data);
+    }));
+    return Promise.all(promises);
   }
 
   function print() {
@@ -141,19 +150,19 @@
 
     var deferredList = [];
     jQuery.each(issueKeyList, function(index, issueKey) {
-      var page = cardHtml(issueKey);
-      page.attr("index", index);
-      page.hide();
-      page.find('.issue-id').text(issueKey);
-      jQuery("body", printDocument).append(page);
+      var card = cardElement(issueKey);
+      card.attr("index", index);
+      card.hide();
+      card.find('.issue-id').text(issueKey);
+      jQuery("body", printDocument).append(card);
       var deferred = addDeferred(deferredList);
       global.appFunctions.getCardData(issueKey, function(cardData) {
         //console.log("cardData: " + cardData);
         if (global.isProd) {
           ga('send', 'event', 'card', 'generate', cardData.type);
         }
-        fillCard(page, cardData);
-        page.show();
+        fillCard(card, cardData);
+        card.show();
         redrawCards();
         deferred.resolve();
       });
@@ -663,46 +672,11 @@
   }
 
   // card layout: http://jsfiddle.net/qoomon/ykbLb2pw/76
-
-  function cardHtml(issueKey) {
+  
+  function cardElement(issueKey) {
     var page = jQuery(document.createElement('div'))
       .attr("id", issueKey)
-      .html(multilineString(function() {
-/*!
-<div class="card">
-    <div class="card-content">
-        <div class="card-body shadow">
-            <div class="issue-summary"></div>
-            <div class="issue-description"></div>
-        </div>
-        <div class="card-header">
-            <div class="issue-id badge"></div>
-            <div class="issue-id-fadeout"></div>
-            <div class="issue-icon badge" type="story"></div>
-            <div class="issue-estimate badge"></div>
-            <div class="issue-due-box">
-                <div class="issue-due-date badge"></div>
-                <div class="issue-due-icon badge"></div>
-            </div>
-        </div>
-        <div class="card-footer">
-            <div class="issue-qr-code badge"></div>
-            <div class="issue-attachment badge"></div>
-            <div class="issue-assignee badge"></div>
-            <div class="issue-epic-box badge"> 
-              <span class="issue-epic-id"></span>
-              <span class="issue-epic-name"></span>
-            </div>
-        </div>
-    </div>
-    <div class="author">
-        <span>©BengtBrodersen</span><br>
-        qoomon.com
-    </div>
-</div>
-*/
-      }));
-
+      .html(global.cardHtml);
     return page;
   }
 
@@ -1312,16 +1286,8 @@ body {
     };
   }
   
-  function httpGet(url){
-    var response;
-    jQuery.ajax({
-        url: 'https://jsonp.afeld.me/?url=' + url,
-        success: function (data) {
-            result = data
-        },
-        async: false
-    });
-    return response;
+  function httpGetCors(url, callback){
+    return jQuery.get('https://jsonp.afeld.me/?url=' + url, callback);
   }
 
 
