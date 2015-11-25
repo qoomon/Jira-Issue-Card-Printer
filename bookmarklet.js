@@ -1,5 +1,5 @@
 (function() {
-  var version = "4.2.0";
+  var version = "4.2.1";
   console.log("Version: " + version);
 
   var global = {};
@@ -667,9 +667,9 @@
   function cardHtml(issueKey) {
     var page = jQuery(document.createElement('div'))
       .attr("id", issueKey)
-      .addClass("card")
       .html(multilineString(function() {
 /*!
+<div class="card">
     <div class="card-content">
         <div class="card-body shadow">
             <div class="issue-summary"></div>
@@ -699,6 +699,7 @@
         <span>©BengtBrodersen</span><br>
         qoomon.com
     </div>
+</div>
 */
       }));
 
@@ -724,6 +725,38 @@ html {
 body {
     padding: 0rem;
     margin: 0rem;
+}
+.badge, .shadow {
+    border-style: solid;
+    border-color: #333;
+    border-top-width: 0.12rem;
+    border-left-width: 0.12rem;
+    border-bottom-width: 0.21rem;
+    border-right-width: 0.21rem;
+    border-radius: 0.25rem;
+}
+.badge {
+    // WHITESMOKE, GAINSBOROM;
+    background-color: #E0E0E0;
+}
+.hidden {
+    display: none;
+}
+.zigzag {
+    border-bottom-width: 0rem;
+}
+.zigzag::after {
+    position: absolute;
+    bottom: 0.03rem;
+    left:-0.16rem;
+    content:"";
+    width: 100%;
+    border-style:solid;
+    border-bottom-width: 1rem;
+    border-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/Tearing.png);
+    border-image-width: 0 0 0.7rem 0;
+    border-image-slice: 56 0 56 1;
+    border-image-repeat: round round;
 }
 #preload {
     position: fixed;
@@ -811,7 +844,7 @@ body {
     top: 1.2rem;
     height: 1.5rem;
     max-width: calc(100% - 7.5rem);
-    min-width: 4rem;
+    min-width: 6.0rem;
     padding-left: 2.1rem;
     padding-right: 0.4rem;
     background-color: WHITESMOKE;
@@ -837,35 +870,35 @@ body {
     top: 0rem;
     height: 3.0rem;
     width: 3.0rem;
-    border-radius: 50% !important;
-    background-color: LIGHTSEAGREEN !important;
+    border-radius: 50%;
+    background-color: LIGHTSEAGREEN;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Objects.png);
     background-repeat: no-repeat;
     background-position: center;
     background-size: 63%;
 }
 .issue-icon[type="story"], .issue-icon[type="user story"] {
-    background-color: GOLD !important;
+    background-color: GOLD;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bulb.png);
 }
 .issue-icon[type="bug"], .issue-icon[type="correction"] {
-    background-color: CRIMSON !important;
+    background-color: CRIMSON;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bug.png);
 }
 .issue-icon[type="epic"] {
-    background-color: ROYALBLUE !important;
+    background-color: ROYALBLUE;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Flash.png);
 }
 .issue-icon[type="task"] {
-    background-color: WHEAT !important;
+    background-color: WHEAT;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Task.png);
 }
 .issue-icon[type="new feature"] {
-    background-color: LIMEGREEN !important;
+    background-color: LIMEGREEN;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Plus.png);
 }
 .issue-icon[type="improvement"] {
-    background-color: CORNFLOWERBLUE !important;
+    background-color: CORNFLOWERBLUE;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Arrow.png);
 }
 .issue-estimate {
@@ -874,7 +907,7 @@ body {
     top: 0.0rem;
     height: 1.6rem;
     width: 1.6rem;
-    border-radius: 50% !important;
+    border-radius: 50%;
     background-color: WHITESMOKE;
     line-height: 1.4rem;
     font-size: 0.9rem;
@@ -898,8 +931,8 @@ body {
     top: 0rem;
     width: 2.0rem;
     height: 2.0rem;
-    border-radius: 50% !important;
-    background-color: LIGHTSKYBLUE !important;
+    border-radius: 50%;
+    background-color: LIGHTSKYBLUE;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Attachment.png);
     background-repeat: no-repeat;
     background-position: center;
@@ -911,7 +944,7 @@ body {
     right:0rem;
     width: 2.2rem;
     height: 2.2rem;
-    border-radius: 50% !important;
+    border-radius: 50%;
     background-color: WHITESMOKE;
     //background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Person.png);
     background-repeat: no-repeat;
@@ -978,45 +1011,14 @@ body {
     right: 0rem;
     width: 2.5rem;
     height: 2.5rem;
-    border-radius: 50% !important;
-    background-color: ORCHID !important;
+    border-radius: 50%;
+    background-color: ORCHID;
     background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/AlarmClock.png);
     background-repeat: no-repeat;
     background-position: center;
     background-size: 65%;
 }
-.badge, .shadow {
-    border-style: solid;
-    border-color: #333;
-    border-top-width: 0.12rem;
-    border-left-width: 0.12rem;
-    border-bottom-width: 0.21rem;
-    border-right-width: 0.21rem;
-    border-radius: 0.25rem;
-}
-.badge {
-    // WHITESMOKE, GAINSBOROM;
-    background-color: #E0E0E0;
-}
-.hidden {
-    display: none;
-}
-.zigzag {
-    border-bottom-width: 0rem;
-}
-.zigzag::after {
-    position: absolute;
-    bottom: 0.03rem;
-    left:-0.16rem;
-    content:"";
-    width: 100%;
-    border-style:solid;
-    border-bottom-width: 1rem;
-    border-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/Tearing.png);
-    border-image-width: 0 0 0.7rem 0;
-    border-image-slice: 56 0 56 1;
-    border-image-repeat: round round;
-}
+
 @media print {
     @page {
         margin: 0.0mm;
