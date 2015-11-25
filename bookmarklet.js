@@ -114,19 +114,19 @@
       initGoogleAnalytics();
     }
 
-    promises.push(httpGetCors(global.hostOrigin + "card.html", function(data){
+    promises.push(httpGetCors(global.hostOrigin + "card.html").then(function(data){
       global.cardHtml = data;
     }));
 
-    promises.push(httpGetCors(global.hostOrigin + "card.css", function(data){
+    promises.push(httpGetCors(global.hostOrigin + "card.css").then(function(data){
       global.cardCss = data.replace(/https:\/\/qoomon.github.io\/Jira-Issue-Card-Printer\/resources/g, global.resourceOrigin);
     }));
 
-    promises.push(httpGetCors(global.hostOrigin + "printPreview.html", function(data){
+    promises.push(httpGetCors(global.hostOrigin + "printPreview.html").then(function(data){
       global.printPreviewHtml = data
     }));
 
-    promises.push(httpGetCors(global.hostOrigin + "printPreview.css", function(data){
+    promises.push(httpGetCors(global.hostOrigin + "printPreview.css").then(function(data){
       global.printPreviewCss = data.replace(/https:\/\/qoomon.github.io\/Jira-Issue-Card-Printer\/resources/g, global.resourceOrigin);
     }));
 
