@@ -1,7 +1,7 @@
 (function() {
   var global = {};
-  global.version = "4.2.1";
-  global.isDev = document.scripts[document.scripts.length-1].src == "";
+  global.version = "4.2.1.1";
+  global.isDev = document.currentScript == null;
   global.isProd = !global.isDev;
 
   window.addEventListener("error", function(event) {
