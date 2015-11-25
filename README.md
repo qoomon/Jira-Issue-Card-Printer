@@ -3,6 +3,9 @@ Beautiful Jira Issue Card Printer
 
 I've written a little bookmarklet for converting Jira issues in a pretty card layout for printing.
 
+### Card Layout
+![Card Layout](http://4.bp.blogspot.com/-BgfPtVWFxVo/VLTjiqpPzjI/AAAAAAAAGLw/PgF3D6eq35c/s1600/Screen%2BShot%2B2015-01-13%2Bat%2B10.19.22.png)
+
 So long
 Bengt
 
@@ -31,9 +34,6 @@ search for issues und select *List View*
 * **Trello**
 * **PivotTracker**
 * **YouTrack**
-
-### Card Layout
-![Card Layout](http://4.bp.blogspot.com/-BgfPtVWFxVo/VLTjiqpPzjI/AAAAAAAAGLw/PgF3D6eq35c/s1600/Screen%2BShot%2B2015-01-13%2Bat%2B10.19.22.png)
 
 ###Info
 I make use of **Google Analytics** to get some usage feedback. Please let me.
