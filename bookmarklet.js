@@ -22,10 +22,10 @@
 
   // wait untill all scripts loaded
   appendScript('https://qoomon.github.io/void', function() {
-    init().then(function(){ 
+    init().then(function(){
       main();
-    }).catch(function(){
-      alert("ERROR on init!");
+    }).catch(function(cause){
+      alert("ERROR on init!\n\n" + cause);
     });
   });
 
@@ -61,8 +61,6 @@
       alert("Please select at least one issue.");
       return;
     }
-    
-    
 
     // open print preview
     jQuery("body").append(printOverlayHTML());
@@ -87,7 +85,7 @@
     jQuery("#hide-status-checkbox").attr('checked', readCookie("card_printer_hide_status", 'true') == 'true');
 
     jQuery("#card-print-dialog-title").text("Card Printer " + global.version + " - Loading issues...");
-    renderCards(issueKeyList, function() {
+    renderCards(issueKeyList).then(function() {
       jQuery("#card-print-dialog-title").text("Card Printer " + global.version);
       //print();
     });
@@ -98,6 +96,8 @@
   }
 
   function init() {
+    var promises = [];
+
     console.log("Init...")
     addStringFunctions();
     addDateFunctions();
@@ -112,8 +112,8 @@
     if (global.isProd) {
       initGoogleAnalytics();
     }
-    
-    var promises = [];
+
+
     promises.push(httpGetCors(global.hostOrigin + "card.html", function(data){
       global.cardHtml = data;
       console.log("foooooo: " + data);
@@ -133,7 +133,7 @@
     printWindow.print();
   }
 
-  function renderCards(issueKeyList, callback) {
+  function renderCards(issueKeyList) {
 
     var printFrame = jQuery("#card-print-dialog-content-iframe");
     var printWindow = printFrame[0].contentWindow;
@@ -148,15 +148,15 @@
 
     console.log("load " + issueKeyList.length + " issues...");
 
-    var deferredList = [];
+    var promises = [];
     jQuery.each(issueKeyList, function(index, issueKey) {
       var card = cardElement(issueKey);
       card.attr("index", index);
       card.hide();
       card.find('.issue-id').text(issueKey);
       jQuery("body", printDocument).append(card);
-      var deferred = addDeferred(deferredList);
-      global.appFunctions.getCardData(issueKey, function(cardData) {
+
+      promises.push(global.appFunctions.getCardData(issueKey).then(function(cardData) {
         //console.log("cardData: " + cardData);
         if (global.isProd) {
           ga('send', 'event', 'card', 'generate', cardData.type);
@@ -164,19 +164,18 @@
         fillCard(card, cardData);
         card.show();
         redrawCards();
-        deferred.resolve();
-      });
+      }));
     });
     console.log("wait for issues loaded...");
 
-    applyDeferred(deferredList, function() {
+    return Promise.all(promises).then(function() {
       console.log("...all issues loaded.");
+
       jQuery(printWindow).load(function() {
         console.log("...all resources loaded.");
-        callback();
-      })
-      printDocument.close();
+      });
       console.log("wait for resources loaded...");
+      printDocument.close();
     });
   }
 
@@ -319,7 +318,7 @@
     var cardCount = jQuery(".card", printDocument).length;
     var pageCount = Math.ceil(cardCount / (columnCount * rowCount))
 
-   
+
     // scale
 
     // reset scale
@@ -672,7 +671,7 @@
   }
 
   // card layout: http://jsfiddle.net/qoomon/ykbLb2pw/76
-  
+
   function cardElement(issueKey) {
     var page = jQuery(document.createElement('div'))
       .attr("id", issueKey)
@@ -1054,16 +1053,6 @@ body {
   //############################################################################################################################
   //############################################################################################################################
 
-  function addDeferred(deferredList) {
-    var deferred = new jQuery.Deferred()
-    deferredList.push(deferred);
-    return deferred;
-  }
-
-  function applyDeferred(deferredList, callback) {
-    jQuery.when.apply(jQuery, deferredList).done(callback);
-  }
-
   function readCookie(name, defaultValue) {
     var cookies = document.cookie.split('; ');
 
@@ -1285,7 +1274,7 @@ body {
       }
     };
   }
-  
+
   function httpGetCors(url, callback){
     return jQuery.get('https://jsonp.afeld.me/?url=' + url, callback);
   }
@@ -1325,7 +1314,7 @@ body {
           async: false,
           success: function(responseData) {
             console.log("responseData: " + responseData.issues);
-          
+
             jQuery.each(responseData.issues, function(key, value) {
                 jqlIssues.push(value.key);
             });
@@ -1334,12 +1323,12 @@ body {
         console.log("jqlIssues: " + jqlIssues);
         return jqlIssues;
       }
-      
+
       //Browse
       if (/.*\/browse\/.*/g.test(document.URL)) {
         return [document.URL.replace(/.*\/browse\/([^?]*).*/, '$1')];
       }
-      
+
       //Project
       if (/.*\/projects\/.*/g.test(document.URL)) {
         return [document.URL.replace(/.*\/projects\/[^\/]*\/[^\/]*\/([^?]*).*/, '$1')];
@@ -1355,17 +1344,14 @@ body {
       return [];
     };
 
-    module.getCardData = function(issueKey, callback) {
-      module.getIssueData(issueKey, function(data) {
+    module.getCardData = function(issueKey) {
+      var promises = [];
+      var issueData = {};
 
-        var issueData = {};
-
+      promises.push(module.getIssueData(issueKey).then(function(data) {
         issueData.key = data.key;
-
         issueData.type = data.fields.issuetype.name.toLowerCase();
-
         issueData.summary = data.fields.summary;
-        
         issueData.description = data.renderedFields.description;
 
         if (data.fields.assignee) {
@@ -1381,14 +1367,13 @@ body {
         }
 
         issueData.hasAttachment = data.fields.attachment.length > 0;
-
         issueData.storyPoints = data.fields.storyPoints;
-
         issueData.epicKey = data.fields.epicLink;
+
         if (issueData.epicKey) {
-          jiraFunctions.getIssueData(issueData.epicKey, function(data) {
+          promises.push(module.getIssueData(issueData.epicKey).then(function(data) {
             issueData.epicName = data.fields.epicName;
-          }, false);
+          }));
         }
 
         issueData.url = window.location.origin + "/browse/" + issueData.key;
@@ -1400,35 +1385,30 @@ body {
             issueData.dueDate = new Date(data.fields.desiredDate).format('D d.m.');
           }
         }
+      }));
 
-        callback(issueData);
-      });
+      return new Promise(function(resolve, reject) {
+        Promise.all(promises)
+          .then(function(){resolve(issueData);})
+          .catch(function(cause){reject(cause);});
+     });
     };
 
-    module.getIssueData = function(issueKey, callback, async) {
-      async = typeof async !== 'undefined' ? async : true;
+    module.getIssueData = function(issueKey) {
       //https://docs.atlassian.com/jira/REST/latest/
       var url = '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
-      jQuery.ajax({
-        type: 'GET',
-        url: url,
-        data: {},
-        dataType: 'json',
-        async: async,
-        success: function(responseData) {
-          //console.log("Issue: " + issueKey + " Loaded!");
-          // add custom fields with field names
-          jQuery.each(responseData.names, function(key, value) {
-            if (key.startsWith("customfield_")) {
-              var fieldName = value.toCamelCase();
-              //console.log("add new field: " + fieldName + " with value from " + key);
-              responseData.fields[fieldName] = responseData.fields[key];
-            }
-          });
-          callback(responseData);
-        },
+      return jQuery.getJSON(url).then(function(responseData) {
+        //console.log("Issue: " + issueKey + " Loaded!");
+        // add custom fields with field names
+        jQuery.each(responseData.names, function(key, value) {
+          if (key.startsWith("customfield_")) {
+            var fieldName = value.toCamelCase();
+            //console.log("add new field: " + fieldName + " with value from " + key);
+            responseData.fields[fieldName] = responseData.fields[key];
+          }
+        });
       });
     };
 
@@ -1453,17 +1433,14 @@ body {
       return [];
     };
 
-    module.getCardData = function(issueKey, callback) {
-      module.getIssueData(issueKey, function(data) {
+    module.getCardData = function(issueKey) {
+      var promises = [];
+      var issueData = {};
 
-        var issueData = {};
-
+      promises.push(module.getIssueData(issueKey, function(data) {
         issueData.key = data.id;
-
         issueData.type = data.field.type[0];
-
         issueData.summary = data.field.summary;
-
         issueData.description = data.field.description;
 
         if (data.field.assignee) {
@@ -1492,34 +1469,27 @@ body {
         // }
         //
         issueData.url = window.location.origin + "/youtrack/issue/" + issueData.key;
+      }));
 
-        callback(issueData);
+      return new Promise(function(resolve, reject) {
+        Promise.all(promises)
+          .then(function(){resolve(issueData);})
+          .catch(function(cause){reject(cause);});
       });
     };
 
-    module.getIssueData = function(issueKey, callback, async) {
-      async = typeof async !== 'undefined' ? async : true;
-      //https://docs.atlassian.com/jira/REST/latest/
+    module.getIssueData = function(issueKey) {
       var url = '/youtrack/rest/issue/' + issueKey + '?';
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
-      jQuery.ajax({
-        type: 'GET',
-        url: url,
-        data: {},
-        dataType: 'json',
-        async: async,
-        success: function(responseData) {
-          //console.log("Issue: " + issueKey + " Loaded!");
-          jQuery.each(responseData.field, function(key, value) {
-            // add fields with field names
-            var fieldName = value.name.toCamelCase();
-            //console.log("add new field: " + newFieldId + " with value from " + fieldName);
-            responseData.field[fieldName] = value.value;
-
-          });
-          callback(responseData);
-        },
+      return jQuery.getJSON(url).then(function(responseData) {
+        //console.log("Issue: " + issueKey + " Loaded!");
+        jQuery.each(responseData.field, function(key, value) {
+          // add fields with field names
+          var fieldName = value.name.toCamelCase();
+          //console.log("add new field: " + newFieldId + " with value from " + fieldName);
+          responseData.field[fieldName] = value.value;
+        });
       });
     };
 
@@ -1544,17 +1514,14 @@ body {
       return [];
     };
 
-    module.getCardData = function(issueKey, callback) {
-      module.getIssueData(issueKey, function(data) {
+    module.getCardData = function(issueKey) {
+      var promises = [];
+      var issueData = {};
 
-        var issueData = {};
-
+      promises.push(module.getIssueData(issueKey, function(data) {
         issueData.key = data.id;
-
         issueData.type = data.kind.toLowerCase();
-
         issueData.summary = data.name;
-
         issueData.description = data.description;
 
         if (data.owned_by && data.owned_by.length > 0) {
@@ -1567,7 +1534,6 @@ body {
 
         // TODO
         issueData.hasAttachment = false;
-
         issueData.storyPoints = data.estimate;
 
         // TODO
@@ -1579,28 +1545,21 @@ body {
         // }
 
         issueData.url = data.url;
+      }));
 
-        callback(issueData);
+      return new Promise(function(resolve, reject) {
+        Promise.all(promises)
+          .then(function(){resolve(issueData);})
+          .catch(function(cause){reject(cause);});
       });
     };
 
     module.getIssueData = function(issueKey, callback, async) {
-      async = typeof async !== 'undefined' ? async : true;
       //http://www.pivotaltracker.com/help/api
       var url = 'https://www.pivotaltracker.com/services/v5/stories/' + issueKey + "?fields=name,kind,description,story_type,owned_by(name),comments(file_attachments(kind)),estimate,deadline";
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
-      jQuery.ajax({
-        type: 'GET',
-        url: url,
-        data: {},
-        dataType: 'json',
-        async: async,
-        success: function(responseData) {
-          //console.log("Issue: " + issueKey + " Loaded!");
-          callback(responseData);
-        },
-      });
+      return jQuery.getJSON(url);
     };
 
     return module;
@@ -1618,17 +1577,16 @@ body {
     };
 
     module.getCardData = function(issueKey, callback) {
-      module.getIssueData(issueKey, function(data) {
+      var promises = [];
+      var issueData = {};
 
-        var issueData = {};
-
+      promises.push(module.getIssueData(issueKey, function(data) {
         issueData.key = data.idShort;
 
         //  TODO get kind from label name
         // issueData.type = data.kind.toLowerCase();
 
         issueData.summary = data.name;
-
         issueData.description = data.desc;
 
         if (data.members && data.members.length > 0) {
@@ -1641,30 +1599,21 @@ body {
         }
 
         issueData.hasAttachment = data.attachments > 0;
-
         issueData.url = data.shortUrl;
+      }));
 
-        callback(issueData);
+      return new Promise(function(resolve, reject) {
+        Promise.all(promises)
+          .then(function(){resolve(issueData);})
+          .catch(function(cause){reject(cause);});
       });
     };
 
     module.getIssueData = function(issueKey, callback, async) {
-      async = typeof async !== 'undefined' ? async : true;
-      //http://www.pivotaltracker.com/help/api
       var url = "https://trello.com/1/cards/" + issueKey + "?members=true";
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
-      jQuery.ajax({
-        type: 'GET',
-        url: url,
-        data: {},
-        dataType: 'json',
-        async: async,
-        success: function(responseData) {
-          //console.log("Issue: " + issueKey + " Loaded!");
-          callback(responseData);
-        },
-      });
+      return jQuery.getJSON(url);
     };
 
     return module;
