@@ -1,6 +1,7 @@
 (function() {
   var global = {};
   global.version = "4.2.1.1";
+  global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
   global.isDev = document.currentScript == null;
   global.isProd = !global.isDev;
 
@@ -25,7 +26,7 @@
     init().then(function(){
       main();
     }).catch(function(cause){
-      alert("ERROR on init!\n\n" + JSON.stringify(cause,2,2));
+      alert("ERROR on init! Please create an issue at " + global.issueTrackingUrl);
     });
   });
 
@@ -45,7 +46,7 @@
       console.log("App: " + "YouTrack");
       global.appFunctions = youTrackFunctions;
     } else {
-      alert("Unsupported app.Please create an issue at https://github.com/qoomon/Jira-Issue-Card-Printer");
+      alert("Unsupported app. Please create an issue at " + global.issueTrackingUrl);
       return;
     }
 
