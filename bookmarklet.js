@@ -64,8 +64,8 @@
     }
 
     // open print preview
-    jQuery("body").append(printOverlayHTML());
-    jQuery("#card-print-overlay").prepend(printOverlayStyle());
+    jQuery("body").append(printPreviewElement());
+    jQuery("#card-print-overlay").prepend(printOverlayStyleElement());
 
     var printFrame = jQuery("#card-print-dialog-content-iframe");
     var printWindow = printFrame[0].contentWindow;
@@ -122,6 +122,14 @@
       global.cardCss = data.replace(/https:\/\/qoomon.github.io\/Jira-Issue-Card-Printer\/resources/g, global.resourceOrigin);
     }));
 
+    promises.push(httpGetCors(global.hostOrigin + "printPreview.html", function(data){
+      global.printPreviewHtml = data
+    }));
+
+    promises.push(httpGetCors(global.hostOrigin + "printPreview.css", function(data){
+      global.printPreviewCss = data.replace(/https:\/\/qoomon.github.io\/Jira-Issue-Card-Printer\/resources/g, global.resourceOrigin);
+    }));
+
     return Promise.all(promises);
   }
 
@@ -138,6 +146,7 @@
   }
 
   function renderCards(issueKeyList) {
+    var promises = [];
 
     var printFrame = jQuery("#card-print-dialog-content-iframe");
     var printWindow = printFrame[0].contentWindow;
@@ -146,13 +155,12 @@
     printDocument.open();
     printDocument.write("<head/><body></body>");
 
-    jQuery("head", printDocument).append(cardCss());
+    jQuery("head", printDocument).append(cardElementStyle());
     jQuery("body", printDocument).append("<div id='preload'/>");
     jQuery("#preload", printDocument).append("<div class='zigzag'/>");
 
     console.log("load " + issueKeyList.length + " issues...");
 
-    var promises = [];
     jQuery.each(issueKeyList, function(index, issueKey) {
       var card = cardElement(issueKey);
       card.attr("index", index);
@@ -166,12 +174,12 @@
           ga('send', 'event', 'card', 'generate', cardData.type);
         }
         fillCard(card, cardData);
-        card.show();
         redrawCards();
+        card.show();
       }));
     });
-    console.log("wait for issues loaded...");
 
+    console.log("wait for issues loaded...");
     return Promise.all(promises).then(function() {
       console.log("...all issues loaded.");
 
@@ -399,40 +407,8 @@
 
   // http://www.cssdesk.com/T9hXg
 
-  function printOverlayHTML() {
-    var result = jQuery(document.createElement('div'))
-      .attr("id", "card-print-overlay")
-      .html(multilineString(function() {
-/*!
-<div id="card-print-dialog">
-  <div id="card-print-dialog-header">
-    <div id="card-print-dialog-title">Card Printer</div>
-    <div id="info">
-      <label id="info-line"><b>Jira</b> - <b>PivotalTracker</b> - <b>Trello</b> - <b>YouTrack</b></label>
-      <input id="report-issue" type="button" class="aui-button" value="Report Issues" />
-      <input id="about" type="button" class="aui-button" value="About" />
-    </div>
-  </div>
-  <div id="card-print-dialog-content">
-    <iframe id="card-print-dialog-content-iframe"></iframe>
-  </div>
-  <div id="card-print-dialog-footer">
-    <div class="buttons">
-      <label style="display:none; margin-right:10px"><input id="font-scale-range" type="range" min="0.4" max="1.6" step="0.1" value="1.0" />Font Scale</label>
-      <label style="margin-right:10px;"><input id="rowCount" type="text" class="text" maxlength="1" style="width: 10px;" value="2"/>Row Count</label>
-      <label style="margin-right:10px;"><input id="columnCount" type="text" class="text" maxlength="1" style="width: 10px;" value="1"/>Column Count</label>
-      <label style="margin-right:10px"><input id="single-card-page-checkbox" type="checkbox"/>Single Card Per Page</label>
-      <label style="margin-right:10px"><input id="hide-description-checkbox" type="checkbox"/>Hide Description</label>
-      <label style="margin-right:10px"><input id="hide-assignee-checkbox" type="checkbox"/>Hide Assignee</label>
-      <label style="margin-right:10px"><input id="hide-due-date-checkbox" type="checkbox"/>Hide Due Date</label>
-      <label style="display:none; margin-right:10px"><input id="hide-status-checkbox" type="checkbox"/>Hide Status</label>
-      <input id="card-print-dialog-print" type="button" class="aui-button aui-button-primary" value="Print" />
-      <a id="card-print-dialog-cancel" title="Cancel" class="cancel">Cancel</a>
-    </div>
-  </div>
-</div>
-*/
-      }));
+  function printPreviewElement() {
+    var result = jQuery('<div/>').html(global.printPreviewHtml).contents();
 
     // info
     result.find("#report-issue").click(function(event) {
@@ -536,154 +512,43 @@
       });
 
     result.click(function(event) {
-      if (event.target == this) {
-        closePrintPreview();
-      }
+        if (event.target == this) {
+          closePrintPreview();
+        }
       return true;
     });
 
     jQuery(document).keyup(function(e) {
-      if (e.keyCode == 27) { // esc
+      if (e.keyCode == 27) { // ESC
         closePrintPreview();
       }
     });
 
     // prevent background scrolling
     result.scroll(function(event) {
-      return false;
+        return false;
     });
 
     return result;
   }
 
-  function printOverlayStyle() {
+  function printOverlayStyleElement() {
     var result = jQuery(document.createElement('style'))
       .attr("id", "card-print-overlay-style")
       .attr("type", "text/css")
-      .html(multilineString(function() {
-/*!
-#card-print-overlay {
-  position: fixed;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  left: 0;
-  background:rgba(0, 0, 0, 0.5);
-
-  box-sizing: border-box;
-  word-wrap:break-word;
-  z-index: 99999;
-
-}
-
-#card-print-dialog {
-  position: relative;
-
-  top: 60px;
-  right:0px;
-  left:0px;
-
-  height: calc(100% - 120px);
-  width: 1000px;
-  margin: auto;
-
-  border-style: solid;
-  border-color: #cccccc;
-  border-width: 1px;
-  -webkit-border-radius: 4px;
-  border-radius: 4px;
-
-  overflow: hidden;
-}
-
-#card-print-dialog-header {
-  position: relative;
-  background: #f0f0f0;
-  height: 25px;
-
-  border-bottom: 1px solid #cccccc;
-
-  padding: 15px 20px 15px 20px;
-}
-
-#card-print-dialog-content {
-  position: relative;
-  background: white;
-  height: calc(100% - 106px);
-  width: 100%;
-
-  overflow: hidden;
-}
-
-#card-print-dialog-content-iframe {
-  position: relative;
-  height: 100%;
-  width: 100%;
-
-  overflow: hidden;
-  border:none;
-}
-
-#card-print-dialog-footer {
-  position: relative;
-  background: #f0f0f0;
-  border-top: 1px solid #cccccc;
-  height: 30px;
-  padding: 10px;
-  text-align: right;
-}
-
-#buttons {
-  position: relative;
-  float: right;
-  display: inline-block;
-  height 30px;
-}
-
-#info {
-  position: relative;
-  float: right;
-  display: inline-block;
-  height 30px;
-}
-#info-line {
-  padding-left: 3rem;
-  padding-right: 3rem;
-}
-
-#card-print-dialog-title{
-  position: relative;
-  float: left;
-  color: rgb(51, 51, 51);
-  display: block;
-  font-family: Arial, sans-serif;
-  font-size: 20px;
-  font-weight: normal;
-  height: 30px;
-  line-height: 30px;
-}
-.cancel{
-  cursor: pointer;
-  font-size: 14px;
-  display: inline-block;
-  padding: 5px 10px;
-  vertical-align: baseline;
-}
-*/
-      }));
+      .html(global.printPreviewCss);
     return result;
   }
 
   // card layout: http://jsfiddle.net/qoomon/ykbLb2pw/76
 
   function cardElement(issueKey) {
-    var page = jQuery(document.createElement('div'))
+    var result = jQuery('<div/>').html(global.cardHtml).contents()
       .attr("id", issueKey)
-      .html(global.cardHtml);
-    return page;
+    return result;
   }
 
-  function cardCss() {
+  function cardElementStyle() {
     var result = jQuery(document.createElement('style'))
       .attr("type", "text/css")
       .html(global.cardCss);
