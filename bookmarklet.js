@@ -1,6 +1,6 @@
 (function() {
   var global = {};
-  global.version = "4.2.3";
+  global.version = "4.2.4";
   global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
   global.isDev = document.currentScript == null;
   global.isProd = !global.isDev;
@@ -26,7 +26,8 @@
     init().then(function(){
       main();
     }).catch(function(cause){
-      alert("ERROR on init! Please create an issue at " + global.issueTrackingUrl);
+      console.log("ERROR " + JSON.stringify(cause,2,2));
+      alert("Sorry somthing went wrong. Please create an issue at " + global.issueTrackingUrl);
     });
   });
 
@@ -114,19 +115,19 @@
       initGoogleAnalytics();
     }
 
-    promises.push(httpGetCors(global.hostOrigin + "card.html").then(function(data){
+    promises.push(httpGetCORS(global.hostOrigin + "card.html").then(function(data){
       global.cardHtml = data;
     }));
 
-    promises.push(httpGetCors(global.hostOrigin + "card.css").then(function(data){
+    promises.push(httpGetCORS(global.hostOrigin + "card.css").then(function(data){
       global.cardCss = data.replace(/https:\/\/qoomon.github.io\/Jira-Issue-Card-Printer\/resources/g, global.resourceOrigin);
     }));
 
-    promises.push(httpGetCors(global.hostOrigin + "printPreview.html").then(function(data){
+    promises.push(httpGetCORS(global.hostOrigin + "printPreview.html").then(function(data){
       global.printPreviewHtml = data
     }));
 
-    promises.push(httpGetCors(global.hostOrigin + "printPreview.css").then(function(data){
+    promises.push(httpGetCORS(global.hostOrigin + "printPreview.css").then(function(data){
       global.printPreviewCss = data.replace(/https:\/\/qoomon.github.io\/Jira-Issue-Card-Printer\/resources/g, global.resourceOrigin);
     }));
 
@@ -169,7 +170,7 @@
       jQuery("body", printDocument).append(card);
 
       promises.push(global.appFunctions.getCardData(issueKey).then(function(cardData) {
-        //console.log("cardData: " + cardData);
+        console.log("cardData: " + JSON.stringify(cardData,2,2));
         if (global.isProd) {
           ga('send', 'event', 'card', 'generate', cardData.type);
         }
@@ -188,7 +189,9 @@
       });
       console.log("wait for resources loaded...");
       printDocument.close();
-    });
+    }).catch(function(cause){
+      console.log("ERROR " + JSON.stringify(cause))
+    });;
   }
 
   function redrawCards() {
@@ -251,9 +254,9 @@
     }
 
     //Epic
-    if (data.epicKey) {
-      card.find(".issue-epic-id").text(data.epicKey);
-      card.find(".issue-epic-name").text(data.epicName);
+    if (data.superIssue) {
+      card.find(".issue-epic-id").text(data.superIssue.key);
+      card.find(".issue-epic-name").text(data.superIssue.summary);
     } else {
       card.find(".issue-epic-box").addClass("hidden");
     }
@@ -818,10 +821,18 @@
     };
   }
 
-  function httpGetCors(url, callback){
-    return jQuery.get('https://jsonp.afeld.me/?url=' + url, callback);
+  function httpGetCORS(){
+    arguments[0] = 'https://jsonp.afeld.me/?url=' + arguments[0];
+    return httpGet.apply(this, arguments);
   }
 
+  function httpGet(){
+    return Promise.resolve(jQuery.get.apply(this, arguments));
+  }
+
+  function httpGetJSON(){
+    return Promise.resolve(jQuery.getJSON.apply(this, arguments));
+  }
 
   function multilineString(commentFunction) {
     return commentFunction.toString()
@@ -892,6 +903,7 @@
       var issueData = {};
 
       promises.push(module.getIssueData(issueKey).then(function(data) {
+        var promises = [];
         issueData.key = data.key;
         issueData.type = data.fields.issuetype.name.toLowerCase();
         issueData.summary = data.fields.summary;
@@ -911,11 +923,18 @@
 
         issueData.hasAttachment = data.fields.attachment.length > 0;
         issueData.storyPoints = data.fields.storyPoints;
-        issueData.epicKey = data.fields.epicLink;
 
-        if (issueData.epicKey) {
-          promises.push(module.getIssueData(issueData.epicKey).then(function(data) {
-            issueData.epicName = data.fields.epicName;
+        if (data.fields.parent) {
+          promises.push(module.getIssueData(data.fields.parent.key).then(function(data) {
+            issueData.superIssue = {};
+            issueData.superIssue.key = data.key;
+            issueData.superIssue.summary = data.fields.summary;
+          }));
+        } else if (data.fields.epicLink) {
+          promises.push(module.getIssueData(data.fields.epicLink).then(function(data) {
+            issueData.superIssue = {};
+            issueData.superIssue.key = data.key;
+            issueData.superIssue.summary = data.fields.epicName;
           }));
         }
 
@@ -928,13 +947,11 @@
             issueData.dueDate = new Date(data.fields.desiredDate).format('D d.m.');
           }
         }
+
+        return Promise.all(promises);
       }));
 
-      return new Promise(function(resolve, reject) {
-        Promise.all(promises)
-          .then(function(){resolve(issueData);})
-          .catch(function(cause){reject(cause);});
-     });
+      return Promise.all(promises).then(function(results){return issueData;});
     };
 
     module.getIssueData = function(issueKey) {
@@ -942,7 +959,9 @@
       var url = '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
-      return jQuery.getJSON(url).then(function(responseData) {
+
+
+      return httpGetJSON(url).then(function(responseData) {
         //console.log("Issue: " + issueKey + " Loaded!");
         // add custom fields with field names
         jQuery.each(responseData.names, function(key, value) {
@@ -952,6 +971,7 @@
             responseData.fields[fieldName] = responseData.fields[key];
           }
         });
+        return responseData;
       });
     };
 
@@ -988,29 +1008,12 @@
 
         if (data.field.assignee) {
           issueData.assignee = data.field.assignee[0].fullName;
-          // var avatarUrl = data.fields.assignee.avatarUrls['48x48'];
-          // if (avatarUrl.indexOf("ownerId=") >= 0) {
-          //     issueData.avatarUrl = avatarUrl;
-          // }
         }
-        //
-        // if (data.fields.duedate) {
-        //     issueData.dueDate = new Date(data.fields.duedate).format('D d.m.');
-        // }
-        //
+
         if (data.field.attachments) {
           issueData.hasAttachment = data.field.attachments.length > 0;
         }
-        //
-        // issueData.storyPoints = data.fields.storyPoints;
-        //
-        // issueData.epicKey = data.fields.epicLink;
-        // if (issueData.epicKey) {
-        //     jiraFunctions.getIssueData(issueData.epicKey, function(data) {
-        //         issueData.epicName = data.fields.epicName;
-        //     }, false);
-        // }
-        //
+
         issueData.url = window.location.origin + "/youtrack/issue/" + issueData.key;
       }));
 
@@ -1025,7 +1028,7 @@
       var url = '/youtrack/rest/issue/' + issueKey + '?';
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
-      return jQuery.getJSON(url).then(function(responseData) {
+      return httpGet(url).then(function(responseData) {
         //console.log("Issue: " + issueKey + " Loaded!");
         jQuery.each(responseData.field, function(key, value) {
           // add fields with field names
@@ -1033,6 +1036,7 @@
           //console.log("add new field: " + newFieldId + " with value from " + fieldName);
           responseData.field[fieldName] = value.value;
         });
+        return responseData;
       });
     };
 
@@ -1079,14 +1083,6 @@
         issueData.hasAttachment = false;
         issueData.storyPoints = data.estimate;
 
-        // TODO
-        // issueData.epicKey = data.fields.epicLink;
-        // if ( issueData.epicKey ) {
-        //   getIssueDataPivotalTracker(issueData.epicKey , function(data) {
-        //     issueData.epicName = data.fields.epicName;
-        //   }, false);
-        // }
-
         issueData.url = data.url;
       }));
 
@@ -1102,7 +1098,7 @@
       var url = 'https://www.pivotaltracker.com/services/v5/stories/' + issueKey + "?fields=name,kind,description,story_type,owned_by(name),comments(file_attachments(kind)),estimate,deadline";
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
-      return jQuery.getJSON(url);
+      return httpGetJSON(url);
     };
 
     return module;
@@ -1156,7 +1152,7 @@
       var url = "https://trello.com/1/cards/" + issueKey + "?members=true";
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
-      return jQuery.getJSON(url);
+      return httpGetJSON(url);
     };
 
     return module;
