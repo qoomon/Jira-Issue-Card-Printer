@@ -59,11 +59,11 @@ body {
     overflow:visible;
     line-height: 0.38rem;
 }
-.author > span {
+.author > span:nth-of-type(2) {
     position: relative;
-    left: 0.23rem;
-    font-size: 0.6em;
-    text-align: center;
+    top: -0.07rem;
+    left: 0.49rem;
+    font-size: 0.5em;
 }
 .card {
     position: relative;

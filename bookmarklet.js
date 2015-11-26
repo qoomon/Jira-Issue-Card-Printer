@@ -1,6 +1,6 @@
 (function() {
   var global = {};
-  global.version = "4.2.4";
+  global.version = "4.2.5";
   global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
   global.isDev = document.currentScript == null;
   global.isProd = !global.isDev;
@@ -79,7 +79,7 @@
 
     jQuery("#rowCount").val(readCookie("card_printer_row_count", 2));
     jQuery("#columnCount").val(readCookie("card_printer_column_count", 1));
-    //jQuery("#font-scale-range").val(readCookie("card_printer_font_scale",1));
+    jQuery("#font-scale-range").val(readCookie("card_printer_font_scale",1));
     jQuery("#single-card-page-checkbox").attr('checked', readCookie("card_printer_single_card_page", 'true') == 'true');
     jQuery("#hide-description-checkbox").attr('checked', readCookie("card_printer_hide_description", 'false') == 'true');
     jQuery("#hide-assignee-checkbox").attr('checked', readCookie("card_printer_hide_assignee", 'true') == 'true');
@@ -354,7 +354,7 @@
     var scaleHeight = cardMaxHeight / cardMinHeight - 0.01;
 
     // scale down
-    var scale = Math.min(scaleWidth, scaleHeight, 1);
+    var scale = Math.min(scaleWidth, scaleHeight, 1) * global.scale;
     if (scale < 1) {
       jQuery("html", printDocument).css("font-size", scale + "cm");
     }
@@ -468,11 +468,7 @@
     result.find("#font-scale-range").on("input", function() {
       writeCookie("card_printer_font_scale", jQuery(this).val());
 
-      var printFrame = result.find("#card-print-dialog-content-iframe");
-      var printWindow = printFrame[0].contentWindow;
-      var printDocument = printWindow.document;
-
-      jQuery("html", printDocument).css("font-size", jQuery(this).val() + "cm");
+      global.scale = jQuery(this).val();
 
       redrawCards();
     });
