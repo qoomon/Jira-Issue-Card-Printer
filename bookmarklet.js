@@ -6,11 +6,10 @@
   // YouTrack: http://qoomon.myjetbrains.com/youtrack/dashboard
 
   var global = {};
-  global.version = "4.2.7";
+  global.version = "4.2.8";
   global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
   global.isDev = document.currentScript == null;
   global.isProd = !global.isDev;
-  global.settings = {};
 
   window.addEventListener("error", function(event) {
     var error = event.error;
@@ -76,11 +75,6 @@
       return;
     }
 
-    var settings = global.settings;
-    settings.scale = readCookie("card_printer_font_scale",1);
-    settings.rowCount = readCookie("card_printer_row_count",2);
-    settings.colCount = readCookie("card_printer_column_count", 1);
-
     // open print preview
     jQuery("body").append(printPreviewElement());
     jQuery("#card-print-overlay").prepend(printOverlayStyleElement());
@@ -94,14 +88,17 @@
       redrawCards();
     });
 
+    var settings = global.settings;
+
+    // restore UI state
     jQuery("#font-scale-range").val(settings.scale);
     jQuery("#rowCount").val(settings.rowCount);
     jQuery("#columnCount").val(settings.colCount);
 
-    jQuery("#single-card-page-checkbox").attr('checked', readCookie("card_printer_single_card_page", 'true') == 'true');
-    jQuery("#hide-description-checkbox").attr('checked', readCookie("card_printer_hide_description", 'false') == 'true');
-    jQuery("#hide-assignee-checkbox").attr('checked', readCookie("card_printer_hide_assignee", 'true') == 'true');
-    jQuery("#hide-due-date-checkbox").attr('checked', readCookie("card_printer_hide_due_date", 'false') == 'true');
+    jQuery("#single-card-page-checkbox").attr('checked', settings.singleCardPage );
+    jQuery("#hide-description-checkbox").attr('checked', settings.hideDescription );
+    jQuery("#hide-assignee-checkbox").attr('checked', settings.hideAssignee );
+    jQuery("#hide-due-date-checkbox").attr('checked', settings.hideDueDate );
 
     jQuery("#card-print-dialog-title").text("Card Printer " + global.version + " - Loading issues...");
     promises.push(renderCards(issueKeyList).then(function() {
@@ -121,6 +118,8 @@
     console.log("Init...")
     addStringFunctions();
     addDateFunctions();
+
+    loadSettings();
 
     global.hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
     if (global.isDev) {
@@ -150,6 +149,31 @@
     }));
 
     return Promise.all(promises);
+  }
+
+  function saveSettings(){
+    var settings = global.settings;
+    writeCookie("card_printer_single_card_page", settings.singleCardPage);
+    writeCookie("card_printer_hide_description", settings.hideDescription);
+    writeCookie("card_printer_hide_assignee", settings.hideAssignee);
+    writeCookie("card_printer_hide_due_date", settings.hideDueDate);
+    writeCookie("card_printer_font_scale", settings.scale);
+    writeCookie("card_printer_row_count", settings.rowCount);
+    writeCookie("card_printer_column_count", settings.colCount);
+  }
+
+  function loadSettings(){
+    var settings = global.settings = global.settings || {};
+    settings.scale = readCookie("card_printer_font_scale", 1);
+    settings.rowCount = readCookie("card_printer_row_count2", 2);
+    settings.colCount = readCookie("card_printer_column_count", 1);
+
+    settings.singleCardPage = (readCookie("card_printer_single_card_page", 'true') == 'true');
+    settings.hideDescription = (readCookie("card_printer_hide_description", 'false') == 'true');
+    settings.hideAssignee = (readCookie("card_printer_hide_assignee", 'true') == 'true');
+    settings.hideDueDate = (readCookie("card_printer_hide_due_date", 'false') == 'true');
+
+    console.log("settings: "+JSON.stringify(settings,2,2))
   }
 
   function print() {
@@ -283,13 +307,15 @@
   }
 
   function styleCards() {
+    var settings = global.settings;
+
     var printFrame = jQuery("#card-print-dialog-content-iframe");
     var printWindow = printFrame[0].contentWindow;
     var printDocument = printWindow.document;
 
     // hide/show description
     jQuery("#styleHideDescription", printDocument).remove();
-    if (jQuery("#hide-description-checkbox")[0].checked) {
+    if (settings.hideDescription) {
       var style = document.createElement('style');
       style.id = 'styleHideDescription';
       style.type = 'text/css';
@@ -299,7 +325,7 @@
 
     // hide/show assignee
     jQuery("#styleHideAssignee", printDocument).remove();
-    if (jQuery("#hide-assignee-checkbox")[0].checked) {
+    if (settings.hideAssignee) {
       var style = document.createElement('style');
       style.id = 'styleHideAssignee';
       style.type = 'text/css';
@@ -309,7 +335,7 @@
 
     // hide/show assignee
     jQuery("#styleHideDueDate", printDocument).remove();
-    if (jQuery("#hide-due-date-checkbox")[0].checked) {
+    if (settings.hideDueDate) {
       var style = document.createElement('style');
       style.id = 'styleHideDueDate';
       style.type = 'text/css';
@@ -319,7 +345,7 @@
 
     // enable/disable single card page
     jQuery("#styleSingleCardPage", printDocument).remove();
-    if (jQuery("#single-card-page-checkbox")[0].checked) {
+    if (settings.singleCardPage) {
       var style = document.createElement('style');
       style.id = 'styleSingleCardPage';
       style.type = 'text/css';
@@ -333,9 +359,10 @@
     var printWindow = printFrame[0].contentWindow;
     var printDocument = printWindow.document;
 
-    var scaleRoot = global.settings.scale;
-    var rowCount = global.settings.rowCount;
-    var columnCount = global.settings.colCount;
+    var settings = global.settings;
+    var scaleRoot = settings.scale;
+    var rowCount = settings.rowCount;
+    var columnCount = settings.colCount;
 
     // scale
 
@@ -430,7 +457,8 @@
     // enable single card page
 
     result.find("#single-card-page-checkbox").click(function() {
-      writeCookie("card_printer_single_card_page", this.checked);
+      global.settings.singleCardPage = this.checked;
+      saveSettings();
       redrawCards();
       return true;
     });
@@ -438,7 +466,8 @@
     // hide description
 
     result.find("#hide-description-checkbox").click(function() {
-      writeCookie("card_printer_hide_description", this.checked);
+      global.settings.hideDescription = this.checked;
+      saveSettings();
       redrawCards();
       return true;
     });
@@ -446,7 +475,8 @@
     // show assignee
 
     result.find("#hide-assignee-checkbox").click(function() {
-      writeCookie("card_printer_hide_assignee", this.checked);
+      global.settings.hideAssignee = this.checked;
+      saveSettings();
       redrawCards();
       return true;
     });
@@ -454,7 +484,8 @@
     // show due date
 
     result.find("#hide-due-date-checkbox").click(function() {
-      writeCookie("card_printer_hide_due_date", this.checked);
+      global.settings.hideDueDate = this.checked;
+      saveSettings();
       redrawCards();
       return true;
     });
@@ -462,21 +493,16 @@
     // scale font
 
     result.find("#font-scale-range").on("input", function() {
-      writeCookie("card_printer_font_scale", jQuery(this).val());
-
       global.settings.scale = jQuery(this).val();
-      console.log("global.settings.scale: " +global.settings.scale);
-
+      saveSettings();
       redrawCards();
     });
 
     // grid
 
     result.find("#rowCount").on("input", function() {
-      writeCookie("card_printer_row_count", jQuery(this).val());
-
       global.settings.rowCount = jQuery(this).val();
-
+      saveSettings();
       redrawCards();
     });
     result.find("#rowCount").click(function() {
@@ -485,10 +511,8 @@
 
 
     result.find("#columnCount").on("input", function() {
-      writeCookie("card_printer_column_count", jQuery(this).val());
-
       global.settings.colCount = jQuery(this).val();
-
+      saveSettings();
       redrawCards();
     });
     result.find("#columnCount").click(function() {
