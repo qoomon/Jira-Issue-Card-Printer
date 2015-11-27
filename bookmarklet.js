@@ -353,7 +353,14 @@
     var printDocument = printWindow.document;
 
     var settings = global.settings;
-    var scaleRoot = settings.scale;
+
+    var scaleRoot;
+    if(settings.scale < 0) {
+      scaleRoot = 1.0 / (1.0 - (settings.scale * 2.0));
+    } else {
+      scaleRoot = 1.0 * (1.0 + (settings.scale * 2.0));
+    }
+
     var rowCount = settings.rowCount;
     var columnCount = settings.colCount;
 
@@ -381,10 +388,8 @@
     console.log("scaleRoot: " + scaleRoot + " scale:     " + scale);
     console.log("scaleWidth: " + scaleWidth + " scaleHeight:     " + scaleHeight);
 
-
     // scale
     jQuery("html", printDocument).css("font-size", ( scaleRoot * scale ) + "cm");
-
 
     // size
 
@@ -392,14 +397,14 @@
     var style = document.createElement('style');
     style.id = 'styleColumnCount';
     style.type = 'text/css';
-    style.innerHTML = ".card { width: calc( 100% / " + columnCount + " - 0.001px  ); }"
+    style.innerHTML = ".card { width: calc( 100% / " + columnCount + " ); }"
     jQuery("head", printDocument).append(style);
 
     // size horizontal
     var style = document.createElement('style');
     style.id = 'styleRowCount';
     style.type = 'text/css';
-    style.innerHTML = ".card { height: calc( 100% / " + rowCount + " - 0.001px );  }"
+    style.innerHTML = ".card { height: calc( 100% / " + rowCount + " );  }"
     jQuery("head", printDocument).append(style);
   }
 
