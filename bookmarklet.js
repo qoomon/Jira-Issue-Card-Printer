@@ -1,4 +1,10 @@
 (function() {
+  // Public Instances
+  // Jira: https://connect.atlassian.net/browse/NERDS-33286
+  // PivotTracker: https://www.pivotaltracker.com/n/projects/510733
+  // Trello: https://trello.com/b/8zlPSh70/spike
+  // YouTrack: http://qoomon.myjetbrains.com/youtrack/dashboard
+
   var global = {};
   global.version = "4.2.7";
   global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
@@ -46,7 +52,7 @@
     } else if (/.*trello.com\/.*/g.test(document.URL)) {
       console.log("App: " + "Trello");
       global.appFunctions = trelloFunctions;
-    } else if (/.*\/youtrack\/.*/g.test(document.URL)) {
+    } else if (/.*myjetbrains.com\/youtrack\/.*/g.test(document.URL)) {
       console.log("App: " + "YouTrack");
       global.appFunctions = youTrackFunctions;
     } else {
@@ -105,6 +111,7 @@
     if (global.isProd) {
       ga('send', 'pageview');
     }
+
     return Promise.all(promises);
   }
 
@@ -992,7 +999,7 @@
       var promises = [];
       var issueData = {};
 
-      promises.push(module.getIssueData(issueKey, function(data) {
+      promises.push(module.getIssueData(issueKey).then(function(data) {
         issueData.key = data.id;
         issueData.type = data.field.type[0];
         issueData.summary = data.field.summary;
@@ -1007,6 +1014,8 @@
         }
 
         issueData.url = window.location.origin + "/youtrack/issue/" + issueData.key;
+
+
       }));
 
       return Promise.all(promises).then(function(results){return issueData;});
@@ -1016,7 +1025,7 @@
       var url = '/youtrack/rest/issue/' + issueKey + '?';
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
-      return httpGet(url).then(function(responseData) {
+      return httpGetJSON(url).then(function(responseData) {
         //console.log("Issue: " + issueKey + " Loaded!");
         jQuery.each(responseData.field, function(key, value) {
           // add fields with field names
@@ -1053,7 +1062,7 @@
       var promises = [];
       var issueData = {};
 
-      promises.push(module.getIssueData(issueKey, function(data) {
+      promises.push(module.getIssueData(issueKey).then(function(data) {
         issueData.key = data.id;
         issueData.type = data.kind.toLowerCase();
         issueData.summary = data.name;
@@ -1077,7 +1086,7 @@
       return Promise.all(promises).then(function(results){return issueData;});
     };
 
-    module.getIssueData = function(issueKey, callback, async) {
+    module.getIssueData = function(issueKey) {
       //http://www.pivotaltracker.com/help/api
       var url = 'https://www.pivotaltracker.com/services/v5/stories/' + issueKey + "?fields=name,kind,description,story_type,owned_by(name),comments(file_attachments(kind)),estimate,deadline";
       console.log("IssueUrl: " + url);
@@ -1103,7 +1112,7 @@
       var promises = [];
       var issueData = {};
 
-      promises.push(module.getIssueData(issueKey, function(data) {
+      promises.push(module.getIssueData(issueKey).then(function(data) {
         issueData.key = data.idShort;
 
         //  TODO get kind from label name
@@ -1128,7 +1137,7 @@
       return Promise.all(promises).then(function(results){return issueData;});
     };
 
-    module.getIssueData = function(issueKey, callback, async) {
+    module.getIssueData = function(issueKey) {
       var url = "https://trello.com/1/cards/" + issueKey + "?members=true";
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
