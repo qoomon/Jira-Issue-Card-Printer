@@ -1,10 +1,15 @@
 (function() {
+  // Public Instances
+  // Jira: https://connect.atlassian.net/browse/NERDS-33286
+  // PivotTracker: https://www.pivotaltracker.com/n/projects/510733
+  // Trello: https://trello.com/b/8zlPSh70/spike
+  // YouTrack: http://qoomon.myjetbrains.com/youtrack/dashboard
+
   var global = {};
-  global.version = "4.2.7";
+  global.version = "4.3.0";
   global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
   global.isDev = document.currentScript == null;
   global.isProd = !global.isDev;
-  global.settings = {};
 
   window.addEventListener("error", function(event) {
     var error = event.error;
@@ -46,7 +51,7 @@
     } else if (/.*trello.com\/.*/g.test(document.URL)) {
       console.log("App: " + "Trello");
       global.appFunctions = trelloFunctions;
-    } else if (/.*\/youtrack\/.*/g.test(document.URL)) {
+    } else if (/.*myjetbrains.com\/youtrack\/.*/g.test(document.URL)) {
       console.log("App: " + "YouTrack");
       global.appFunctions = youTrackFunctions;
     } else {
@@ -70,11 +75,6 @@
       return;
     }
 
-    var settings = global.settings;
-    settings.scale = readCookie("card_printer_font_scale",1);
-    settings.rowCount = readCookie("card_printer_row_count",2);
-    settings.colCount = readCookie("card_printer_column_count", 1);
-
     // open print preview
     jQuery("body").append(printPreviewElement());
     jQuery("#card-print-overlay").prepend(printOverlayStyleElement());
@@ -88,14 +88,17 @@
       redrawCards();
     });
 
+    var settings = global.settings;
+
+    // restore UI state
     jQuery("#font-scale-range").val(settings.scale);
     jQuery("#rowCount").val(settings.rowCount);
     jQuery("#columnCount").val(settings.colCount);
 
-    jQuery("#single-card-page-checkbox").attr('checked', readCookie("card_printer_single_card_page", 'true') == 'true');
-    jQuery("#hide-description-checkbox").attr('checked', readCookie("card_printer_hide_description", 'false') == 'true');
-    jQuery("#hide-assignee-checkbox").attr('checked', readCookie("card_printer_hide_assignee", 'true') == 'true');
-    jQuery("#hide-due-date-checkbox").attr('checked', readCookie("card_printer_hide_due_date", 'false') == 'true');
+    jQuery("#single-card-page-checkbox").attr('checked', settings.singleCardPage );
+    jQuery("#hide-description-checkbox").attr('checked', settings.hideDescription );
+    jQuery("#hide-assignee-checkbox").attr('checked', settings.hideAssignee );
+    jQuery("#hide-due-date-checkbox").attr('checked', settings.hideDueDate );
 
     jQuery("#card-print-dialog-title").text("Card Printer " + global.version + " - Loading issues...");
     promises.push(renderCards(issueKeyList).then(function() {
@@ -105,6 +108,7 @@
     if (global.isProd) {
       ga('send', 'pageview');
     }
+
     return Promise.all(promises);
   }
 
@@ -113,7 +117,8 @@
 
     console.log("Init...")
     addStringFunctions();
-    addDateFunctions();
+
+    loadSettings();
 
     global.hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
     if (global.isDev) {
@@ -143,6 +148,29 @@
     }));
 
     return Promise.all(promises);
+  }
+
+  function saveSettings(){
+    var settings = global.settings;
+    writeCookie("card_printer_single_card_page", settings.singleCardPage);
+    writeCookie("card_printer_hide_description", settings.hideDescription);
+    writeCookie("card_printer_hide_assignee", settings.hideAssignee);
+    writeCookie("card_printer_hide_due_date", settings.hideDueDate);
+    writeCookie("card_printer_font_scale", settings.scale);
+    writeCookie("card_printer_row_count", settings.rowCount);
+    writeCookie("card_printer_column_count", settings.colCount);
+  }
+
+  function loadSettings(){
+    var settings = global.settings = global.settings || {};
+    settings.scale = parseFloat(readCookie("card_printer_font_scale")) || 1.0;
+    settings.rowCount = parseInt(readCookie("card_printer_row_count2")) || 2;
+    settings.colCount = parseInt(readCookie("card_printer_column_count")) || 1;
+
+    settings.singleCardPage = parseBool(readCookie("card_printer_single_card_page"), true );
+    settings.hideDescription = parseBool(readCookie("card_printer_hide_description"), false);
+    settings.hideAssignee = parseBool(readCookie("card_printer_hide_assignee"), false);
+    settings.hideDueDate = parseBool(readCookie("card_printer_hide_due_date"), false);
   }
 
   function print() {
@@ -204,13 +232,9 @@
   }
 
   function redrawCards() {
-
     styleCards();
-
     scaleCards();
-
     cropCards();
-
     resizeIframe(jQuery("#card-print-dialog-content-iframe"));
   }
 
@@ -276,13 +300,15 @@
   }
 
   function styleCards() {
+    var settings = global.settings;
+
     var printFrame = jQuery("#card-print-dialog-content-iframe");
     var printWindow = printFrame[0].contentWindow;
     var printDocument = printWindow.document;
 
     // hide/show description
     jQuery("#styleHideDescription", printDocument).remove();
-    if (jQuery("#hide-description-checkbox")[0].checked) {
+    if (settings.hideDescription) {
       var style = document.createElement('style');
       style.id = 'styleHideDescription';
       style.type = 'text/css';
@@ -292,7 +318,7 @@
 
     // hide/show assignee
     jQuery("#styleHideAssignee", printDocument).remove();
-    if (jQuery("#hide-assignee-checkbox")[0].checked) {
+    if (settings.hideAssignee) {
       var style = document.createElement('style');
       style.id = 'styleHideAssignee';
       style.type = 'text/css';
@@ -302,7 +328,7 @@
 
     // hide/show assignee
     jQuery("#styleHideDueDate", printDocument).remove();
-    if (jQuery("#hide-due-date-checkbox")[0].checked) {
+    if (settings.hideDueDate) {
       var style = document.createElement('style');
       style.id = 'styleHideDueDate';
       style.type = 'text/css';
@@ -312,7 +338,7 @@
 
     // enable/disable single card page
     jQuery("#styleSingleCardPage", printDocument).remove();
-    if (jQuery("#single-card-page-checkbox")[0].checked) {
+    if (settings.singleCardPage) {
       var style = document.createElement('style');
       style.id = 'styleSingleCardPage';
       style.type = 'text/css';
@@ -326,34 +352,35 @@
     var printWindow = printFrame[0].contentWindow;
     var printDocument = printWindow.document;
 
-    var scaleRoot = global.settings.scale;
-    var rowCount = global.settings.rowCount;
-    var columnCount = global.settings.colCount;
+    var settings = global.settings;
+    var scaleRoot = settings.scale;
+    var rowCount = settings.rowCount;
+    var columnCount = settings.colCount;
 
     // scale
 
     // reset scale
-    jQuery("html", printDocument).css("font-size", "1cm");
+    jQuery("html", printDocument).css("font-size", scaleRoot + "cm");
     jQuery("#styleColumnCount", printDocument).remove();
     jQuery("#styleRowCount", printDocument).remove();
 
-    // scale horizontal
-    // substract one pixel due to rounding problems
-    var cardMaxWidth = Math.floor(jQuery(".card", printDocument).outerWidth() / columnCount);
-    var cardMinWidth = jQuery(".card", printDocument).css("min-width").replace("px", "");
-    var scaleWidth = cardMaxWidth / cardMinWidth - 0.01;
+    // calculate scale
 
-    // scale vertical
-    // substract one pixel due to rounding problems
-    // dont know why to multiply outer height with 2
-    var cardMaxHeight = Math.floor(jQuery(".card", printDocument).outerHeight()  / rowCount);
-    var cardMinHeight = jQuery(".card", printDocument).css("min-height").replace("px", "");
-    var scaleHeight = cardMaxHeight / cardMinHeight - 0.01;
+    var bodyElement = jQuery("body", printDocument);
+    var cardMaxWidth = Math.floor(bodyElement.outerWidth() / columnCount);
+    var cardMaxHeight = Math.floor(bodyElement.outerHeight() / rowCount);
 
-    // scale down
+    var cardElement = jQuery(".card", printDocument);
+    var cardMinWidth = cardElement.css("min-width").replace("px", "");
+    var cardMinHeight = cardElement.css("min-height").replace("px", "");
+
+    var scaleWidth = cardMaxWidth / cardMinWidth ;
+    var scaleHeight = cardMaxHeight / cardMinHeight ;
     var scale = Math.min(scaleWidth, scaleHeight, 1);
+
+    // scale down only
     if (scale < 1) {
-      jQuery("html", printDocument).css("font-size", ( scaleRoot * scale) + "cm");
+      jQuery("html", printDocument).css("font-size", ( scaleRoot * scale ) + "cm");
     }
 
     // size
@@ -423,7 +450,8 @@
     // enable single card page
 
     result.find("#single-card-page-checkbox").click(function() {
-      writeCookie("card_printer_single_card_page", this.checked);
+      global.settings.singleCardPage = this.checked;
+      saveSettings();
       redrawCards();
       return true;
     });
@@ -431,7 +459,8 @@
     // hide description
 
     result.find("#hide-description-checkbox").click(function() {
-      writeCookie("card_printer_hide_description", this.checked);
+      global.settings.hideDescription = this.checked;
+      saveSettings();
       redrawCards();
       return true;
     });
@@ -439,7 +468,8 @@
     // show assignee
 
     result.find("#hide-assignee-checkbox").click(function() {
-      writeCookie("card_printer_hide_assignee", this.checked);
+      global.settings.hideAssignee = this.checked;
+      saveSettings();
       redrawCards();
       return true;
     });
@@ -447,7 +477,8 @@
     // show due date
 
     result.find("#hide-due-date-checkbox").click(function() {
-      writeCookie("card_printer_hide_due_date", this.checked);
+      global.settings.hideDueDate = this.checked;
+      saveSettings();
       redrawCards();
       return true;
     });
@@ -455,21 +486,16 @@
     // scale font
 
     result.find("#font-scale-range").on("input", function() {
-      writeCookie("card_printer_font_scale", jQuery(this).val());
-
       global.settings.scale = jQuery(this).val();
-      console.log("global.settings.scale: " +global.settings.scale);
-
+      saveSettings();
       redrawCards();
     });
 
     // grid
 
     result.find("#rowCount").on("input", function() {
-      writeCookie("card_printer_row_count", jQuery(this).val());
-
       global.settings.rowCount = jQuery(this).val();
-
+      saveSettings();
       redrawCards();
     });
     result.find("#rowCount").click(function() {
@@ -478,10 +504,8 @@
 
 
     result.find("#columnCount").on("input", function() {
-      writeCookie("card_printer_column_count", jQuery(this).val());
-
       global.settings.colCount = jQuery(this).val();
-
+      saveSettings();
       redrawCards();
     });
     result.find("#columnCount").click(function() {
@@ -553,20 +577,6 @@
   //############################################################################################################################
   //############################################################################################################################
 
-  function appendScript(url, callback) {
-
-    var head = document.getElementsByTagName('head')[0];
-    var script = document.createElement('script');
-    script.src = url;
-
-    // Then bind the event to the callback function.
-    // There are several events for cross browser compatibility.
-    script.onreadystatechange = callback;
-    script.onload = callback;
-
-    head.appendChild(script);
-  }
-
   function initGoogleAnalytics() {
     // <GoogleAnalytics>
     (function(i, s, o, g, r, a, m) {
@@ -591,18 +601,61 @@
   //############################################################################################################################
   //############################################################################################################################
 
-  function readCookie(name, defaultValue) {
+  function parseBool(text, def){
+    if(text == 'true') return true;
+    else if ( text == 'false') return false;
+    else return def;
+  }
+
+  function appendScript(url, callback) {
+
+    var head = document.getElementsByTagName('head')[0];
+    var script = document.createElement('script');
+    script.src = url;
+
+    // Then bind the event to the callback function.
+    // There are several events for cross browser compatibility.
+    script.onreadystatechange = callback;
+    script.onload = callback;
+
+    head.appendChild(script);
+  }
+
+  function readCookie(name) {
     var cookies = document.cookie.split('; ');
 
     for (var i = 0; i < cookies.length; i++) {
       var cookie = cookies[i].split('=');
       if (cookie[0] == name) return cookie[1];
     }
-    return defaultValue
+    return null;
   }
 
   function writeCookie(name, value) {
     document.cookie = name + "=" + value;
+  }
+
+  function httpGetCORS(){
+    arguments[0] = 'https://jsonp.afeld.me/?url=' + arguments[0];
+    return httpGet.apply(this, arguments);
+  }
+
+  function httpGet(){
+    return Promise.resolve(jQuery.get.apply(this, arguments));
+  }
+
+  function httpGetJSON(){
+    return Promise.resolve(jQuery.getJSON.apply(this, arguments));
+  }
+
+  function multilineString(commentFunction) {
+    return commentFunction.toString()
+      .replace(/^[^\/]+\/\*!?/, '')
+      .replace(/\*\/[^\/]+$/, '');
+  }
+
+  function resizeIframe(iframe) {
+    iframe.height(iframe[0].contentWindow.document.body.height);
   }
   //############################################################################################################################
   //############################################################################################################################
@@ -647,193 +700,11 @@
     }
   }
 
-  function addDateFunctions() {
-
-    Date.prototype.format = function(format) {
-      var returnStr = '';
-      var replace = Date.replaceChars;
-      for (var i = 0; i < format.length; i++) {
-        var curChar = format.charAt(i);
-        if (i - 1 >= 0 && format.charAt(i - 1) == "\\") {
-          returnStr += curChar;
-        } else if (replace[curChar]) {
-          returnStr += replace[curChar].call(this);
-        } else if (curChar != "\\") {
-          returnStr += curChar;
-        }
-      }
-      return returnStr;
-    };
-
-    Date.replaceChars = {
-      shortMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-      longMonths: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-      shortDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-      longDays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-
-      // Day
-      d: function() {
-        return (this.getDate() < 10 ? '0' : '') + this.getDate();
-      },
-      D: function() {
-        return Date.replaceChars.shortDays[this.getDay()];
-      },
-      j: function() {
-        return this.getDate();
-      },
-      l: function() {
-        return Date.replaceChars.longDays[this.getDay()];
-      },
-      N: function() {
-        return this.getDay() + 1;
-      },
-      S: function() {
-        return (this.getDate() % 10 == 1 && this.getDate() != 11 ? 'st' : (this.getDate() % 10 == 2 && this.getDate() != 12 ? 'nd' : (this.getDate() % 10 == 3 && this.getDate() != 13 ? 'rd' : 'th')));
-      },
-      w: function() {
-        return this.getDay();
-      },
-      z: function() {
-        var d = new Date(this.getFullYear(), 0, 1);
-        return Math.ceil((this - d) / 86400000);
-      }, // Fixed now
-      // Week
-      W: function() {
-        var d = new Date(this.getFullYear(), 0, 1);
-        return Math.ceil((((this - d) / 86400000) + d.getDay() + 1) / 7);
-      }, // Fixed now
-      // Month
-      F: function() {
-        return Date.replaceChars.longMonths[this.getMonth()];
-      },
-      m: function() {
-        return (this.getMonth() < 9 ? '0' : '') + (this.getMonth() + 1);
-      },
-      M: function() {
-        return Date.replaceChars.shortMonths[this.getMonth()];
-      },
-      n: function() {
-        return this.getMonth() + 1;
-      },
-      t: function() {
-        var d = new Date();
-        return new Date(d.getFullYear(), d.getMonth(), 0).getDate()
-      }, // Fixed now, gets #days of date
-      // Year
-      L: function() {
-        var year = this.getFullYear();
-        return (year % 400 == 0 || (year % 100 != 0 && year % 4 == 0));
-      }, // Fixed now
-      o: function() {
-        var d = new Date(this.valueOf());
-        d.setDate(d.getDate() - ((this.getDay() + 6) % 7) + 3);
-        return d.getFullYear();
-      }, //Fixed now
-      Y: function() {
-        return this.getFullYear();
-      },
-      y: function() {
-        return ('' + this.getFullYear()).substr(2);
-      },
-      // Time
-      a: function() {
-        return this.getHours() < 12 ? 'am' : 'pm';
-      },
-      A: function() {
-        return this.getHours() < 12 ? 'AM' : 'PM';
-      },
-      B: function() {
-        return Math.floor((((this.getUTCHours() + 1) % 24) + this.getUTreminutes() / 60 + this.getUTCSeconds() / 3600) * 1000 / 24);
-      }, // Fixed now
-      g: function() {
-        return this.getHours() % 12 || 12;
-      },
-      G: function() {
-        return this.getHours();
-      },
-      h: function() {
-        return ((this.getHours() % 12 || 12) < 10 ? '0' : '') + (this.getHours() % 12 || 12);
-      },
-      H: function() {
-        return (this.getHours() < 10 ? '0' : '') + this.getHours();
-      },
-      i: function() {
-        return (this.getMinutes() < 10 ? '0' : '') + this.getMinutes();
-      },
-      s: function() {
-        return (this.getSeconds() < 10 ? '0' : '') + this.getSeconds();
-      },
-      u: function() {
-        var m = this.getMilliseconds();
-        return (m < 10 ? '00' : (m < 100 ? '0' : '')) + m;
-      },
-      // Timezone
-      e: function() {
-        return "Not Yet Supported";
-      },
-      I: function() {
-        var DST = null;
-        for (var i = 0; i < 12; ++i) {
-          var d = new Date(this.getFullYear(), i, 1);
-          var offset = d.getTimezoneOffset();
-          if (DST === null) DST = offset;
-          else if (offset < DST) {
-            DST = offset;
-            break;
-          } else if (offset > DST) break;
-        }
-        return (this.getTimezoneOffset() == DST) | 0;
-      },
-      O: function() {
-        return (-this.getTimezoneOffset() < 0 ? '-' : '+') + (Math.abs(this.getTimezoneOffset() / 60) < 10 ? '0' : '') + (Math.abs(this.getTimezoneOffset() / 60)) + '00';
-      },
-      P: function() {
-        return (-this.getTimezoneOffset() < 0 ? '-' : '+') + (Math.abs(this.getTimezoneOffset() / 60) < 10 ? '0' : '') + (Math.abs(this.getTimezoneOffset() / 60)) + ':00';
-      }, // Fixed now
-      T: function() {
-        var m = this.getMonth();
-        this.setMonth(0);
-        var result = this.toTimeString().replace(/^.+ \(?([^\)]+)\)?$/, '$1');
-        this.setMonth(m);
-        return result;
-      },
-      Z: function() {
-        return -this.getTimezoneOffset() * 60;
-      },
-      // Full Date/Time
-      c: function() {
-        return this.format("Y-m-d\\TH:i:sP");
-      }, // Fixed now
-      r: function() {
-        return this.toString();
-      },
-      U: function() {
-        return this.getTimep() / 1000;
-      }
-    };
-  }
-
-  function httpGetCORS(){
-    arguments[0] = 'https://jsonp.afeld.me/?url=' + arguments[0];
-    return httpGet.apply(this, arguments);
-  }
-
-  function httpGet(){
-    return Promise.resolve(jQuery.get.apply(this, arguments));
-  }
-
-  function httpGetJSON(){
-    return Promise.resolve(jQuery.getJSON.apply(this, arguments));
-  }
-
-  function multilineString(commentFunction) {
-    return commentFunction.toString()
-      .replace(/^[^\/]+\/\*!?/, '')
-      .replace(/\*\/[^\/]+$/, '');
-  }
-
-  function resizeIframe(iframe) {
-    iframe.height(iframe[0].contentWindow.document.body.height);
+  function formatDate(date) {
+    var shortMonths = {'Jan': 1, 'Feb':2, 'Mar':3, 'Apr':4, 'May':5, 'Jun':6, 'Jul':7, 'Aug':8, 'Sep':9, 'Oct':10, 'Nov':11, 'Dec':12 };
+    var dateSplit = date.toString().split(" ");
+    // Mo 28.11.
+    return dateSplit[0] + " " + dateSplit[2] + "." + shortMonths[dateSplit[1]] + ".";
   }
 
   // APP Specific Functions
@@ -910,7 +781,7 @@
         }
 
         if (data.fields.duedate) {
-          issueData.dueDate = new Date(data.fields.duedate).format('D d.m.');
+          issueData.dueDate = formatDate(new Date(data.fields.duedate));
         }
 
         issueData.hasAttachment = data.fields.attachment.length > 0;
@@ -936,7 +807,7 @@
         if (true) {
           //Desired-Date
           if (data.fields.desiredDate) {
-            issueData.dueDate = new Date(data.fields.desiredDate).format('D d.m.');
+            issueData.dueDate = formatDate(new Date(data.fields.desiredDate));
           }
         }
 
@@ -992,7 +863,7 @@
       var promises = [];
       var issueData = {};
 
-      promises.push(module.getIssueData(issueKey, function(data) {
+      promises.push(module.getIssueData(issueKey).then(function(data) {
         issueData.key = data.id;
         issueData.type = data.field.type[0];
         issueData.summary = data.field.summary;
@@ -1007,6 +878,8 @@
         }
 
         issueData.url = window.location.origin + "/youtrack/issue/" + issueData.key;
+
+
       }));
 
       return Promise.all(promises).then(function(results){return issueData;});
@@ -1016,7 +889,7 @@
       var url = '/youtrack/rest/issue/' + issueKey + '?';
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
-      return httpGet(url).then(function(responseData) {
+      return httpGetJSON(url).then(function(responseData) {
         //console.log("Issue: " + issueKey + " Loaded!");
         jQuery.each(responseData.field, function(key, value) {
           // add fields with field names
@@ -1053,7 +926,7 @@
       var promises = [];
       var issueData = {};
 
-      promises.push(module.getIssueData(issueKey, function(data) {
+      promises.push(module.getIssueData(issueKey).then(function(data) {
         issueData.key = data.id;
         issueData.type = data.kind.toLowerCase();
         issueData.summary = data.name;
@@ -1064,7 +937,7 @@
         }
 
         if (data.deadline) {
-          issueData.dueDate = new Date(data.deadline).format('D d.m.');
+          issueData.dueDate = formatDate(new Date(data.deadline));
         }
 
         // TODO
@@ -1077,7 +950,7 @@
       return Promise.all(promises).then(function(results){return issueData;});
     };
 
-    module.getIssueData = function(issueKey, callback, async) {
+    module.getIssueData = function(issueKey) {
       //http://www.pivotaltracker.com/help/api
       var url = 'https://www.pivotaltracker.com/services/v5/stories/' + issueKey + "?fields=name,kind,description,story_type,owned_by(name),comments(file_attachments(kind)),estimate,deadline";
       console.log("IssueUrl: " + url);
@@ -1103,7 +976,7 @@
       var promises = [];
       var issueData = {};
 
-      promises.push(module.getIssueData(issueKey, function(data) {
+      promises.push(module.getIssueData(issueKey).then(function(data) {
         issueData.key = data.idShort;
 
         //  TODO get kind from label name
@@ -1118,7 +991,7 @@
         }
 
         if (data.due) {
-          issueData.dueDate = new Date(data.due).format('D d.m.');
+          issueData.dueDate = formatDate(new Date(data.due));
         }
 
         issueData.hasAttachment = data.attachments > 0;
@@ -1128,7 +1001,7 @@
       return Promise.all(promises).then(function(results){return issueData;});
     };
 
-    module.getIssueData = function(issueKey, callback, async) {
+    module.getIssueData = function(issueKey) {
       var url = "https://trello.com/1/cards/" + issueKey + "?members=true";
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");

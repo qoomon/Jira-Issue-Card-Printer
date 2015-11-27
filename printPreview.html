@@ -13,15 +13,19 @@
     </div>
     <div id="card-print-dialog-footer">
       <div class="buttons">
-        <label style="margin-right:10px; padding-right: 3px;"><input id="font-scale-range" type="range" min="0.5" max="1.0" step="0.01" value="1.0" style="width: 100px; position: relative; top: 2px;  margin-right:5px;"  />Scale</label>
-        <label style="margin-right:0px;"><input id="columnCount" type="text" class="text" maxlength="1" style="width: 10px;" value="1"/>x</label>
-        <label style="margin-right:10px;"><input id="rowCount" type="text" class="text" maxlength="1" style="width: 10px; margin-right:5px;" value="2"/>Page Grid</label>
-        <label style="margin-right:10px"><input id="single-card-page-checkbox" type="checkbox"/>Single Card Per Page</label>
-        <label style="margin-right:10px"><input id="hide-description-checkbox" type="checkbox"/>Hide Description</label>
-        <label style="margin-right:10px"><input id="hide-assignee-checkbox" type="checkbox"/>Hide Assignee</label>
-        <label style="margin-right:10px"><input id="hide-due-date-checkbox" type="checkbox"/>Hide Due Date</label>
-        <input id="card-print-dialog-print" type="button" class="aui-button aui-button-primary" value="Print" />
-        <a id="card-print-dialog-cancel" title="Cancel" class="cancel">Cancel</a>
+        <div style="float: left; margin-right:10px;">
+          <div style="float: left; display: inline;"><input id="columnCount" type="text" class="text" maxlength="1" style="width: 10px;" value="1"/></div>
+          <div style="float: left; margin-left: 5px; margin-right: 5px;">x</div>
+          <div style="float: left; display: inline;"><input id="rowCount" type="text" class="text" maxlength="1" style="width: 10px; margin-right:5px;" value="2"/>Page Grid</div>
+        </div>
+        <div style="float: left; margin-right:10px; padding-right: 3px; display: inline; -webkit-appearance: default"><input id="font-scale-range" type="range" min="0.5" max="2.0" step="0.01" value="1.0" style="width: 80px; position: relative; top: 2px; margin-right:5px;" />Scale</div>
+        <div style="float: left; margin-right:10px"><input id="single-card-page-checkbox" type="checkbox"/>Single Card Per Page</div>
+        <div style="float: left; margin-right:10px"><input id="hide-description-checkbox" type="checkbox"/>Hide Description</div>
+        <div style="float: left; margin-right:10px"><input id="hide-assignee-checkbox" type="checkbox"/>Hide Assignee</div>
+        <div style="float: left; margin-right:10px"><input id="hide-due-date-checkbox" type="checkbox"/>Hide Due Date</div>
+
+        <input style="float: right;" id="card-print-dialog-print" type="button" class="aui-button aui-button-primary" value="Print" />
+        <a style="float: right;" id="card-print-dialog-cancel" title="Cancel" class="cancel">Cancel</a>
       </div>
     </div>
   </div>
