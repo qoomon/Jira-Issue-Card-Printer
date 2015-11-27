@@ -1,9 +1,10 @@
 (function() {
   var global = {};
-  global.version = "4.2.5";
+  global.version = "4.2.6";
   global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
   global.isDev = document.currentScript == null;
   global.isProd = !global.isDev;
+  global.settings = {};
 
   window.addEventListener("error", function(event) {
     var error = event.error;
@@ -24,14 +25,16 @@
   // wait untill all scripts loaded
   appendScript('https://qoomon.github.io/void', function() {
     init().then(function(){
-      main();
+      return main();
     }).catch(function(cause){
-      console.log("ERROR " + JSON.stringify(cause,2,2));
-      alert("Sorry somthing went wrong. Please create an issue at " + global.issueTrackingUrl);
+      console.log("ERROR " + cause.stack);
+      alert("Sorry somthing went wrong.\n\nPlease create an issue at " + global.issueTrackingUrl + "\n\n" + cause.stack);
     });
   });
 
   function main() {
+    var promises = [];
+
     console.log("Run...")
     // determine application
     if (jQuery("meta[name='application-name'][ content='JIRA']").length > 0) {
@@ -62,7 +65,15 @@
     if (issueKeyList.length <= 0) {
       alert("Please select at least one issue.");
       return;
+    } else if (issueKeyList.length > 100) {
+      confirm("Are you sure you want select " + issueKeyList.length + " issues?");
+      return;
     }
+
+    var settings = global.settings;
+    settings.scale = readCookie("card_printer_font_scale",1);
+    settings.rowCount = readCookie("card_printer_row_count",2);
+    settings.colCount = readCookie("card_printer_column_count", 1);
 
     // open print preview
     jQuery("body").append(printPreviewElement());
@@ -77,24 +88,24 @@
       redrawCards();
     });
 
-    jQuery("#rowCount").val(readCookie("card_printer_row_count", 2));
-    jQuery("#columnCount").val(readCookie("card_printer_column_count", 1));
-    jQuery("#font-scale-range").val(readCookie("card_printer_font_scale",1));
+    jQuery("#font-scale-range").val(settings.scale);
+    jQuery("#rowCount").val(settings.rowCount);
+    jQuery("#columnCount").val(settings.colCount);
+
     jQuery("#single-card-page-checkbox").attr('checked', readCookie("card_printer_single_card_page", 'true') == 'true');
     jQuery("#hide-description-checkbox").attr('checked', readCookie("card_printer_hide_description", 'false') == 'true');
     jQuery("#hide-assignee-checkbox").attr('checked', readCookie("card_printer_hide_assignee", 'true') == 'true');
     jQuery("#hide-due-date-checkbox").attr('checked', readCookie("card_printer_hide_due_date", 'false') == 'true');
-    jQuery("#hide-status-checkbox").attr('checked', readCookie("card_printer_hide_status", 'true') == 'true');
 
     jQuery("#card-print-dialog-title").text("Card Printer " + global.version + " - Loading issues...");
-    renderCards(issueKeyList).then(function() {
+    promises.push(renderCards(issueKeyList).then(function() {
       jQuery("#card-print-dialog-title").text("Card Printer " + global.version);
-      //print();
-    });
+    }));
 
     if (global.isProd) {
       ga('send', 'pageview');
     }
+    return Promise.all(promises);
   }
 
   function init() {
@@ -189,9 +200,7 @@
       });
       console.log("wait for resources loaded...");
       printDocument.close();
-    }).catch(function(cause){
-      console.log("ERROR " + JSON.stringify(cause))
-    });;
+    });
   }
 
   function redrawCards() {
@@ -301,16 +310,6 @@
       jQuery("head", printDocument).append(style);
     }
 
-    // hide/show status
-    jQuery("#styleHideStatus", printDocument).remove();
-    if (!jQuery("#hide-status-checkbox")[0].checked) {
-      var style = document.createElement('style');
-      style.id = 'styleHideStatus';
-      style.type = 'text/css';
-      style.innerHTML = ".issue-status { display: none; }"
-      jQuery("head", printDocument).append(style);
-    }
-
     // enable/disable single card page
     jQuery("#styleSingleCardPage", printDocument).remove();
     if (jQuery("#single-card-page-checkbox")[0].checked) {
@@ -327,16 +326,14 @@
     var printWindow = printFrame[0].contentWindow;
     var printDocument = printWindow.document;
 
-    var columnCount = jQuery("#columnCount").val();
-    var rowCount = jQuery("#rowCount").val();
-
-    var cardCount = jQuery(".card", printDocument).length;
-    var pageCount = Math.ceil(cardCount / (columnCount * rowCount))
+    var scaleRoot = global.settings.scale;
+    var rowCount = global.settings.rowCount;
+    var columnCount = global.settings.colCount;
 
     // scale
 
     // reset scale
-    jQuery("html", printDocument).css("font-size", "1cm");
+    jQuery("html", printDocument).css("font-size", scaleRoot +"cm");
     jQuery("#styleColumnCount", printDocument).remove();
     jQuery("#styleRowCount", printDocument).remove();
 
@@ -354,9 +351,9 @@
     var scaleHeight = cardMaxHeight / cardMinHeight - 0.01;
 
     // scale down
-    var scale = Math.min(scaleWidth, scaleHeight, 1) * global.scale;
+    var scale = Math.min(scaleWidth, scaleHeight, 1);
     if (scale < 1) {
-      jQuery("html", printDocument).css("font-size", scale + "cm");
+      jQuery("html", printDocument).css("font-size", ( scaleRoot * scale) + "cm");
     }
 
     // size
@@ -455,20 +452,12 @@
       return true;
     });
 
-    // show status
-
-    result.find("#hide-status-checkbox").click(function() {
-      writeCookie("card_printer_hide_status", this.checked);
-      redrawCards();
-      return true;
-    });
-
     // scale font
 
     result.find("#font-scale-range").on("input", function() {
       writeCookie("card_printer_font_scale", jQuery(this).val());
 
-      global.scale = jQuery(this).val();
+      global.settings.scale = jQuery(this).val();
 
       redrawCards();
     });
@@ -477,6 +466,9 @@
 
     result.find("#rowCount").on("input", function() {
       writeCookie("card_printer_row_count", jQuery(this).val());
+
+      global.settings.rowCount = jQuery(this).val();
+
       redrawCards();
     });
     result.find("#rowCount").click(function() {
@@ -486,6 +478,9 @@
 
     result.find("#columnCount").on("input", function() {
       writeCookie("card_printer_column_count", jQuery(this).val());
+
+      global.settings.colCount = jQuery(this).val();
+
       redrawCards();
     });
     result.find("#columnCount").click(function() {
@@ -853,7 +848,7 @@
       if (/.*\/issues\/\?jql=.*/g.test(document.URL)) {
         var jql = document.URL.replace(/.*\?jql=(.*)/, '$1');
         var jqlIssues = [];
-        var url = '/rest/api/2/search?jql=' + jql + "&maxResults=1000";
+        var url = '/rest/api/2/search?jql=' + jql + "&maxResults=500&fields=key";
         console.log("IssueUrl: " + url);
         //console.log("Issue: " + issueKey + " Loading...");
         jQuery.ajax({
@@ -1013,11 +1008,7 @@
         issueData.url = window.location.origin + "/youtrack/issue/" + issueData.key;
       }));
 
-      return new Promise(function(resolve, reject) {
-        Promise.all(promises)
-          .then(function(){resolve(issueData);})
-          .catch(function(cause){reject(cause);});
-      });
+      return Promise.all(promises).then(function(results){return issueData;});
     };
 
     module.getIssueData = function(issueKey) {
@@ -1082,11 +1073,7 @@
         issueData.url = data.url;
       }));
 
-      return new Promise(function(resolve, reject) {
-        Promise.all(promises)
-          .then(function(){resolve(issueData);})
-          .catch(function(cause){reject(cause);});
-      });
+      return Promise.all(promises).then(function(results){return issueData;});
     };
 
     module.getIssueData = function(issueKey, callback, async) {
@@ -1137,11 +1124,7 @@
         issueData.url = data.shortUrl;
       }));
 
-      return new Promise(function(resolve, reject) {
-        Promise.all(promises)
-          .then(function(){resolve(issueData);})
-          .catch(function(cause){reject(cause);});
-      });
+      return Promise.all(promises).then(function(results){return issueData;});
     };
 
     module.getIssueData = function(issueKey, callback, async) {
