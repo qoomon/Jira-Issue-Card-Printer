@@ -6,7 +6,7 @@
   // YouTrack: http://qoomon.myjetbrains.com/youtrack/dashboard
 
   var global = {};
-  global.version = "4.3.0";
+  global.version = "4.3.1";
   global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
   global.isDev = document.currentScript == null;
   global.isProd = !global.isDev;
@@ -378,10 +378,13 @@
     var scaleHeight = cardMaxHeight / cardMinHeight ;
     var scale = Math.min(scaleWidth, scaleHeight, 1);
 
-    // scale down only
-    if (scale < 1) {
-      jQuery("html", printDocument).css("font-size", ( scaleRoot * scale ) + "cm");
-    }
+    console.log("scaleRoot: " + scaleRoot + " scale:     " + scale);
+    console.log("scaleWidth: " + scaleWidth + " scaleHeight:     " + scaleHeight);
+
+
+    // scale
+    jQuery("html", printDocument).css("font-size", ( scaleRoot * scale ) + "cm");
+
 
     // size
 
