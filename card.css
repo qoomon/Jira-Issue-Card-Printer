@@ -51,8 +51,8 @@ body {
 }
 .author {
   color: DIMGREY;
-  position: absolute;
-  top: 0.5rem;
+  position: relative;
+  top: 0.2rem;
   left: calc(50% - 2rem);
   font-size: 0.8rem;
   overflow: visible;
@@ -60,7 +60,7 @@ body {
 }
 .author > span:nth-of-type(2) {
   position: relative;
-  top: 0.0rem;
+  top: 0.1rem;
   left: 0.65rem;
   font-size: 0.5em;
 }

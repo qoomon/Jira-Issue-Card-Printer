@@ -1,6 +1,6 @@
 (function() {
   var global = {};
-  global.version = "4.2.6";
+  global.version = "4.2.7";
   global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
   global.isDev = document.currentScript == null;
   global.isProd = !global.isDev;
@@ -333,7 +333,7 @@
     // scale
 
     // reset scale
-    jQuery("html", printDocument).css("font-size", scaleRoot +"cm");
+    jQuery("html", printDocument).css("font-size", "1cm");
     jQuery("#styleColumnCount", printDocument).remove();
     jQuery("#styleRowCount", printDocument).remove();
 
@@ -458,6 +458,7 @@
       writeCookie("card_printer_font_scale", jQuery(this).val());
 
       global.settings.scale = jQuery(this).val();
+      console.log("global.settings.scale: " +global.settings.scale);
 
       redrawCards();
     });
