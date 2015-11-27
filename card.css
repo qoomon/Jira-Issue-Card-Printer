@@ -12,6 +12,8 @@ html {
 body {
   padding: 0rem;
   margin: 0rem;
+  max-height: 100%;
+  max-width: 100%;
 }
 .badge, .shadow {
   border-style: solid;

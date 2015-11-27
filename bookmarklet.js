@@ -6,7 +6,7 @@
   // YouTrack: http://qoomon.myjetbrains.com/youtrack/dashboard
 
   var global = {};
-  global.version = "4.2.9";
+  global.version = "4.3.0";
   global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
   global.isDev = document.currentScript == null;
   global.isProd = !global.isDev;
@@ -232,13 +232,9 @@
   }
 
   function redrawCards() {
-
     styleCards();
-
     scaleCards();
-
     cropCards();
-
     resizeIframe(jQuery("#card-print-dialog-content-iframe"));
   }
 
@@ -364,27 +360,27 @@
     // scale
 
     // reset scale
-    jQuery("html", printDocument).css("font-size", "1cm");
+    jQuery("html", printDocument).css("font-size", scaleRoot + "cm");
     jQuery("#styleColumnCount", printDocument).remove();
     jQuery("#styleRowCount", printDocument).remove();
 
-    // scale horizontal
-    // substract one pixel due to rounding problems
-    var cardMaxWidth = Math.floor(jQuery(".card", printDocument).outerWidth() / columnCount);
-    var cardMinWidth = jQuery(".card", printDocument).css("min-width").replace("px", "");
-    var scaleWidth = cardMaxWidth / cardMinWidth - 0.01;
+    // calculate scale
 
-    // scale vertical
-    // substract one pixel due to rounding problems
-    // dont know why to multiply outer height with 2
-    var cardMaxHeight = Math.floor(jQuery(".card", printDocument).outerHeight()  / rowCount);
-    var cardMinHeight = jQuery(".card", printDocument).css("min-height").replace("px", "");
-    var scaleHeight = cardMaxHeight / cardMinHeight - 0.01;
+    var bodyElement = jQuery("body", printDocument);
+    var cardMaxWidth = Math.floor(bodyElement.outerWidth() / columnCount);
+    var cardMaxHeight = Math.floor(bodyElement.outerHeight() / rowCount);
 
-    // scale down
+    var cardElement = jQuery(".card", printDocument);
+    var cardMinWidth = cardElement.css("min-width").replace("px", "");
+    var cardMinHeight = cardElement.css("min-height").replace("px", "");
+
+    var scaleWidth = cardMaxWidth / cardMinWidth ;
+    var scaleHeight = cardMaxHeight / cardMinHeight ;
     var scale = Math.min(scaleWidth, scaleHeight, 1);
+
+    // scale down only
     if (scale < 1) {
-      jQuery("html", printDocument).css("font-size", ( scaleRoot * scale) + "cm");
+      jQuery("html", printDocument).css("font-size", ( scaleRoot * scale ) + "cm");
     }
 
     // size
