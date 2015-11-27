@@ -326,14 +326,14 @@
     var printWindow = printFrame[0].contentWindow;
     var printDocument = printWindow.document;
 
-    var scaleRoot = 1.0;//global.settings.scale;
+    var scaleRoot = global.settings.scale;
     var rowCount = global.settings.rowCount;
     var columnCount = global.settings.colCount;
 
     // scale
 
     // reset scale
-    jQuery("html", printDocument).css("font-size", scaleRoot +"cm");
+    jQuery("html", printDocument).css("font-size", "1cm");
     jQuery("#styleColumnCount", printDocument).remove();
     jQuery("#styleRowCount", printDocument).remove();
 
@@ -458,6 +458,7 @@
       writeCookie("card_printer_font_scale", jQuery(this).val());
 
       global.settings.scale = jQuery(this).val();
+      console.log("global.settings.scale: " +global.settings.scale);
 
       redrawCards();
     });
