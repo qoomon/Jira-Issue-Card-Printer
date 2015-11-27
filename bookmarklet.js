@@ -326,7 +326,7 @@
     var printWindow = printFrame[0].contentWindow;
     var printDocument = printWindow.document;
 
-    var scaleRoot = global.settings.scale;
+    var scaleRoot = 1.0;//global.settings.scale;
     var rowCount = global.settings.rowCount;
     var columnCount = global.settings.colCount;
 
