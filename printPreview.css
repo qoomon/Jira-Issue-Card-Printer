@@ -1,9 +1,3 @@
-lable, button, input {
-  display: inline;
-  font-weight: normal;
-  margin: 0px;
-  padding: 0px;
-}
 #card-print-overlay {
   position: fixed;
   height: 100%;
