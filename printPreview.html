@@ -19,9 +19,9 @@
           <div style="float: left; display: inline;"><input id="rowCount" type="text" class="text" maxlength="1" style="width: 10px; margin-right:5px;" value="2"/>Page Grid</div>
         </div>
         <div style="float: left; margin-right:10px; padding-right: 3px; display: inline; -webkit-appearance: default">
-        <form oninput="amount.value=scaleRange.value">
+        <form onchange="amount.value=scaleRange.value">
             <input type="range" id="scaleRange" min="-1.0" max="1.0" step="0.1" value="0.0" style="width: 80px; position: relative; top: 2px; margin-right:5px;" />
-            <output name="amount" for="scaleRange">0.0</output> Scale</form>
+            <output name="amount" for="scaleRange"></output> Scale</form>
         </div>
         <div style="float: left; margin-right:10px"><input id="single-card-page-checkbox" type="checkbox"/>Single Card Per Page</div>
         <div style="float: left; margin-right:10px"><input id="hide-description-checkbox" type="checkbox"/>Hide Description</div>

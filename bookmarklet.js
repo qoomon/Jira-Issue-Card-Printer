@@ -91,7 +91,7 @@
     var settings = global.settings;
 
     // restore UI state
-    jQuery("#fscaleRange").val(settings.scale);
+    jQuery("#scaleRange").val(settings.scale);
     jQuery("#rowCount").val(settings.rowCount);
     jQuery("#columnCount").val(settings.colCount);
 
