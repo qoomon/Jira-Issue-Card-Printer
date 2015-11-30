@@ -14,6 +14,7 @@ body {
   margin: 0rem;
   max-height: 100%;
   max-width: 100%;
+  overflow: visible;
 }
 .badge, .shadow {
   border-style: solid;
@@ -77,16 +78,16 @@ body {
   overflow: visible;
 }
 .card::after {
-    overflow: visible;
-    position: absolute;
-    top: 0rem;
-    left: 0rem;
-    content: "";
-    width: calc(100% - 0.06cm);
-    height: calc(100% - 0.06cm);
-    border-color: LightGray;
-    border-style: dashed;
-    border-width: 0.06cm;
+  overflow: visible;
+  position: absolute;
+  top: -0.03rem;
+  left: -0.03rem;
+  content: "";
+  width: calc(100% - 0.03cm);
+  height: calc(100% - 0.03cm);
+  border-color: LightGray;
+  border-style: dashed;
+  border-width: 0.03cm;
 }
 .card-content {
   position: relative;

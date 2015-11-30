@@ -165,7 +165,7 @@
 
   function loadSettings(){
     var settings = global.settings = global.settings || {};
-    settings.scale = parseFloat(readCookie("card_printer_scale")) || 1.0;
+    settings.scale = parseFloat(readCookie("card_printer_scale")) || 0.0;
     settings.rowCount = parseInt(readCookie("card_printer_row_count2")) || 2;
     settings.colCount = parseInt(readCookie("card_printer_column_count")) || 1;
 
@@ -344,7 +344,7 @@
       var style = document.createElement('style');
       style.id = 'styleSingleCardPage';
       style.type = 'text/css';
-      style.innerHTML = ".card { page-break-after: always; float: none; }"
+      style.innerHTML = ".card { page-break-after: always; float: none;}"
       jQuery("head", printDocument).append(style);
     }
   }
