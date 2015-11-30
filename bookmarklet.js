@@ -344,7 +344,7 @@
       var style = document.createElement('style');
       style.id = 'styleSingleCardPage';
       style.type = 'text/css';
-      style.innerHTML = ".card { page-break-after: always; float: none; margin-botom: 0.5cm}"
+      style.innerHTML = ".card { page-break-after: always; float: none; margin-bottom: 0.5cm}"
       jQuery("head", printDocument).append(style);
     }
   }
