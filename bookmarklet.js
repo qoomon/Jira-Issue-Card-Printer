@@ -6,7 +6,7 @@
   // YouTrack: http://qoomon.myjetbrains.com/youtrack/dashboard
 
   var global = {};
-  global.version = "4.3.2";
+  global.version = "4.3.3";
   global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
   global.isDev = document.currentScript == null;
   global.isProd = !global.isDev;
@@ -92,6 +92,7 @@
 
     // restore UI state
     jQuery("#scaleRange").val(settings.scale);
+    jQuery("#scaleRange").parent().find("output").val(settings.scale);
     jQuery("#rowCount").val(settings.rowCount);
     jQuery("#columnCount").val(settings.colCount);
 
