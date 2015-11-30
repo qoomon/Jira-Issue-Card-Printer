@@ -73,10 +73,20 @@ body {
   width: 100%;
   padding: 0.5rem;
   min-width: 14.5rem;
-  min-height: 12.5rem;
-  border-color: LightGray;
-  border-style: dotted;
-  border-width: 0.03cm;
+  min-height: 8.65rem;
+  overflow: visible;
+}
+.card::after {
+    overflow: visible;
+    position: absolute;
+    top: 0rem;
+    left: 0rem;
+    content: "";
+    width: calc(100% - 0.06cm);
+    height: calc(100% - 0.06cm);
+    border-color: LightGray;
+    border-style: dashed;
+    border-width: 0.06cm;
 }
 .card-content {
   position: relative;
