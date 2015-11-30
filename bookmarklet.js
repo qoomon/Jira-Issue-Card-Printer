@@ -6,7 +6,7 @@
   // YouTrack: http://qoomon.myjetbrains.com/youtrack/dashboard
 
   var global = {};
-  global.version = "4.3.4";
+  global.version = "4.3.5";
   global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
   global.isDev = document.currentScript == null;
   global.isProd = !global.isDev;
@@ -344,7 +344,7 @@
       var style = document.createElement('style');
       style.id = 'styleSingleCardPage';
       style.type = 'text/css';
-      style.innerHTML = ".card { page-break-after: always; float: none;}"
+      style.innerHTML = ".card { page-break-after: always; float: none; margin-botom: 0.5cm}"
       jQuery("head", printDocument).append(style);
     }
   }

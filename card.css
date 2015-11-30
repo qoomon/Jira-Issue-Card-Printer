@@ -327,5 +327,6 @@ body {
   }
   .card {
     page-break-inside: avoid;
+    margin: 0.0mm;
   }
 }
