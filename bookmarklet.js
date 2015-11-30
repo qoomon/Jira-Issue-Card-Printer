@@ -91,7 +91,7 @@
     var settings = global.settings;
 
     // restore UI state
-    jQuery("#font-scale-range").val(settings.scale);
+    jQuery("#fscaleRange").val(settings.scale);
     jQuery("#rowCount").val(settings.rowCount);
     jQuery("#columnCount").val(settings.colCount);
 
@@ -152,18 +152,19 @@
 
   function saveSettings(){
     var settings = global.settings;
+    writeCookie("card_printer_scale", settings.scale);
+    writeCookie("card_printer_row_count", settings.rowCount);
+    writeCookie("card_printer_column_count", settings.colCount);
+
     writeCookie("card_printer_single_card_page", settings.singleCardPage);
     writeCookie("card_printer_hide_description", settings.hideDescription);
     writeCookie("card_printer_hide_assignee", settings.hideAssignee);
     writeCookie("card_printer_hide_due_date", settings.hideDueDate);
-    writeCookie("card_printer_font_scale", settings.scale);
-    writeCookie("card_printer_row_count", settings.rowCount);
-    writeCookie("card_printer_column_count", settings.colCount);
   }
 
   function loadSettings(){
     var settings = global.settings = global.settings || {};
-    settings.scale = parseFloat(readCookie("card_printer_font_scale")) || 1.0;
+    settings.scale = parseFloat(readCookie("card_printer_scale")) || 1.0;
     settings.rowCount = parseInt(readCookie("card_printer_row_count2")) || 2;
     settings.colCount = parseInt(readCookie("card_printer_column_count")) || 1;
 
@@ -385,9 +386,6 @@
     var scaleHeight = cardMaxHeight / cardMinHeight ;
     var scale = Math.min(scaleWidth, scaleHeight, 1);
 
-    console.log("scaleRoot: " + scaleRoot + " scale:     " + scale);
-    console.log("scaleWidth: " + scaleWidth + " scaleHeight:     " + scaleHeight);
-
     // scale
     jQuery("html", printDocument).css("font-size", ( scaleRoot * scale ) + "cm");
 
@@ -493,7 +491,7 @@
 
     // scale font
 
-    result.find("#font-scale-range").on("input", function() {
+    result.find("#scaleRange").on("input", function() {
       global.settings.scale = jQuery(this).val();
       saveSettings();
       redrawCards();
