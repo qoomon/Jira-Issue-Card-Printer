@@ -355,11 +355,12 @@
 
     var settings = global.settings;
 
+    var scaleValue = settings.scale * scaleRange;
     var scaleRoot;
-    if(settings.scale < 0) {
-      scaleRoot = 1.0 / (1.0 - (settings.scale * 2.0));
+    if(scaleValue < 0) {
+      scaleRoot = 1.0 / (1.0 - scaleValue);
     } else {
-      scaleRoot = 1.0 * (1.0 + (settings.scale * 2.0));
+      scaleRoot = 1.0 * (1.0 + scaleValue);
     }
 
     var rowCount = settings.rowCount;
