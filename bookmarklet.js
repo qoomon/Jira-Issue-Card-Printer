@@ -355,7 +355,7 @@
 
     var settings = global.settings;
 
-    var scaleValue = settings.scale * scaleRange;
+    var scaleValue = settings.scale * 2.0;
     var scaleRoot;
     if(scaleValue < 0) {
       scaleRoot = 1.0 / (1.0 - scaleValue);
