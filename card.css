@@ -245,7 +245,7 @@ body {
   height: 2.2rem;
   border-radius: 50%;
   background-color: WHITESMOKE;
-  //background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Person.png);
+  background-image: url(https://www.colourbox.com/preview/10714847-evil-christmas-elf.jpg);
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -275,13 +275,12 @@ body {
   line-height: 0.55rem;
 }
 .issue-epic-id {
-  font-size: 0.5rem;
+  font-size: 0.6rem;
   font-weight: bold;
   max-width: 1rem;
 }
 .issue-epic-name {
-  margin-left: 0.1rem;
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   font-weight: bold;
 }
 .issue-due-date-box {
