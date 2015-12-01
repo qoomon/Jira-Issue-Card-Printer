@@ -14,6 +14,7 @@ body {
   margin: 0rem;
   max-height: 100%;
   max-width: 100%;
+  overflow: visible;
 }
 .badge, .shadow {
   border-style: solid;
@@ -77,16 +78,16 @@ body {
   overflow: visible;
 }
 .card::after {
-    overflow: visible;
-    position: absolute;
-    top: 0rem;
-    left: 0rem;
-    content: "";
-    width: calc(100% - 0.06cm);
-    height: calc(100% - 0.06cm);
-    border-color: LightGray;
-    border-style: dashed;
-    border-width: 0.06cm;
+  overflow: visible;
+  position: absolute;
+  top: -0.015rem;
+  left: -0.015rem;
+  content: "";
+  width: calc(100% - 0.015cm);
+  height: calc(100% - 0.015cm);
+  border-color: LightGray;
+  border-style: dashed;
+  border-width: 0.03cm;
 }
 .card-content {
   position: relative;
@@ -244,7 +245,7 @@ body {
   height: 2.2rem;
   border-radius: 50%;
   background-color: WHITESMOKE;
-  //background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Person.png);
+  background-image: url(https://www.colourbox.com/preview/10714847-evil-christmas-elf.jpg);
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -274,13 +275,12 @@ body {
   line-height: 0.55rem;
 }
 .issue-epic-id {
-  font-size: 0.5rem;
+  font-size: 0.6rem;
   font-weight: bold;
   max-width: 1rem;
 }
 .issue-epic-name {
-  margin-left: 0.1rem;
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   font-weight: bold;
 }
 .issue-due-date-box {
@@ -326,5 +326,6 @@ body {
   }
   .card {
     page-break-inside: avoid;
+    margin: 0.0mm;
   }
 }
