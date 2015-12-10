@@ -75,7 +75,7 @@ body {
   padding: 0.5rem;
   min-width: 14.5rem;
   min-height: 8.65rem;
-  overflow: visible;
+  overflow: hidden;
 }
 .card::after {
   overflow: visible;
@@ -83,8 +83,8 @@ body {
   top: -0.015rem;
   left: -0.015rem;
   content: "";
-  width: calc(100% - 0.015cm);
-  height: calc(100% - 0.015cm);
+  width: calc(100% - 0.03cm);
+  height: calc(100% - 0.03cm);
   border-color: LightGray;
   border-style: dashed;
   border-width: 0.03cm;

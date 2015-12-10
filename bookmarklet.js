@@ -100,6 +100,7 @@
     jQuery("#hide-description-checkbox").attr('checked', settings.hideDescription );
     jQuery("#hide-assignee-checkbox").attr('checked', settings.hideAssignee );
     jQuery("#hide-due-date-checkbox").attr('checked', settings.hideDueDate );
+    jQuery("#hide-qr-code-checkbox").attr('checked', settings.hideQrCode );
 
     jQuery("#card-print-dialog-title").text("Card Printer " + global.version + " - Loading issues...");
     promises.push(renderCards(issueKeyList).then(function() {
@@ -161,6 +162,7 @@
     writeCookie("card_printer_hide_description", settings.hideDescription);
     writeCookie("card_printer_hide_assignee", settings.hideAssignee);
     writeCookie("card_printer_hide_due_date", settings.hideDueDate);
+    writeCookie("card_printer_hide_qr_code", settings.hideQrCode);
   }
 
   function loadSettings(){
@@ -173,6 +175,7 @@
     settings.hideDescription = parseBool(readCookie("card_printer_hide_description"), false);
     settings.hideAssignee = parseBool(readCookie("card_printer_hide_assignee"), false);
     settings.hideDueDate = parseBool(readCookie("card_printer_hide_due_date"), false);
+    settings.hideQrCode = parseBool(readCookie("card_printer_hide_qr_code"), false);
   }
 
   function print() {
@@ -266,26 +269,26 @@
         card.find(".issue-assignee").text(data.assignee[0].toUpperCase());
       }
     } else {
-      card.find(".issue-assignee").addClass("hidden");
+      card.find(".issue-assignee").remove();
     }
 
     //Due-Date
     if (data.dueDate) {
       card.find(".issue-due-date").text(data.dueDate);
     } else {
-      card.find(".issue-due-box").addClass("hidden");
+      card.find(".issue-due-box").remove();
     }
 
     //Attachment
     if (data.hasAttachment) {} else {
-      card.find('.issue-attachment').addClass('hidden');
+      card.find('.issue-attachment').remove();
     }
 
     //Story Points
     if (data.storyPoints) {
       card.find(".issue-estimate").text(data.storyPoints);
     } else {
-      card.find(".issue-estimate").addClass("hidden");
+      card.find(".issue-estimate").remove();
     }
 
     //Epic
@@ -293,7 +296,7 @@
       card.find(".issue-epic-id").text(data.superIssue.key);
       card.find(".issue-epic-name").text(data.superIssue.summary);
     } else {
-      card.find(".issue-epic-box").addClass("hidden");
+      card.find(".issue-epic-box").remove();
     }
 
     //QR-Code
@@ -309,34 +312,13 @@
     var printDocument = printWindow.document;
 
     // hide/show description
-    jQuery("#styleHideDescription", printDocument).remove();
-    if (settings.hideDescription) {
-      var style = document.createElement('style');
-      style.id = 'styleHideDescription';
-      style.type = 'text/css';
-      style.innerHTML = ".issue-description { display: none; }"
-      jQuery("head", printDocument).append(style);
-    }
-
+    jQuery(".issue-description", printDocument).toggle(!settings.hideDescription);
     // hide/show assignee
-    jQuery("#styleHideAssignee", printDocument).remove();
-    if (settings.hideAssignee) {
-      var style = document.createElement('style');
-      style.id = 'styleHideAssignee';
-      style.type = 'text/css';
-      style.innerHTML = ".issue-assignee { display: none; }"
-      jQuery("head", printDocument).append(style);
-    }
-
+    jQuery(".issue-assignee", printDocument).toggle(!settings.hideAssignee);
     // hide/show assignee
-    jQuery("#styleHideDueDate", printDocument).remove();
-    if (settings.hideDueDate) {
-      var style = document.createElement('style');
-      style.id = 'styleHideDueDate';
-      style.type = 'text/css';
-      style.innerHTML = ".issue-due-box { display: none; }"
-      jQuery("head", printDocument).append(style);
-    }
+    jQuery(".issue-due-box", printDocument).toggle(!settings.hideDueDate);
+    // hide/show cr code
+    jQuery(".issue-qr-code", printDocument).toggle(!settings.hideQrCode);
 
     // enable/disable single card page
     jQuery("#styleSingleCardPage", printDocument).remove();
@@ -344,7 +326,7 @@
       var style = document.createElement('style');
       style.id = 'styleSingleCardPage';
       style.type = 'text/css';
-      style.innerHTML = ".card { page-break-after: always; float: none; margin-bottom: 0.5cm}"
+      style.innerHTML = ".card { page-break-after: always; float: none;}"
       jQuery("head", printDocument).append(style);
     }
   }
@@ -486,6 +468,15 @@
 
     result.find("#hide-due-date-checkbox").click(function() {
       global.settings.hideDueDate = this.checked;
+      saveSettings();
+      redrawCards();
+      return true;
+    });
+
+    // show QR Code
+
+    result.find("#hide-qr-code-checkbox").click(function() {
+      global.settings.hideQrCode = this.checked;
       saveSettings();
       redrawCards();
       return true;
