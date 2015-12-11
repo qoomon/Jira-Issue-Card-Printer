@@ -6,7 +6,7 @@
   // YouTrack: http://qoomon.myjetbrains.com/youtrack/dashboard
 
   var global = {};
-  global.version = "4.3.5";
+  global.version = "4.3.6";
   global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
   global.isDev = document.currentScript == null;
   global.isProd = !global.isDev;
@@ -97,10 +97,10 @@
     jQuery("#columnCount").val(settings.colCount);
 
     jQuery("#single-card-page-checkbox").attr('checked', settings.singleCardPage );
-    jQuery("#hide-description-checkbox").attr('checked', settings.hideDescription );
-    jQuery("#hide-assignee-checkbox").attr('checked', settings.hideAssignee );
-    jQuery("#hide-due-date-checkbox").attr('checked', settings.hideDueDate );
-    jQuery("#hide-qr-code-checkbox").attr('checked', settings.hideQrCode );
+    jQuery("#description-checkbox").attr('checked', !settings.hideDescription );
+    jQuery("#assignee-checkbox").attr('checked', !settings.hideAssignee );
+    jQuery("#due-date-checkbox").attr('checked', !settings.hideDueDate );
+    jQuery("#qr-code-checkbox").attr('checked', !settings.hideQrCode );
 
     jQuery("#card-print-dialog-title").text("Card Printer " + global.version + " - Loading issues...");
     promises.push(renderCards(issueKeyList).then(function() {
@@ -321,13 +321,9 @@
     jQuery(".issue-qr-code", printDocument).toggle(!settings.hideQrCode);
 
     // enable/disable single card page
-    jQuery("#styleSingleCardPage", printDocument).remove();
+    jQuery(".card", printDocument).css({ 'page-break-after' : '', 'float' : '', 'margin-bottom': '' });
     if (settings.singleCardPage) {
-      var style = document.createElement('style');
-      style.id = 'styleSingleCardPage';
-      style.type = 'text/css';
-      style.innerHTML = ".card { page-break-after: always; float: none;}"
-      jQuery("head", printDocument).append(style);
+      jQuery(".card", printDocument).css({ 'page-break-after': 'always', 'float': 'none', 'margin-bottom': '10px' });
     }
   }
 
@@ -448,8 +444,8 @@
 
     // hide description
 
-    result.find("#hide-description-checkbox").click(function() {
-      global.settings.hideDescription = this.checked;
+    result.find("#description-checkbox").click(function() {
+      global.settings.hideDescription = !this.checked;
       saveSettings();
       redrawCards();
       return true;
@@ -457,8 +453,8 @@
 
     // show assignee
 
-    result.find("#hide-assignee-checkbox").click(function() {
-      global.settings.hideAssignee = this.checked;
+    result.find("#assignee-checkbox").click(function() {
+      global.settings.hideAssignee = !this.checked;
       saveSettings();
       redrawCards();
       return true;
@@ -466,8 +462,8 @@
 
     // show due date
 
-    result.find("#hide-due-date-checkbox").click(function() {
-      global.settings.hideDueDate = this.checked;
+    result.find("#due-date-checkbox").click(function() {
+      global.settings.hideDueDate = !this.checked;
       saveSettings();
       redrawCards();
       return true;
@@ -475,7 +471,7 @@
 
     // show QR Code
 
-    result.find("#hide-qr-code-checkbox").click(function() {
+    result.find("#qr-code-checkbox").click(function() {
       global.settings.hideQrCode = this.checked;
       saveSettings();
       redrawCards();
