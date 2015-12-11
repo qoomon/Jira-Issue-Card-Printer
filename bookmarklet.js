@@ -70,7 +70,7 @@
     if (issueKeyList.length <= 0) {
       alert("Please select at least one issue.");
       return;
-    } else if (issueKeyList.length > 100) {
+    } else if (issueKeyList.length > 30) {
       confirm("Are you sure you want select " + issueKeyList.length + " issues?");
       return;
     }
@@ -233,6 +233,7 @@
       });
       console.log("wait for resources loaded...");
       printDocument.close();
+      redrawCards();
     });
   }
 
@@ -472,7 +473,7 @@
     // show QR Code
 
     result.find("#qr-code-checkbox").click(function() {
-      global.settings.hideQrCode = this.checked;
+      global.settings.hideQrCode = !this.checked;
       saveSettings();
       redrawCards();
       return true;
