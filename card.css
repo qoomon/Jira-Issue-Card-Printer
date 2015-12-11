@@ -79,7 +79,7 @@ body {
   overflow: hidden;
 }
 .card::after {
-
+    box-sizing: border-box;
     overflow: visible;
     position: absolute;
     top: 0.0rem;
