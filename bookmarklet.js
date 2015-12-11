@@ -6,7 +6,7 @@
   // YouTrack: http://qoomon.myjetbrains.com/youtrack/dashboard
 
   var global = {};
-  global.version = "4.3.5";
+  global.version = "4.3.6";
   global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
   global.isDev = document.currentScript == null;
   global.isProd = !global.isDev;
@@ -70,7 +70,7 @@
     if (issueKeyList.length <= 0) {
       alert("Please select at least one issue.");
       return;
-    } else if (issueKeyList.length > 100) {
+    } else if (issueKeyList.length > 30) {
       confirm("Are you sure you want select " + issueKeyList.length + " issues?");
       return;
     }
@@ -97,9 +97,10 @@
     jQuery("#columnCount").val(settings.colCount);
 
     jQuery("#single-card-page-checkbox").attr('checked', settings.singleCardPage );
-    jQuery("#hide-description-checkbox").attr('checked', settings.hideDescription );
-    jQuery("#hide-assignee-checkbox").attr('checked', settings.hideAssignee );
-    jQuery("#hide-due-date-checkbox").attr('checked', settings.hideDueDate );
+    jQuery("#description-checkbox").attr('checked', !settings.hideDescription );
+    jQuery("#assignee-checkbox").attr('checked', !settings.hideAssignee );
+    jQuery("#due-date-checkbox").attr('checked', !settings.hideDueDate );
+    jQuery("#qr-code-checkbox").attr('checked', !settings.hideQrCode );
 
     jQuery("#card-print-dialog-title").text("Card Printer " + global.version + " - Loading issues...");
     promises.push(renderCards(issueKeyList).then(function() {
@@ -161,6 +162,7 @@
     writeCookie("card_printer_hide_description", settings.hideDescription);
     writeCookie("card_printer_hide_assignee", settings.hideAssignee);
     writeCookie("card_printer_hide_due_date", settings.hideDueDate);
+    writeCookie("card_printer_hide_qr_code", settings.hideQrCode);
   }
 
   function loadSettings(){
@@ -173,6 +175,7 @@
     settings.hideDescription = parseBool(readCookie("card_printer_hide_description"), false);
     settings.hideAssignee = parseBool(readCookie("card_printer_hide_assignee"), false);
     settings.hideDueDate = parseBool(readCookie("card_printer_hide_due_date"), false);
+    settings.hideQrCode = parseBool(readCookie("card_printer_hide_qr_code"), false);
   }
 
   function print() {
@@ -230,6 +233,7 @@
       });
       console.log("wait for resources loaded...");
       printDocument.close();
+      redrawCards();
     });
   }
 
@@ -266,26 +270,26 @@
         card.find(".issue-assignee").text(data.assignee[0].toUpperCase());
       }
     } else {
-      card.find(".issue-assignee").addClass("hidden");
+      card.find(".issue-assignee").remove();
     }
 
     //Due-Date
     if (data.dueDate) {
       card.find(".issue-due-date").text(data.dueDate);
     } else {
-      card.find(".issue-due-box").addClass("hidden");
+      card.find(".issue-due-box").remove();
     }
 
     //Attachment
     if (data.hasAttachment) {} else {
-      card.find('.issue-attachment').addClass('hidden');
+      card.find('.issue-attachment').remove();
     }
 
     //Story Points
     if (data.storyPoints) {
       card.find(".issue-estimate").text(data.storyPoints);
     } else {
-      card.find(".issue-estimate").addClass("hidden");
+      card.find(".issue-estimate").remove();
     }
 
     //Epic
@@ -293,7 +297,7 @@
       card.find(".issue-epic-id").text(data.superIssue.key);
       card.find(".issue-epic-name").text(data.superIssue.summary);
     } else {
-      card.find(".issue-epic-box").addClass("hidden");
+      card.find(".issue-epic-box").remove();
     }
 
     //QR-Code
@@ -309,43 +313,18 @@
     var printDocument = printWindow.document;
 
     // hide/show description
-    jQuery("#styleHideDescription", printDocument).remove();
-    if (settings.hideDescription) {
-      var style = document.createElement('style');
-      style.id = 'styleHideDescription';
-      style.type = 'text/css';
-      style.innerHTML = ".issue-description { display: none; }"
-      jQuery("head", printDocument).append(style);
-    }
-
+    jQuery(".issue-description", printDocument).toggle(!settings.hideDescription);
     // hide/show assignee
-    jQuery("#styleHideAssignee", printDocument).remove();
-    if (settings.hideAssignee) {
-      var style = document.createElement('style');
-      style.id = 'styleHideAssignee';
-      style.type = 'text/css';
-      style.innerHTML = ".issue-assignee { display: none; }"
-      jQuery("head", printDocument).append(style);
-    }
-
+    jQuery(".issue-assignee", printDocument).toggle(!settings.hideAssignee);
     // hide/show assignee
-    jQuery("#styleHideDueDate", printDocument).remove();
-    if (settings.hideDueDate) {
-      var style = document.createElement('style');
-      style.id = 'styleHideDueDate';
-      style.type = 'text/css';
-      style.innerHTML = ".issue-due-box { display: none; }"
-      jQuery("head", printDocument).append(style);
-    }
+    jQuery(".issue-due-box", printDocument).toggle(!settings.hideDueDate);
+    // hide/show cr code
+    jQuery(".issue-qr-code", printDocument).toggle(!settings.hideQrCode);
 
     // enable/disable single card page
-    jQuery("#styleSingleCardPage", printDocument).remove();
+    jQuery(".card", printDocument).css({ 'page-break-after' : '', 'float' : '', 'margin-bottom': '' });
     if (settings.singleCardPage) {
-      var style = document.createElement('style');
-      style.id = 'styleSingleCardPage';
-      style.type = 'text/css';
-      style.innerHTML = ".card { page-break-after: always; float: none; margin-bottom: 0.5cm}"
-      jQuery("head", printDocument).append(style);
+      jQuery(".card", printDocument).css({ 'page-break-after': 'always', 'float': 'none', 'margin-bottom': '10px' });
     }
   }
 
@@ -466,8 +445,8 @@
 
     // hide description
 
-    result.find("#hide-description-checkbox").click(function() {
-      global.settings.hideDescription = this.checked;
+    result.find("#description-checkbox").click(function() {
+      global.settings.hideDescription = !this.checked;
       saveSettings();
       redrawCards();
       return true;
@@ -475,8 +454,8 @@
 
     // show assignee
 
-    result.find("#hide-assignee-checkbox").click(function() {
-      global.settings.hideAssignee = this.checked;
+    result.find("#assignee-checkbox").click(function() {
+      global.settings.hideAssignee = !this.checked;
       saveSettings();
       redrawCards();
       return true;
@@ -484,8 +463,17 @@
 
     // show due date
 
-    result.find("#hide-due-date-checkbox").click(function() {
-      global.settings.hideDueDate = this.checked;
+    result.find("#due-date-checkbox").click(function() {
+      global.settings.hideDueDate = !this.checked;
+      saveSettings();
+      redrawCards();
+      return true;
+    });
+
+    // show QR Code
+
+    result.find("#qr-code-checkbox").click(function() {
+      global.settings.hideQrCode = !this.checked;
       saveSettings();
       redrawCards();
       return true;

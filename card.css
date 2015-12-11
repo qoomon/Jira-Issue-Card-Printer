@@ -18,7 +18,7 @@ body {
 }
 .badge, .shadow {
   border-style: solid;
-  border-color: #333;
+  border-color: #454545;
   border-top-width: 0.12rem;
   border-left-width: 0.12rem;
   border-bottom-width: 0.21rem;
@@ -35,17 +35,18 @@ body {
   border-bottom-width: 0rem;
 }
 .zigzag::after {
-  position: absolute;
-  bottom: 0.03rem;
-  left: -0.16rem;
-  content: "";
-  width: 100%;
-  border-style: solid;
-  border-bottom-width: 1rem;
-  border-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/Tearing.png);
-  border-image-width: 0 0 0.7rem 0;
-  border-image-slice: 56 0 56 1;
-  border-image-repeat: round round;
+    box-sizing: border-box;
+    position: absolute;
+    bottom: 0.00rem;
+    left: 0.0rem;
+    content: "";
+    width: 100%;
+    border-style: solid;
+    border-bottom-width: 0.5rem;
+    border-image: url(https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/resources//Tearing.png);
+    border-image-width: 0 0 0.7rem 0;
+    border-image-slice: 56 0 56 1;
+    border-image-repeat: round round;
 }
 #preload {
   position: fixed;
@@ -75,19 +76,20 @@ body {
   padding: 0.5rem;
   min-width: 14.5rem;
   min-height: 8.65rem;
-  overflow: visible;
+  overflow: hidden;
 }
 .card::after {
-  overflow: visible;
-  position: absolute;
-  top: -0.015rem;
-  left: -0.015rem;
-  content: "";
-  width: calc(100% - 0.015cm);
-  height: calc(100% - 0.015cm);
-  border-color: LightGray;
-  border-style: dashed;
-  border-width: 0.03cm;
+    box-sizing: border-box;
+    overflow: visible;
+    position: absolute;
+    top: 0.0rem;
+    left: 0.0rem;
+    content: "";
+    width: 100%;
+    height: 100%;
+    border-color: LightGray;
+    border-style: dashed;
+    border-width: 0.03cm;
 }
 .card-content {
   position: relative;
