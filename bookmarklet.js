@@ -4,7 +4,6 @@
   // PivotTracker: https://www.pivotaltracker.com/n/projects/510733
   // Trello: https://trello.com/b/8zlPSh70/spike
   // YouTrack: http://qoomon.myjetbrains.com/youtrack/dashboard
-
   var global = {};
   global.version = "4.3.6";
   global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
@@ -23,9 +22,8 @@
   });
 
   // load jQuery
-  if (window.jQuery === undefined) {
-    appendScript('//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js');
-  }
+
+  appendScript('//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js');
 
   // wait untill all scripts loaded
   appendScript('https://qoomon.github.io/void', function() {
@@ -33,7 +31,7 @@
       return main();
     }).catch(function(cause){
       console.log("ERROR " + cause.stack);
-      alert("Sorry somthing went wrong.\n\nPlease create an issue at " + global.issueTrackingUrl + "\n\n" + cause.stack);
+      alert("Sorry something went wrong.\n\nPlease create an issue at " + global.issueTrackingUrl + "\n\n" + cause.stack);
     });
   });
 
