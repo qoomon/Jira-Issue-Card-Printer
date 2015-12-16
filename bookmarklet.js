@@ -59,12 +59,6 @@
       return;
     }
 
-    //preconditions
-    if (jQuery("#card-print-overlay").length > 0) {
-      alert("Print Card already opened!");
-      return;
-    }
-
     // collect selcted issues
     var issueKeyList = global.appFunctions.getSelectedIssueKeyList();
     if (issueKeyList.length <= 0) {
@@ -75,36 +69,65 @@
       return;
     }
 
-    // open print preview
-    jQuery("body").append(printPreviewElement());
-    jQuery("#card-print-overlay").prepend(printOverlayStyleElement());
+    //preconditions
+    if (jQuery("#card-printer-iframe").length > 0) {
+      alert("Card Printer already opened!");
+      return;
+    }
 
-    var printFrame = jQuery("#card-print-dialog-content-iframe");
-    var printWindow = printFrame[0].contentWindow;
-    printWindow.addEventListener("resize", function() {
+    // create iFrame
+    var appFrame = document.createElement('iframe');
+    appFrame.id = "card-printer-iframe";
+    jQuery(appFrame).css({
+      'position': 'fixed',
+      'height': '100%',
+      'width': '100%',
+      'top': '0',
+      'left': '0',
+      'background': 'rgba(0, 0, 0, 0.5)',
+      'boxSizing': 'border-box',
+      'wordWrap': 'break-word',
+      'zIndex': '99999'
+    });
+    jQuery("body").append(appFrame);
+    appFrame.window = appFrame.contentWindow;
+    appFrame.document = appFrame.window.document;
+    global.appFrame = appFrame;
+
+    // open print preview
+    jQuery("head", appFrame.document).prepend(printPreviewElementStyle());
+    jQuery("body", appFrame.document).append(printPreviewElement());
+
+    var printFrame = jQuery("#card-print-dialog-content-iframe", appFrame.document)[0];
+    printFrame.window = printFrame.contentWindow;
+    printFrame.document = printFrame.window.document;
+    global.printFrame = printFrame;
+
+
+    printFrame.contentWindow.addEventListener("resize", function() {
       redrawCards();
     });
-    printWindow.matchMedia("print").addListener(function() {
+    printFrame.contentWindow.matchMedia("print").addListener(function() {
       redrawCards();
     });
 
     var settings = global.settings;
 
     // restore UI state
-    jQuery("#scaleRange").val(settings.scale);
-    jQuery("#scaleRange").parent().find("output").val(settings.scale);
-    jQuery("#rowCount").val(settings.rowCount);
-    jQuery("#columnCount").val(settings.colCount);
+    jQuery("#scaleRange", appFrame.document).val(settings.scale);
+    jQuery("#scaleRange", appFrame.document).parent().find("output").val(settings.scale);
+    jQuery("#rowCount", appFrame.document).val(settings.rowCount);
+    jQuery("#columnCount", appFrame.document).val(settings.colCount);
 
-    jQuery("#single-card-page-checkbox").attr('checked', settings.singleCardPage );
-    jQuery("#description-checkbox").attr('checked', !settings.hideDescription );
-    jQuery("#assignee-checkbox").attr('checked', !settings.hideAssignee );
-    jQuery("#due-date-checkbox").attr('checked', !settings.hideDueDate );
-    jQuery("#qr-code-checkbox").attr('checked', !settings.hideQrCode );
+    jQuery("#single-card-page-checkbox", appFrame.document).attr('checked', settings.singleCardPage );
+    jQuery("#description-checkbox", appFrame.document).attr('checked', !settings.hideDescription );
+    jQuery("#assignee-checkbox", appFrame.document).attr('checked', !settings.hideAssignee );
+    jQuery("#due-date-checkbox", appFrame.document).attr('checked', !settings.hideDueDate );
+    jQuery("#qr-code-checkbox", appFrame.document).attr('checked', !settings.hideQrCode );
 
-    jQuery("#card-print-dialog-title").text("Card Printer " + global.version + " - Loading issues...");
+    jQuery("#card-print-dialog-title", appFrame.document).text("Card Printer " + global.version + " - Loading issues...");
     promises.push(renderCards(issueKeyList).then(function() {
-      jQuery("#card-print-dialog-title").text("Card Printer " + global.version);
+      jQuery("#card-print-dialog-title", appFrame.document).text("Card Printer " + global.version);
     }));
 
     if (global.isProd) {
@@ -179,30 +202,24 @@
   }
 
   function print() {
-    var printFrame = jQuery("#card-print-dialog-content-iframe");
-    var printWindow = printFrame[0].contentWindow;
-    var printDocument = printWindow.document;
-
     if (global.isProd) {
-      ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length);
+      ga('send', 'event', 'button', 'click', 'print', jQuery(".card", global.printFrame.contentWindow.document).length);
     }
 
-    printWindow.print();
+    global.printFrame.contentWindow.print();
   }
 
   function renderCards(issueKeyList) {
     var promises = [];
 
-    var printFrame = jQuery("#card-print-dialog-content-iframe");
-    var printWindow = printFrame[0].contentWindow;
-    var printDocument = printWindow.document;
+    var printFrame = global.printFrame;
 
-    printDocument.open();
-    printDocument.write("<head/><body></body>");
+    printFrame.document.open();
+    printFrame.document.write("<head/><body></body>");
 
-    jQuery("head", printDocument).append(cardElementStyle());
-    jQuery("body", printDocument).append("<div id='preload'/>");
-    jQuery("#preload", printDocument).append("<div class='zigzag'/>");
+    jQuery("head", printFrame.document).append(cardElementStyle());
+    jQuery("body", printFrame.document).append("<div id='preload'/>");
+    jQuery("#preload", printFrame.document).append("<div class='zigzag'/>");
 
     console.log("load " + issueKeyList.length + " issues...");
 
@@ -211,7 +228,7 @@
       card.attr("index", index);
       card.hide();
       card.find('.issue-id').text(issueKey);
-      jQuery("body", printDocument).append(card);
+      jQuery("body", printFrame.document).append(card);
 
       promises.push(global.appFunctions.getCardData(issueKey).then(function(cardData) {
         console.log("cardData: " + JSON.stringify(cardData,2,2));
@@ -228,11 +245,11 @@
     return Promise.all(promises).then(function() {
       console.log("...all issues loaded.");
 
-      jQuery(printWindow).load(function() {
+      jQuery(printFrame.window).load(function() {
         console.log("...all resources loaded.");
       });
       console.log("wait for resources loaded...");
-      printDocument.close();
+      printFrame.document.close();
       redrawCards();
     });
   }
@@ -241,7 +258,7 @@
     styleCards();
     scaleCards();
     cropCards();
-    resizeIframe(jQuery("#card-print-dialog-content-iframe"));
+    resizeIframe(global.printFrame);
   }
 
 
@@ -307,33 +324,27 @@
 
   function styleCards() {
     var settings = global.settings;
-
-    var printFrame = jQuery("#card-print-dialog-content-iframe");
-    var printWindow = printFrame[0].contentWindow;
-    var printDocument = printWindow.document;
+    var printFrame = global.printFrame
 
     // hide/show description
-    jQuery(".issue-description", printDocument).toggle(!settings.hideDescription);
+    jQuery(".issue-description", printFrame.document).toggle(!settings.hideDescription);
     // hide/show assignee
-    jQuery(".issue-assignee", printDocument).toggle(!settings.hideAssignee);
+    jQuery(".issue-assignee", printFrame.document).toggle(!settings.hideAssignee);
     // hide/show assignee
-    jQuery(".issue-due-box", printDocument).toggle(!settings.hideDueDate);
+    jQuery(".issue-due-box", printFrame.document).toggle(!settings.hideDueDate);
     // hide/show cr code
-    jQuery(".issue-qr-code", printDocument).toggle(!settings.hideQrCode);
+    jQuery(".issue-qr-code", printFrame.document).toggle(!settings.hideQrCode);
 
     // enable/disable single card page
-    jQuery(".card", printDocument).css({ 'page-break-after' : '', 'float' : '', 'margin-bottom': '' });
+    jQuery(".card", printFrame.document).css({ 'page-break-after' : '', 'float' : '', 'margin-bottom': '' });
     if (settings.singleCardPage) {
-      jQuery(".card", printDocument).css({ 'page-break-after': 'always', 'float': 'none', 'margin-bottom': '10px' });
+      jQuery(".card", printFrame.document).css({ 'page-break-after': 'always', 'float': 'none', 'margin-bottom': '10px' });
     }
   }
 
   function scaleCards() {
-    var printFrame = jQuery("#card-print-dialog-content-iframe");
-    var printWindow = printFrame[0].contentWindow;
-    var printDocument = printWindow.document;
-
     var settings = global.settings;
+    var printFrame = global.printFrame;
 
     var scaleValue = settings.scale * 2.0;
     var scaleRoot;
@@ -349,17 +360,17 @@
     // scale
 
     // reset scale
-    jQuery("html", printDocument).css("font-size", scaleRoot + "cm");
-    jQuery("#styleColumnCount", printDocument).remove();
-    jQuery("#styleRowCount", printDocument).remove();
+    jQuery("html", printFrame.document).css("font-size", scaleRoot + "cm");
+    jQuery("#styleColumnCount", printFrame.document).remove();
+    jQuery("#styleRowCount", printFrame.document).remove();
 
     // calculate scale
 
-    var bodyElement = jQuery("body", printDocument);
+    var bodyElement = jQuery("body", printFrame.document);
     var cardMaxWidth = Math.floor(bodyElement.outerWidth() / columnCount);
     var cardMaxHeight = Math.floor(bodyElement.outerHeight() / rowCount);
 
-    var cardElement = jQuery(".card", printDocument);
+    var cardElement = jQuery(".card", printFrame.document);
     var cardMinWidth = cardElement.css("min-width").replace("px", "");
     var cardMinHeight = cardElement.css("min-height").replace("px", "");
 
@@ -368,7 +379,7 @@
     var scale = Math.min(scaleWidth, scaleHeight, 1);
 
     // scale
-    jQuery("html", printDocument).css("font-size", ( scaleRoot * scale ) + "cm");
+    jQuery("html", printFrame.document).css("font-size", ( scaleRoot * scale ) + "cm");
 
     // size
 
@@ -377,22 +388,18 @@
     style.id = 'styleColumnCount';
     style.type = 'text/css';
     style.innerHTML = ".card { width: calc( 100% / " + columnCount + " ); }"
-    jQuery("head", printDocument).append(style);
+    jQuery("head", printFrame.document).append(style);
 
     // size horizontal
     var style = document.createElement('style');
     style.id = 'styleRowCount';
     style.type = 'text/css';
     style.innerHTML = ".card { height: calc( 100% / " + rowCount + " );  }"
-    jQuery("head", printDocument).append(style);
+    jQuery("head", printFrame.document).append(style);
   }
 
   function cropCards() {
-    var printFrame = jQuery("#card-print-dialog-content-iframe");
-    var printWindow = printFrame[0].contentWindow;
-    var printDocument = printWindow.document;
-
-    var cardElements = printDocument.querySelectorAll(".card");
+    var cardElements = global.printFrame.document.querySelectorAll(".card");
     forEach(cardElements, function(cardElement) {
       var cardContent = cardElement.querySelectorAll(".card-body")[0];
       if (cardContent.scrollHeight > cardContent.offsetHeight) {
@@ -410,8 +417,7 @@
   }
 
   function closePrintPreview() {
-    jQuery("#card-print-overlay").remove();
-    jQuery("#card-print-overlay-style").remove();
+    jQuery("#card-printer-iframe").remove();
   }
 
   //############################################################################################################################
@@ -546,9 +552,8 @@
     return result;
   }
 
-  function printOverlayStyleElement() {
+  function printPreviewElementStyle() {
     var result = jQuery(document.createElement('style'))
-      .attr("id", "card-print-overlay-style")
       .attr("type", "text/css")
       .html(global.printPreviewCss);
     return result;
@@ -651,6 +656,7 @@
   }
 
   function resizeIframe(iframe) {
+    iframe = jQuery(iframe);
     iframe.height(iframe[0].contentWindow.document.body.height);
   }
   //############################################################################################################################
