@@ -21,18 +21,11 @@
     }
   });
 
-  // load jQuery
-
-  appendScript('//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js');
-
-  // wait untill all scripts loaded
-  appendScript('https://qoomon.github.io/void', function() {
-    init().then(function(){
-      return main();
-    }).catch(function(cause){
-      console.log("ERROR " + cause.stack);
-      alert("Sorry something went wrong.\n\nPlease create an issue at " + global.issueTrackingUrl + "\n\n" + cause.stack);
-    });
+  init().then(function(){
+    return main();
+  }).catch(function(cause){
+    console.log("ERROR " + cause.stack);
+    alert("Sorry something went wrong.\n\nPlease create an issue at " + global.issueTrackingUrl + "\n\n" + cause.stack);
   });
 
   function main() {
