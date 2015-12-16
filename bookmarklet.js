@@ -42,7 +42,7 @@
     } else if (/.*trello.com\/.*/g.test(document.URL)) {
       console.log("App: " + "Trello");
       global.appFunctions = trelloFunctions;
-    } else if (/.*myjetbrains.com\/youtrack\/.*/g.test(document.URL)) {
+    } else if (/.*myjetbrains.com\/youtrack\/.*/g.test(document.URL) || /.*youtrack.jetbrains.com\/.*/g.test(document.URL) ) {
       console.log("App: " + "YouTrack");
       global.appFunctions = youTrackFunctions;
     } else {
