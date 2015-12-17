@@ -151,7 +151,7 @@ label[for] {
 .checkbox input[type=checkbox]:checked + label::after {
   opacity: 1;
 }
-.numberInput input[type=number]{
+input[type=number].numberInput {
     font-size:1em;
     width:1.5em;
     padding:3px;
@@ -160,17 +160,18 @@ label[for] {
     border-radius:5px;
     text-align: center;
     background-color: #eee;
+    width: 100px;
 }
-.numberInput input[type=number]::-webkit-inner-spin-button,
-.numberInput input[type=number]::-webkit-outer-spin-button {
+input[type=number].numberInput::-webkit-inner-spin-button,
+input[type=number].numberInput ::-webkit-outer-spin-button {
    -webkit-appearance: none;
 }
 
-.numberInput input[type=number]:hover{
+input[type=number].numberInput :hover{
     border:1px solid #ddd;
     background-color: #f6f6f6;
 }
-.numberInput input[type=number]:focus{
+input[type=number].numberInput :focus{
     outline:none;
     border:1px solid #ddd;
     background-color: #f6f6f6;
