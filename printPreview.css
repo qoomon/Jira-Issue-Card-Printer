@@ -122,6 +122,9 @@ label[for] {
   width: auto;
   height: auto;
 }
+.checkbox  input[type=checkbox]{
+  display: none;
+}
 .checkbox input[type=checkbox]  + label {
   margin: 0px;
   position: relative;
@@ -140,14 +143,10 @@ label[for] {
   background: transparent;
   top: 4px;
   left: 4px;
-  border: 3px solid #333;
+  border: 3px solid #656565;
   border-top: none;
   border-right: none;
   transform: rotate(-45deg);
-}
-
-.checkbox input[type=checkbox] + label:hover::after {
-  opacity: 0.5 !important;
 }
 .checkbox input[type=checkbox]:checked + label::after {
   opacity: 1;
