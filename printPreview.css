@@ -90,6 +90,7 @@
   vertical-align: baseline;
 }
 .button {
+    cursor: pointer;
     background-color: #DEDEDE;
     border: 1px solid #D4D4D4;
     border-radius: 3px;
