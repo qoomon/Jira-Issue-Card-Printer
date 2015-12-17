@@ -94,13 +94,8 @@
     printFrame.document = printFrame.window.document;
     global.printFrame = printFrame;
 
-
-    printFrame.contentWindow.addEventListener("resize", function() {
-      redrawCards();
-    });
-    printFrame.contentWindow.matchMedia("print").addListener(function() {
-      redrawCards();
-    });
+    printFrame.contentWindow.addEventListener("resize", redrawCards);
+    printFrame.contentWindow.matchMedia("print").addListener(redrawCards);
 
     var settings = global.settings;
 
@@ -352,8 +347,7 @@
 
     // reset scale
     jQuery("html", printFrame.document).css("font-size", scaleRoot + "cm");
-    jQuery("#styleColumnCount", printFrame.document).remove();
-    jQuery("#styleRowCount", printFrame.document).remove();
+    jQuery("#gridStyle", printFrame.document).remove();
 
     // calculate scale
 
@@ -372,20 +366,14 @@
     // scale
     jQuery("html", printFrame.document).css("font-size", ( scaleRoot * scale ) + "cm");
 
-    // size
-
-    // size horizontal
+    // grid size
     var style = document.createElement('style');
-    style.id = 'styleColumnCount';
+    style.id = 'gridStyle';
     style.type = 'text/css';
-    style.innerHTML = ".card { width: calc( 100% / " + columnCount + " ); }"
-    jQuery("head", printFrame.document).append(style);
-
-    // size horizontal
-    var style = document.createElement('style');
-    style.id = 'styleRowCount';
-    style.type = 'text/css';
-    style.innerHTML = ".card { height: calc( 100% / " + rowCount + " );  }"
+    style.innerHTML = ".card { "+
+    "width: calc( 100% / " + columnCount + " );" + 
+    "height: calc( 100% / " + rowCount + " );"+
+    "}";
     jQuery("head", printFrame.document).append(style);
   }
 
