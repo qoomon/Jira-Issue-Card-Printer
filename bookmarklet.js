@@ -627,9 +627,16 @@
     document.cookie = name + "=" + value;
   }
 
-  function httpGetCORS(){
-    arguments[0] = 'https://jsonp.afeld.me/?url=' + arguments[0];
-    return httpGet.apply(this, arguments);
+  function httpGetCORS(url){
+    var query = "select * from html where url='" + url + "'";
+    var yqlUrl = "https://query.yahooapis.com/v1/public/yql?q=" + encodeURIComponent(query);
+    return Promise.resolve(jQuery.ajax({
+      url: yqlUrl,
+      dataType: "jsonp",
+      crossDomain: true,
+    })).then(function(data){
+      return data.results[0].replace(/(\n|.)*<body>/g, '').replace(/<\/body>(\n|.)*/g, '');
+    });
   }
 
   function httpGet(){
