@@ -78,7 +78,7 @@ body {
   min-height: 8.65rem;
   overflow: hidden;
 }
-.card::after {
+.card::before {
     box-sizing: border-box;
     overflow: visible;
     position: absolute;
