@@ -82,20 +82,22 @@
   line-height: 30px;
 }
 .ui-element {
+  color: #656565;
   font-size: 14px;
+  font-weight: 600;
   display: inline-block;
   margin: 5px 10px;
   vertical-align: baseline;
 }
 .button {
-    background-color: #F5F5F5;
-    border: 1px solid #F5F5F5;
+    background-color: #DEDEDE;
+    border: 1px solid #D4D4D4;
     border-radius: 3px;
     display: inline-block;
-    color: #8C8C8C;
     font-size: 13px;
     font-weight: 700;
-    padding: 7px 28px;
+    padding: 5.8px 20px;
+    margin: 0px 2px;
     text-decoration: none;
     text-align: center;
 }
