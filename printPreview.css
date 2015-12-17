@@ -1,3 +1,6 @@
+* {
+  font-family: Arial, sans-serif;
+}
 #card-print-overlay {
   position: fixed;
   height: 100%;
@@ -52,6 +55,7 @@
   height: 30px;
   padding: 10px;
   text-align: right;
+  font-size: 13px;
 }
 #buttons {
   position: relative;
@@ -63,10 +67,13 @@
   position: relative;
   float: right;
   display: inline-block;
-  height 30px;
+  height: 30px;
+  line-height: 30px;
 }
 #info-line {
   display: inline;
+  height: 30px;
+  line-height: 30px;
   padding-left: 3rem;
   padding-right: 3rem;
 }
@@ -75,7 +82,6 @@
   float: left;
   color: rgb(51, 51, 51);
   display: block;
-  font-family: Arial, sans-serif;
   font-size: 20px;
   font-weight: normal;
   height: 30px;
@@ -109,11 +115,9 @@
 }
 label {
   display: block;
-  margin-left: 10px;
-  margin-right: 10px;
+  margin-left: 5px;
   float:left;
 }
-
 label[for] {
   cursor: pointer;
 }
@@ -128,8 +132,8 @@ label[for] {
 .checkbox input[type=checkbox]  + label {
   margin: 0px;
   position: relative;
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
   border-radius: 4px;
   background-color: #DEDEDE;
   border: 1px solid #D4D4D4;
@@ -138,12 +142,12 @@ label[for] {
   opacity: 0;
   content: '';
   position: absolute;
-  width: 9px;
-  height: 5px;
+  width: 6px;
+  height: 3px;
   background: transparent;
   top: 4px;
   left: 4px;
-  border: 3px solid #656565;
+  border: 2px solid #656565;
   border-top: none;
   border-right: none;
   transform: rotate(-45deg);
@@ -152,7 +156,10 @@ label[for] {
   opacity: 1;
 }
 input[type=number].numberInput {
-    font-size:1em;
+    position: relative;
+    top: -2;
+    font-size: 12px;
+    font-weight: 700;
     width:1.5em;
     padding:3px;
     margin:0;
