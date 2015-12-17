@@ -14,17 +14,17 @@
     <div id="card-print-dialog-footer">
       <div class="buttons">
         <div class="ui-element" style="float: left;" >
-          <div style="float: left; display: inline;"><input id="columnCount" type="text" class="text" maxlength="1" style="width: 15px; padding: 2px;" value="1"/></div>
+          <div style="float: left; positon: relative; top: -2px;"><input id="columnCount" type="text" class="text" maxlength="1" style="width: 15px; padding: 2px;" value="1"/></div>
           <div style="float: left; margin-left: 5px; margin-right: 5px;">x</div>
-          <div style="float: left; display: inline;"><input id="rowCount"    type="text" class="text" maxlength="1" style="width: 15px; padding: 2px;" value="2"/></div>
-          <div style="margin-left:5px;">Page Grid</div>
+          <div style="float: left; positon: relative; top: -2px;"><input id="rowCount"    type="text" class="text" maxlength="1" style="width: 15px; padding: 2px;" value="2"/></div>
+          <div style="float: left; margin-left:5px;">Page Grid</div>
         </div>
-        <div class="ui-element" style="float: left; position: relative; top: -2px; display: inline; -webkit-appearance: default">
+        <div class="ui-element" style="float: left;">
           <form oninput="amount.value=parseFloat(scaleRange.value).toFixed(1)">
-            <input type="range" id="scaleRange" min="-1.0" max="1.0" step="0.1" value="0.0" style="width: 80px; position: relative; top: 2px; margin-right:5px;" />
-            <output name="amount" for="scaleRange"></output>
+            <input style="float: left;"  type="range" id="scaleRange" min="-1.0" max="1.0" step="0.1" value="0.0" style="width: 80px;" />
+            <output style="float: left; width: 25px; margin-left:5px;" name="amount" for="scaleRange"></output>
           </form>
-          <div style="margin-left:5px;">Scale</div>
+          <div style="float: left; margin-left:5px;">Scale</div>
         </div>
         <div class="ui-element" style="float: left;"><input id="single-card-page-checkbox" type="checkbox"/>Single Card Per Page</div>
         <div class="ui-element" style="float: left;"><input id="description-checkbox" type="checkbox"/>Description</div>
