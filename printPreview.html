@@ -14,14 +14,14 @@
     <div id="card-print-dialog-footer">
       <div class="buttons">
         <div class="ui-element" style="float: left;" >
-          <div style="float: left; positon: relative; top: -2px;"><input id="columnCount" type="text" class="text" maxlength="1" style="width: 15px; padding: 2px;" value="1"/></div>
+          <div style="float: left; position: relative; top: -2px;"><input id="columnCount" type="text" class="text" maxlength="1" style="width: 15px; padding: 2px;" value="1"/></div>
           <div style="float: left; margin-left: 5px; margin-right: 5px;">x</div>
-          <div style="float: left; positon: relative; top: -2px;"><input id="rowCount"    type="text" class="text" maxlength="1" style="width: 15px; padding: 2px;" value="2"/></div>
+          <div style="float: left; position: relative; top: -2px;"><input id="rowCount"    type="text" class="text" maxlength="1" style="width: 15px; padding: 2px;" value="2"/></div>
           <div style="float: left; margin-left:5px;">Page Grid</div>
         </div>
         <div class="ui-element" style="float: left;">
-          <form oninput="amount.value=parseFloat(scaleRange.value).toFixed(1)">
-            <input style="float: left;"  type="range" id="scaleRange" min="-1.0" max="1.0" step="0.1" value="0.0" style="width: 80px;" />
+          <form style="float: left;" oninput="amount.value=parseFloat(scaleRange.value).toFixed(1)">
+            <input style="float: left; width: 80px;"  type="range" id="scaleRange" min="-1.0" max="1.0" step="0.1" value="0.0" style="width: 80px;" />
             <output style="float: left; width: 25px; margin-left:5px;" name="amount" for="scaleRange"></output>
           </form>
           <div style="float: left; margin-left:5px;">Scale</div>
@@ -32,8 +32,8 @@
         <div class="ui-element" style="float: left;"><input id="due-date-checkbox" type="checkbox"/>Due Date</div>
         <div class="ui-element" style="float: left;"><input id="qr-code-checkbox" type="checkbox"/>QR Code</div>
 
-        <input class="ui-element" style="float: right;" id="card-print-dialog-print"  type="button" value="Print" />
-        <input class="ui-element" style="float: right;" id="card-print-dialog-cancel" type="button" value="Cancel" />
+        <div class="ui-element button button-primary" style="float: right;" id="card-print-dialog-print"  />Print</div>
+        <div class="ui-element button" style="float: right;" id="card-print-dialog-cancel" />Cancel</div>
       </div>
     </div>
   </div>
