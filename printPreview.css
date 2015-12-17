@@ -81,7 +81,7 @@
   height: 30px;
   line-height: 30px;
 }
-.cancel {
+.ui-element {
   cursor: pointer;
   font-size: 14px;
   display: inline-block;

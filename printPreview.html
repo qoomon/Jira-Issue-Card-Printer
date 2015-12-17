@@ -13,24 +13,27 @@
     </div>
     <div id="card-print-dialog-footer">
       <div class="buttons">
-        <div style="float: left; margin-right:10px;">
-          <div style="float: left; display: inline;"><input id="columnCount" type="text" class="text" maxlength="1" style="width: 15px;" value="1"/></div>
+        <div class="ui-element" style="float: left;" >
+          <div style="float: left; display: inline;"><input id="columnCount" type="text" class="text" maxlength="1" style="width: 15px; padding: 2px;" value="1"/></div>
           <div style="float: left; margin-left: 5px; margin-right: 5px;">x</div>
-          <div style="float: left; display: inline;"><input id="rowCount" type="text" class="text" maxlength="1" style="width: 15px; margin-right:5px;" value="2"/>Page Grid</div>
+          <div style="float: left; display: inline;"><input id="rowCount"    type="text" class="text" maxlength="1" style="width: 15px; padding: 2px;" value="2"/></div>
+          <div style="margin-left:5px;">Page Grid</div>
         </div>
-        <div style="float: left; margin-right:10px; position: relative; top: -2px; display: inline; -webkit-appearance: default">
-        <form oninput="amount.value=parseFloat(scaleRange.value).toFixed(1)">
+        <div class="ui-element" style="float: left; position: relative; top: -2px; display: inline; -webkit-appearance: default">
+          <form oninput="amount.value=parseFloat(scaleRange.value).toFixed(1)">
             <input type="range" id="scaleRange" min="-1.0" max="1.0" step="0.1" value="0.0" style="width: 80px; position: relative; top: 2px; margin-right:5px;" />
-            <output name="amount" for="scaleRange"></output> Scale</form>
+            <output name="amount" for="scaleRange"></output>
+          </form>
+          <div style="margin-left:5px;">Scale</div>
         </div>
-        <div style="float: left; margin-right:10px"><input id="single-card-page-checkbox" type="checkbox"/>Single Card Per Page</div>
-        <div style="float: left; margin-right:10px"><input id="description-checkbox" type="checkbox"/>Description</div>
-        <div style="float: left; margin-right:10px"><input id="assignee-checkbox" type="checkbox"/>Assignee</div>
-        <div style="float: left; margin-right:10px"><input id="due-date-checkbox" type="checkbox"/>Due Date</div>
-        <div style="float: left; margin-right:10px"><input id="qr-code-checkbox" type="checkbox"/>QR Code</div>
+        <div class="ui-element" style="float: left;"><input id="single-card-page-checkbox" type="checkbox"/>Single Card Per Page</div>
+        <div class="ui-element" style="float: left;"><input id="description-checkbox" type="checkbox"/>Description</div>
+        <div class="ui-element" style="float: left;"><input id="assignee-checkbox" type="checkbox"/>Assignee</div>
+        <div class="ui-element" style="float: left;"><input id="due-date-checkbox" type="checkbox"/>Due Date</div>
+        <div class="ui-element" style="float: left;"><input id="qr-code-checkbox" type="checkbox"/>QR Code</div>
 
-        <input style="float: right;" id="card-print-dialog-print" type="button" class="aui-button aui-button-primary" value="Print" />
-        <a style="float: right;" id="card-print-dialog-cancel" title="Cancel" class="cancel">Cancel</a>
+        <input class="ui-element" style="float: right;" id="card-print-dialog-print"  type="button" value="Print" />
+        <input class="ui-element" style="float: right;" id="card-print-dialog-cancel" type="button" value="Cancel" />
       </div>
     </div>
   </div>
