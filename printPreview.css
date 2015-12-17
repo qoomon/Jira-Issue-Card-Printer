@@ -68,7 +68,6 @@
   float: right;
   display: inline-block;
   height: 30px;
-  line-height: 30px;
 }
 #info-line {
   display: inline;
@@ -89,7 +88,7 @@
 }
 .ui-element {
   color: #656565;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   display: inline-block;
   margin: 5px 5px;
@@ -156,6 +155,7 @@ label[for] {
   opacity: 1;
 }
 input[type=number].numberInput {
+    color: #656565;
     position: relative;
     top: -2;
     font-size: 12px;
@@ -166,19 +166,19 @@ input[type=number].numberInput {
     border:1px solid #ddd;
     border-radius:5px;
     text-align: center;
-    background-color: #eee;
+    background-color: #DEDEDE;
+    border: 1px solid #D4D4D4;
     width: 100px;
 }
 input[type=number].numberInput::-webkit-inner-spin-button,
 input[type=number].numberInput ::-webkit-outer-spin-button {
    -webkit-appearance: none;
 }
-
-input[type=number].numberInput :hover{
+input[type=number].numberInput:hover{
     border:1px solid #ddd;
     background-color: #f6f6f6;
 }
-input[type=number].numberInput :focus{
+input[type=number].numberInput:focus{
     outline:none;
     border:1px solid #ddd;
     background-color: #f6f6f6;
