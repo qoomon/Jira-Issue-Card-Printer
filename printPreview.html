@@ -14,23 +14,38 @@
     <div id="card-print-dialog-footer">
       <div class="buttons">
         <div class="ui-element" style="float: left;" >
-          <div style="float: left; position: relative; top: -2px;"><input id="columnCount" type="text" maxlength="1" style="width: 15px; padding: 2px;" value="1"/></div>
+          <input id="columnCount" type="number" min="0" max="9" class="numberInput" style="loat: left; width: 15px; padding: 2px;" value="1"/>
           <div style="float: left; margin-left: 5px; margin-right: 5px;">x</div>
-          <div style="float: left; position: relative; top: -2px;"><input id="rowCount" type="text" maxlength="1" style="width: 15px; padding: 2px;" value="2"/></div>
-          <div style="float: left; margin-left:5px;">Page Grid</div>
+          <input id="rowCount" type="number" min="0" max="9" class="numberInput" style="loat: left; width: 15px; padding: 2px;" value="2"/>
+          <label style="float: left; margin-left:5px;">Page Grid</label>
         </div>
         <div class="ui-element" style="float: left;">
           <form style="float: left;" oninput="amount.value=parseFloat(scaleRange.value).toFixed(1)">
             <input id="scaleRange" type="range" min="-1.0" max="1.0" step="0.1" value="0.0" style="float: left; width: 80px;" />
             <output style="float: left; width: 25px; margin-left:5px;" name="amount" for="scaleRange"></output>
           </form>
-          <div style="float: left; margin-left:5px;">Scale</div>
+          <label for="scaleRange">Scale</label>
         </div>
-        <div class="ui-element" style="float: left;"><input id="single-card-page-checkbox" type="checkbox"/>Single Card Per Page</div>
-        <div class="ui-element" style="float: left;"><input id="description-checkbox" type="checkbox"/>Description</div>
-        <div class="ui-element" style="float: left;"><input id="assignee-checkbox" type="checkbox"/>Assignee</div>
-        <div class="ui-element" style="float: left;"><input id="due-date-checkbox" type="checkbox"/>Due Date</div>
-        <div class="ui-element" style="float: left;"><input id="qr-code-checkbox" type="checkbox"/>QR Code</div>
+        <div class="ui-element checkbox" style="float: left;">
+          <input id="single-card-page-checkbox" type="checkbox"/>
+          <label for="single-card-page-checkbox">Single Card Per Page</label>
+        </div>
+        <div class="ui-element checkbox" style="float: left;">
+          <input id="description-checkbox" type="checkbox"/>
+          <label for="single-card-page-checkbox">Description</label>
+        </div>
+        <div class="ui-element checkbox" style="float: left;">
+          <input id="assignee-checkbox" type="checkbox"/>
+          <label for="assignee-checkbox">Assignee</label>
+        </div>
+        <div class="ui-element checkbox" style="float: left;">
+          <input id="due-date-checkbox" type="checkbox"/>
+          <label for="due-date-checkbox">Due Date</label>
+        </div>
+        <div class="ui-element checkbox" style="float: left;">
+          <input id="qr-code-checkbox" type="checkbox"/>
+          <label for="qr-code-checkbox">QR Code</label>
+        </div>
 
         <div id="card-print-dialog-print" class="ui-element button button-primary" style="float: right;" >Print</div>
         <div id="card-print-dialog-cancel" class="ui-element button" style="float: right;" >Cancel</div>
