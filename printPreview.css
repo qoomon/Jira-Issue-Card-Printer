@@ -1,5 +1,6 @@
 * {
   font-family: Arial, sans-serif;
+  color: #656565;
 }
 #card-print-overlay {
   position: fixed;
@@ -70,11 +71,9 @@
   height: 30px;
 }
 #info-line {
-  display: inline;
-  height: 30px;
-  line-height: 30px;
-  padding-left: 3rem;
-  padding-right: 3rem;
+  font-size: 14px;
+  line-height: 29px;
+  margin-right: 8.4rem;
 }
 #card-print-dialog-title {
   position: relative;
