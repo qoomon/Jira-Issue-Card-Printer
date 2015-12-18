@@ -329,7 +329,6 @@
       jQuery(".card", printFrame.document).each(function(index, element){
         if(index % (settings.colCount * settings.rowCount ) >= (settings.colCount * (settings.rowCount - 1))){
           jQuery(element).css({ 'margin-bottom': '20px' });
-          console.log("buz")
         }
       });
     }
