@@ -324,7 +324,14 @@
     // enable/disable single card page
     jQuery(".card", printFrame.document).css({ 'page-break-after' : '', 'float' : '', 'margin-bottom': '' });
     if (settings.singleCardPage) {
-      jQuery(".card", printFrame.document).css({ 'page-break-after': 'always', 'float': 'none', 'margin-bottom': '10px' });
+      jQuery(".card", printFrame.document).css({ 'page-break-after': 'always', 'float': 'none', 'margin-bottom': '20px' });
+    } else {
+      jQuery(".card", printFrame.document).each(function(index, element){
+        if(index % (settings.colCount * settings.rowCount ) >= (settings.colCount * (settings.rowCount - 1))){
+          jQuery(element).css({ 'margin-bottom': '20px' });
+          console.log("buz")
+        }
+      });
     }
   }
 
@@ -371,7 +378,7 @@
     style.id = 'gridStyle';
     style.type = 'text/css';
     style.innerHTML = ".card { "+
-    "width: calc( 100% / " + columnCount + " );" + 
+    "width: calc( 100% / " + columnCount + " );" +
     "height: calc( 100% / " + rowCount + " );"+
     "}";
     jQuery("head", printFrame.document).append(style);
@@ -616,9 +623,9 @@
   }
 
   function httpGetCORS(){
-    arguments[0] = 'https://jsonp.afeld.me/?url=' + arguments[0];
+    //arguments[0] = 'https://jsonp.afeld.me/?url=' + arguments[0];
     //arguments[0] = 'http://cors.io/?u=' + arguments[0];
-    //arguments[0] = 'https://crossorigin.me/' + arguments[0];
+    arguments[0] = 'https://crossorigin.me/' + arguments[0];
     return httpGet.apply(this, arguments);
   }
 
