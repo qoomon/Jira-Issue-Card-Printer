@@ -325,8 +325,8 @@ body {
 }
 @media print {
   @page {
-    margin: 0.0mm !important;
-    padding: 0.0mm !important;
+    margin: 0.0mm;
+    padding: 0.0mm;
   }
   html {
     -webkit-print-color-adjust: exact !important;
