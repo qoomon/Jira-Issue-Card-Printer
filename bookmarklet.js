@@ -1,4 +1,6 @@
 (function() {
+
+  $ = $ || jQuery;
   // Public Instances
   // Jira: https://connect.atlassian.net/browse/NERDS-33286
   // PivotTracker: https://www.pivotaltracker.com/n/projects/510733
@@ -29,11 +31,17 @@
   });
 
   function main() {
+    //preconditions
+    if ($("#card-printer-iframe").length > 0) {
+      alert("Card Printer already opened!");
+      return;
+    }
+
     var promises = [];
 
     console.log("Run...")
     // determine application
-    if (jQuery("meta[name='application-name'][ content='JIRA']").length > 0) {
+    if ($("meta[name='application-name'][ content='JIRA']").length > 0) {
       console.log("App: " + "Jira");
       global.appFunctions = jiraFunctions;
     } else if (/.*pivotaltracker.com\/.*/g.test(document.URL)) {
@@ -60,16 +68,10 @@
       return;
     }
 
-    //preconditions
-    if (jQuery("#card-printer-iframe").length > 0) {
-      alert("Card Printer already opened!");
-      return;
-    }
-
     // create iFrame
     var appFrame = document.createElement('iframe');
     appFrame.id = "card-printer-iframe";
-    jQuery(appFrame).css({
+    $(appFrame).css({
       'position': 'fixed',
       'height': '100%',
       'width': '100%',
@@ -80,16 +82,16 @@
       'wordWrap': 'break-word',
       'zIndex': '99999'
     });
-    jQuery("body").append(appFrame);
+    $("body").append(appFrame);
     appFrame.window = appFrame.contentWindow;
     appFrame.document = appFrame.window.document;
     global.appFrame = appFrame;
 
     // open print preview
-    jQuery("head", appFrame.document).prepend(printPreviewElementStyle());
-    jQuery("body", appFrame.document).append(printPreviewElement());
+    $("head", appFrame.document).prepend(printPreviewElementStyle());
+    $("body", appFrame.document).append(printPreviewElement());
 
-    var printFrame = jQuery("#card-print-dialog-content-iframe", appFrame.document)[0];
+    var printFrame = $("#card-print-dialog-content-iframe", appFrame.document)[0];
     printFrame.window = printFrame.contentWindow;
     printFrame.document = printFrame.window.document;
     global.printFrame = printFrame;
@@ -100,20 +102,20 @@
     var settings = global.settings;
 
     // restore UI state
-    jQuery("#scaleRange", appFrame.document).val(settings.scale);
-    jQuery("#scaleRange", appFrame.document).parent().find("output").val(settings.scale);
-    jQuery("#rowCount", appFrame.document).val(settings.rowCount);
-    jQuery("#columnCount", appFrame.document).val(settings.colCount);
+    $("#scaleRange", appFrame.document).val(settings.scale);
+    $("#scaleRange", appFrame.document).parent().find("output").val(settings.scale);
+    $("#rowCount", appFrame.document).val(settings.rowCount);
+    $("#columnCount", appFrame.document).val(settings.colCount);
 
-    jQuery("#single-card-page-checkbox", appFrame.document).attr('checked', settings.singleCardPage );
-    jQuery("#description-checkbox", appFrame.document).attr('checked', !settings.hideDescription );
-    jQuery("#assignee-checkbox", appFrame.document).attr('checked', !settings.hideAssignee );
-    jQuery("#due-date-checkbox", appFrame.document).attr('checked', !settings.hideDueDate );
-    jQuery("#qr-code-checkbox", appFrame.document).attr('checked', !settings.hideQrCode );
+    $("#single-card-page-checkbox", appFrame.document).attr('checked', settings.singleCardPage );
+    $("#description-checkbox", appFrame.document).attr('checked', !settings.hideDescription );
+    $("#assignee-checkbox", appFrame.document).attr('checked', !settings.hideAssignee );
+    $("#due-date-checkbox", appFrame.document).attr('checked', !settings.hideDueDate );
+    $("#qr-code-checkbox", appFrame.document).attr('checked', !settings.hideQrCode );
 
-    jQuery("#card-print-dialog-title", appFrame.document).text("Card Printer " + global.version + " - Loading issues...");
+    $("#card-print-dialog-title", appFrame.document).text("Card Printer " + global.version + " - Loading issues...");
     promises.push(renderCards(issueKeyList).then(function() {
-      jQuery("#card-print-dialog-title", appFrame.document).text("Card Printer " + global.version);
+      $("#card-print-dialog-title", appFrame.document).text("Card Printer " + global.version);
     }));
 
     if (global.isProd) {
@@ -189,7 +191,7 @@
 
   function print() {
     if (global.isProd) {
-      ga('send', 'event', 'button', 'click', 'print', jQuery(".card", global.printFrame.contentWindow.document).length);
+      ga('send', 'event', 'button', 'click', 'print', $(".card", global.printFrame.contentWindow.document).length);
     }
 
     global.printFrame.contentWindow.print();
@@ -203,18 +205,18 @@
     printFrame.document.open();
     printFrame.document.write("<head/><body></body>");
 
-    jQuery("head", printFrame.document).append(cardElementStyle());
-    jQuery("body", printFrame.document).append("<div id='preload'/>");
-    jQuery("#preload", printFrame.document).append("<div class='zigzag'/>");
+    $("head", printFrame.document).append(cardElementStyle());
+    $("body", printFrame.document).append("<div id='preload'/>");
+    $("#preload", printFrame.document).append("<div class='zigzag'/>");
 
     console.log("load " + issueKeyList.length + " issues...");
 
-    jQuery.each(issueKeyList, function(index, issueKey) {
+    $.each(issueKeyList, function(index, issueKey) {
       var card = cardElement(issueKey);
       card.attr("index", index);
       card.hide();
       card.find('.issue-id').text(issueKey);
-      jQuery("body", printFrame.document).append(card);
+      $("body", printFrame.document).append(card);
 
       promises.push(global.appFunctions.getCardData(issueKey).then(function(cardData) {
         console.log("cardData: " + JSON.stringify(cardData,2,2));
@@ -231,7 +233,7 @@
     return Promise.all(promises).then(function() {
       console.log("...all issues loaded.");
 
-      jQuery(printFrame.window).load(function() {
+      $(printFrame.window).load(function() {
         console.log("...all resources loaded.");
       });
       console.log("wait for resources loaded...");
@@ -313,22 +315,22 @@
     var printFrame = global.printFrame
 
     // hide/show description
-    jQuery(".issue-description", printFrame.document).toggle(!settings.hideDescription);
+    $(".issue-description", printFrame.document).toggle(!settings.hideDescription);
     // hide/show assignee
-    jQuery(".issue-assignee", printFrame.document).toggle(!settings.hideAssignee);
+    $(".issue-assignee", printFrame.document).toggle(!settings.hideAssignee);
     // hide/show assignee
-    jQuery(".issue-due-box", printFrame.document).toggle(!settings.hideDueDate);
+    $(".issue-due-box", printFrame.document).toggle(!settings.hideDueDate);
     // hide/show cr code
-    jQuery(".issue-qr-code", printFrame.document).toggle(!settings.hideQrCode);
+    $(".issue-qr-code", printFrame.document).toggle(!settings.hideQrCode);
 
     // enable/disable single card page
-    jQuery(".card", printFrame.document).css({ 'page-break-after' : '', 'float' : '', 'margin-bottom': '' });
+    $(".card", printFrame.document).css({ 'page-break-after' : '', 'float' : '', 'margin-bottom': '' });
     if (settings.singleCardPage) {
-      jQuery(".card", printFrame.document).css({ 'page-break-after': 'always', 'float': 'none', 'margin-bottom': '20px' });
+      $(".card", printFrame.document).css({ 'page-break-after': 'always', 'float': 'none', 'margin-bottom': '20px' });
     } else {
-      jQuery(".card", printFrame.document).each(function(index, element){
+      $(".card", printFrame.document).each(function(index, element){
         if(index % (settings.colCount * settings.rowCount ) >= (settings.colCount * (settings.rowCount - 1))){
-          jQuery(element).css({ 'margin-bottom': '20px' });
+          $(element).css({ 'margin-bottom': '20px' });
         }
       });
     }
@@ -352,16 +354,16 @@
     // scale
 
     // reset scale
-    jQuery("html", printFrame.document).css("font-size", scaleRoot + "cm");
-    jQuery("#gridStyle", printFrame.document).remove();
+    $("html", printFrame.document).css("font-size", scaleRoot + "cm");
+    $("#gridStyle", printFrame.document).remove();
 
     // calculate scale
 
-    var bodyElement = jQuery("body", printFrame.document);
+    var bodyElement = $("body", printFrame.document);
     var cardMaxWidth = Math.floor(bodyElement.outerWidth() / columnCount);
     var cardMaxHeight = Math.floor(bodyElement.outerHeight() / rowCount);
 
-    var cardElement = jQuery(".card", printFrame.document);
+    var cardElement = $(".card", printFrame.document);
     var cardMinWidth = cardElement.css("min-width").replace("px", "");
     var cardMinHeight = cardElement.css("min-height").replace("px", "");
 
@@ -370,7 +372,7 @@
     var scale = Math.min(scaleWidth, scaleHeight, 1);
 
     // scale
-    jQuery("html", printFrame.document).css("font-size", ( scaleRoot * scale ) + "cm");
+    $("html", printFrame.document).css("font-size", ( scaleRoot * scale ) + "cm");
 
     // grid size
     var style = document.createElement('style');
@@ -380,7 +382,7 @@
     "width: calc( 100% / " + columnCount + " );" +
     "height: calc( 100% / " + rowCount + " );"+
     "}";
-    jQuery("head", printFrame.document).append(style);
+    $("head", printFrame.document).append(style);
   }
 
   function cropCards() {
@@ -402,7 +404,7 @@
   }
 
   function closePrintPreview() {
-    jQuery("#card-printer-iframe").remove();
+    $("#card-printer-iframe").remove();
   }
 
   //############################################################################################################################
@@ -412,7 +414,7 @@
   // http://www.cssdesk.com/T9hXg
 
   function printPreviewElement() {
-    var result = jQuery('<div/>').html(global.printPreviewHtml).contents();
+    var result = $('<div/>').html(global.printPreviewHtml).contents();
 
     // info
     result.find("#report-issue").click(function(event) {
@@ -473,7 +475,7 @@
     // scale font
 
     result.find("#scaleRange").on("input", function() {
-      global.settings.scale = jQuery(this).val();
+      global.settings.scale = $(this).val();
       saveSettings();
       redrawCards();
     });
@@ -481,7 +483,7 @@
     // grid
 
     result.find("#rowCount").on("input", function() {
-      global.settings.rowCount = jQuery(this).val();
+      global.settings.rowCount = $(this).val();
       saveSettings();
       redrawCards();
     });
@@ -491,7 +493,7 @@
 
 
     result.find("#columnCount").on("input", function() {
-      global.settings.colCount = jQuery(this).val();
+      global.settings.colCount = $(this).val();
       saveSettings();
       redrawCards();
     });
@@ -523,7 +525,7 @@
       return true;
     });
 
-    jQuery(document).keyup(function(e) {
+    $(document).keyup(function(e) {
       if (e.keyCode == 27) { // ESC
         closePrintPreview();
       }
@@ -538,7 +540,7 @@
   }
 
   function printPreviewElementStyle() {
-    var result = jQuery(document.createElement('style'))
+    var result = $(document.createElement('style'))
       .attr("type", "text/css")
       .html(global.printPreviewCss);
     return result;
@@ -547,13 +549,13 @@
   // card layout: http://jsfiddle.net/qoomon/ykbLb2pw/76
 
   function cardElement(issueKey) {
-    var result = jQuery('<div/>').html(global.cardHtml).contents()
+    var result = $('<div/>').html(global.cardHtml).contents()
       .attr("id", issueKey)
     return result;
   }
 
   function cardElementStyle() {
-    var result = jQuery(document.createElement('style'))
+    var result = $(document.createElement('style'))
       .attr("type", "text/css")
       .html(global.cardCss);
     return result;
@@ -629,11 +631,11 @@
   }
 
   function httpGet(){
-    return Promise.resolve(jQuery.get.apply(this, arguments));
+    return Promise.resolve($.get.apply(this, arguments));
   }
 
   function httpGetJSON(){
-    return Promise.resolve(jQuery.getJSON.apply(this, arguments));
+    return Promise.resolve($.getJSON.apply(this, arguments));
   }
 
   function multilineString(commentFunction) {
@@ -643,7 +645,7 @@
   }
 
   function resizeIframe(iframe) {
-    iframe = jQuery(iframe);
+    iframe = $(iframe);
     iframe.height(iframe[0].contentWindow.document.body.height);
   }
   //############################################################################################################################
@@ -712,7 +714,7 @@
         var url = '/rest/api/2/search?jql=' + jql + "&maxResults=500&fields=key";
         console.log("IssueUrl: " + url);
         //console.log("Issue: " + issueKey + " Loading...");
-        jQuery.ajax({
+        $.ajax({
           type: 'GET',
           url: url,
           data: {},
@@ -721,7 +723,7 @@
           success: function(responseData) {
             console.log("responseData: " + responseData.issues);
 
-            jQuery.each(responseData.issues, function(key, value) {
+            $.each(responseData.issues, function(key, value) {
                 jqlIssues.push(value.key);
             });
           },
@@ -742,8 +744,8 @@
 
       // RapidBoard
       if (/.*\/secure\/RapidBoard.jspa.*/g.test(document.URL)) {
-        return jQuery('div[data-issue-key].ghx-selected').map(function() {
-          return jQuery(this).attr('data-issue-key');
+        return $('div[data-issue-key].ghx-selected').map(function() {
+          return $(this).attr('data-issue-key');
         });
       }
 
@@ -816,7 +818,7 @@
       return httpGetJSON(url).then(function(responseData) {
         //console.log("Issue: " + issueKey + " Loaded!");
         // add custom fields with field names
-        jQuery.each(responseData.names, function(key, value) {
+        $.each(responseData.names, function(key, value) {
           if (key.startsWith("customfield_")) {
             var fieldName = value.toCamelCase();
             //console.log("add new field: " + fieldName + " with value from " + key);
@@ -840,8 +842,8 @@
 
       // Agile Board
       if (/.*\/rest\/agile.*/g.test(document.URL)) {
-        return jQuery('div.sb-task-focused').map(function() {
-          return jQuery(this).attr('id');
+        return $('div.sb-task-focused').map(function() {
+          return $(this).attr('id');
         });
       }
 
@@ -880,7 +882,7 @@
       //console.log("Issue: " + issueKey + " Loading...");
       return httpGetJSON(url).then(function(responseData) {
         //console.log("Issue: " + issueKey + " Loaded!");
-        jQuery.each(responseData.field, function(key, value) {
+        $.each(responseData.field, function(key, value) {
           // add fields with field names
           var fieldName = value.name.toCamelCase();
           //console.log("add new field: " + newFieldId + " with value from " + fieldName);
@@ -903,8 +905,8 @@
 
       // Board
       if (/.*\/projects\/.*/g.test(document.URL)) {
-        return jQuery('.story[data-id]:has(.selected)').map(function() {
-          return jQuery(this).attr('data-id');
+        return $('.story[data-id]:has(.selected)').map(function() {
+          return $(this).attr('data-id');
         });
       }
 
