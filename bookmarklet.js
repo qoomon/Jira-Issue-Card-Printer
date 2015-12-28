@@ -4,18 +4,21 @@
   // PivotTracker: https://www.pivotaltracker.com/n/projects/510733
   // Trello: https://trello.com/b/8zlPSh70/spike
   // YouTrack: http://qoomon.myjetbrains.com/youtrack/dashboard
+
   var global = {};
   global.version = "4.4.0";
   global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
-  global.isDev = document.currentScript == null;
-  global.isProd = !global.isDev;
 
+  global.isDev = document.currentScript == null;
+
+  // enforce jQuery
   if (typeof jQuery == 'undefined') {
     alert("jQuery is required!\n\nPlease create an issue at " + global.issueTrackingUrl);
     return;
   }
   var $ = jQuery;
 
+  // run
   try {
     init().then(main).catch(handleError);
   } catch (e) {
@@ -86,12 +89,13 @@
     printFrame.window.addEventListener("resize", redrawCards);
     printFrame.window.matchMedia("print").addListener(redrawCards);
 
-    $("#card-print-dialog-title", global.appFrame.document).text("Card Printer " + global.version + " - Loading issues...");
-    promises.push(renderCards(issueKeyList).then(function() {
-      $("#card-print-dialog-title", global.appFrame.document).text("Card Printer " + global.version);
-    }));
+    // render cards
+    promises.push(renderCards(issueKeyList));
 
-    return Promise.all(promises);
+    $("#card-print-dialog-title", global.appFrame.document).text("Card Printer " + global.version + " - Loading issues...");
+    return Promise.all(promises).then(function() {
+      $("#card-print-dialog-title", global.appFrame.document).text("Card Printer " + global.version);
+    });
   }
 
   function init() {
@@ -205,6 +209,7 @@
 
     printFrameDocument.open();
     printFrameDocument.write("<head/><body></body>");
+    printFrameDocument.close();
 
     $("head", printFrameDocument).append(cardElementStyle());
     $("body", printFrameDocument).append("<div id='preload'/>");
@@ -227,12 +232,6 @@
         card.show();
       }));
     });
-
-    printFrameDocument.close();
-
-    promises.push(new Promise(function(resolve){
-      printFrameDocument.onload = resolve;
-    }));
 
     console.log("wait for issues loaded...");
     return Promise.all(promises).then(function() {
@@ -623,7 +622,12 @@
   }
 
   function writeCookie(name, value) {
-    document.cookie = name + "=" + value + "; path=/";
+    var expireDate = new Date();  // current date & time
+    expireDate.setFullYear(expireDate.getFullYear() + 1) // one year
+    document.cookie = name + "=" + value + "; path=/; expires=" + expireDate.toGMTString();
+
+    // cleanup due to former path
+    document.cookie = name + "=; expires=" + new Date(0).toGMTString();
   }
 
   function httpGetCORS(){
