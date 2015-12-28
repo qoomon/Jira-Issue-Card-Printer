@@ -2,17 +2,6 @@
   font-family: Arial, sans-serif;
   color: #656565;
 }
-#card-print-overlay {
-  position: fixed;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  left: 0;
-  background: rgba(0, 0, 0, 0.5);
-  box-sizing: border-box;
-  word-wrap: break-word;
-  z-index: 99999;
-}
 #card-print-dialog {
   position: relative;
   top: 60px;
