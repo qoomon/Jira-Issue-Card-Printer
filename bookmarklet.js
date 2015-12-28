@@ -201,14 +201,14 @@
   function renderCards(issueKeyList) {
     var promises = [];
 
-    var printFrame = global.printFrame;
+    var printFrameDocument = global.printFrame.document;
 
-    printFrame.document.open();
-    printFrame.document.write("<head/><body></body>");
+    printFrameDocument.open();
+    printFrameDocument.write("<head/><body></body>");
 
-    $("head", printFrame.document).append(cardElementStyle());
-    $("body", printFrame.document).append("<div id='preload'/>");
-    $("#preload", printFrame.document).append("<div class='zigzag'/>");
+    $("head", printFrameDocument).append(cardElementStyle());
+    $("body", printFrameDocument).append("<div id='preload'/>");
+    $("#preload", printFrameDocument).append("<div class='zigzag'/>");
 
     console.log("load " + issueKeyList.length + " issues...");
 
@@ -217,7 +217,7 @@
       card.attr("index", index);
       card.hide();
       card.find('.issue-id').text(issueKey);
-      $("body", printFrame.document).append(card);
+      $("body", printFrameDocument).append(card);
 
       promises.push(global.appFunctions.getCardData(issueKey).then(function(cardData) {
         console.log("cardData: " + JSON.stringify(cardData,2,2));
@@ -228,15 +228,15 @@
       }));
     });
 
+    printFrameDocument.close();
+
+    promises.push(new Promise(function(resolve){
+      printFrameDocument.onload = resolve;
+    }));
+
     console.log("wait for issues loaded...");
     return Promise.all(promises).then(function() {
       console.log("...all issues loaded.");
-
-      $(printFrame.window).load(function() {
-        console.log("...all resources loaded.");
-      });
-      console.log("wait for resources loaded...");
-      printFrame.document.close();
       redrawCards();
     });
   }
