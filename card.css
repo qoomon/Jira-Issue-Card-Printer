@@ -178,6 +178,10 @@ body {
   background-position: center;
   background-size: 63%;
 }
+.issue-icon[type="loading"]{
+  background-color: DEEPSKYBLUE;
+  background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/CloudLoading.png);
+}
 .issue-icon[type="story"], .issue-icon[type="user story"] {
   background-color: GOLD;
   background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bulb.png);

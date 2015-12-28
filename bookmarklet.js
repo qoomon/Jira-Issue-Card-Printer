@@ -55,15 +55,7 @@
       return;
     }
 
-    // collect selcted issues
-    var issueKeyList = global.appFunctions.getSelectedIssueKeyList();
-    if (issueKeyList.length <= 0) {
-      alert("Please select at least one issue.");
-      return;
-    } else if (issueKeyList.length > 30) {
-      confirm("Are you sure you want select " + issueKeyList.length + " issues?");
-      return;
-    }
+
 
     // add overlay frame
     var appFrame = createOverlayFrame();
@@ -88,6 +80,18 @@
     // add listeners to redraw crads on print event
     printFrame.window.addEventListener("resize", redrawCards);
     printFrame.window.matchMedia("print").addListener(redrawCards);
+
+    // collect selcted issues
+    var issueKeyList = global.appFunctions.getSelectedIssueKeyList();
+    if (issueKeyList.length <= 0) {
+      alert("Please select at least one issue.");
+      return;
+    } else if (issueKeyList.length > 30) {
+      var confirmResult = confirm("Are you sure you want select " + issueKeyList.length + " issues?");
+      if (!confirmResult) {
+        return;
+      }
+    }
 
     // render cards
     promises.push(renderCards(issueKeyList));
@@ -220,7 +224,6 @@
     $.each(issueKeyList, function(index, issueKey) {
       var card = cardElement(issueKey);
       card.attr("index", index);
-      card.hide();
       card.find('.issue-id').text(issueKey);
       $("body", printFrameDocument).append(card);
 
@@ -229,7 +232,6 @@
         ga('send', 'event', 'card', 'generate', cardData.type);
         fillCard(card, cardData);
         redrawCards();
-        card.show();
       }));
     });
 
