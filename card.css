@@ -3,7 +3,7 @@
   overflow: hidden;
 }
 html {
-  background: WHITE;
+  background-color: LIGHTGREY;
   padding: 0rem;
   margin: 0rem;
   font-size: 1.0cm;
@@ -77,6 +77,7 @@ body {
   min-width: 14.5rem;
   min-height: 8.65rem;
   overflow: hidden;
+  background-color: WHITE;
 }
 .card::before {
     box-sizing: border-box;
@@ -333,6 +334,7 @@ body {
     padding: 0.0mm;
   }
   html {
+    background-color: WHITE !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
