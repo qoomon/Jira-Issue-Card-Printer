@@ -980,7 +980,7 @@
         issueData.key = data.idShort;
 
         //  TODO get kind from label name
-        // issueData.type = data.kind.toLowerCase();
+        issueData.type = 'default';
 
         issueData.summary = data.name;
         issueData.description = data.desc;
