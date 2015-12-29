@@ -121,7 +121,7 @@
   }
 
   function handleError(error){
-    console.log("ERROR " + error.stack);
+    console.log("ERROR " + JSON.stringify(error,2,2));
     ga('send', 'exception', { 'exDescription': error.message,'exFatal': true });
     alert("Sorry something went wrong.\n\n" + error.message +"\n\nPlease create an issue at " + global.issueTrackingUrl + "\n\n" + error.stack);
   }
@@ -555,7 +555,7 @@
 
         //Issues
         if (/.*\/issues\/\?jql=.*/g.test(document.URL)) {
-          var jql = document.URL.replace(/.*\?jql=(.*)/, '$1');
+          var jql = document.URL.match(/.*\?jql=(.*)/)[1];
           var jqlIssues = [];
           var url = '/rest/api/2/search?jql=' + jql + "&maxResults=500&fields=key";
           console.log("IssueUrl: " + url);
@@ -580,12 +580,12 @@
 
         //Browse
         if (/.*\/browse\/.*/g.test(document.URL)) {
-          return [document.URL.replace(/.*\/browse\/([^?]*).*/, '$1')];
+          return [document.URL.match(/.*\/browse\/([^?]*).*/)[1]];
         }
 
         //Project
         if (/.*\/projects\/.*/g.test(document.URL)) {
-          return [document.URL.replace(/.*\/projects\/[^\/]*\/[^\/]*\/([^?]*).*/, '$1')];
+          return [document.URL.match(/.*\/projects\/[^\/]*\/[^\/]*\/([^?]*).*/)[1]];
         }
 
         // RapidBoard
@@ -688,7 +688,7 @@
       module.getSelectedIssueKeyList = function() {
         //Detail View
         if (/.*\/issue\/.*/g.test(document.URL)) {
-          return [document.URL.replace(/.*\/issue\/([^?]*).*/, '$1')];
+          return [document.URL.replace(/.*\/issue\/([^?]*).*/)[1]];
         }
 
         // Agile Board
@@ -756,7 +756,7 @@
       module.getSelectedIssueKeyList = function() {
         //Single Story
         if (/.*\/stories\/.*/g.test(document.URL)) {
-          return [document.URL.replace(/.*\/stories\/([^?]*).*/, '$1')];
+          return [document.URL.match(/.*\/stories\/([^?]*).*/)[1]];
         }
 
         // Board
@@ -818,7 +818,7 @@
       module.getSelectedIssueKeyList = function() {
         //Card View
         if (/.*\/c\/.*/g.test(document.URL)) {
-          return [document.URL.replace(/.*\/c\/([^/]*).*/g, '$1')];
+          return [document.URL.match(/.*\/c\/([^/]*).*/)[1]];
         }
 
         return [];
@@ -831,7 +831,7 @@
         promises.push(module.getIssueData(issueKey).then(function(data) {
           issueData.key = data.idShort;
 
-          //  TODO get kind from label name
+          // TODO get type from label name
           issueData.type = 'default';
 
           issueData.summary = data.name;
@@ -854,7 +854,7 @@
       };
 
       module.getIssueData = function(issueKey) {
-        var url = "https://trello.com/1/cards/" + issueKey + "?members=true";
+        var url = "/1/cards/" + issueKey + "?members=true";
         console.log("IssueUrl: " + url);
         //console.log("Issue: " + issueKey + " Loading...");
         return httpGetJSON(url);
@@ -863,6 +863,78 @@
       return module;
     }({}));
     issueTrackers.push(trelloFunctions);
+
+    var mingleFunctions = (function(module) {
+
+      module.isEligible = function(){
+        return /.*mingle.thoughtworks.com\/.*/g.test(document.URL);
+      }
+
+      module.getSelectedIssueKeyList = function() {
+        //Bord View - /projects/<project_name>/cards/grid
+        if (/.*\/projects\/[^/]*\/cards\/grid(\?.*)?/g.test(document.URL)) {
+          var project = document.URL.match(/.*\/projects\/([^/]*).*/)[1];
+          var number = $(document).find('#card_show_lightbox_content > div > form[data-card-number]').attr('data-card-number');
+          return [project + "-" + number];
+        }
+
+        //Card View - /projects/<project_name>/cards/<card_number>
+        if (/.*\/projects\/[^/]*\/cards\/\d+(\?.*)?/g.test(document.URL)) {
+          var project = document.URL.match(/.*\/projects\/([^/]*).*/)[1];
+          var number = document.URL.match(/.*\/projects\/[^/]*\/cards\/(\d+)(\?.*)?/)[1];
+          return [project + "-" + number];
+        }
+
+        return [];
+      };
+
+      module.getCardData = function(issueKey, callback) {
+        var promises = [];
+        var issueData = {};
+
+        promises.push(module.getIssueData(issueKey).then(function(data) {
+          data = $(data.documentElement)
+
+          issueData.key = data.find('card > number')[0].textContent;
+          issueData.type = data.find('card > card_type > name')[0].textContent.toLowerCase();
+          issueData.summary = data.find('card > name')[0].textContent;
+          issueData.description = data.find('card > description')[0].innerHTML;  // TODO use data.find('card > rendered_description')[0].attr('url');
+
+          if(data.find('card > properties > property > name:contains(Owner) ~ value > name').length > 0){
+            issueData.assignee = data.find('card > properties > property > name:contains(Owner) ~ value > name')[0].textContent;
+            // TODOissueData.avatarUrl
+          }
+
+          // n/a issueData.dueDate = formatDate(new Date(dueDate));
+          // n/a issueData.hasAttachment = data.fields.attachment.length > 0;
+
+          if(data.find('card > properties > property > name:contains(Estimate) ~ value').length > 0){
+            issueData.storyPoints = data.find('card > properties > property > name:contains(Estimate) ~ value')[0].textContent;
+          }
+
+          // n/a issueData.superIssue
+
+          var projectIdentifier = data.find('card > project > identifier')[0].textContent;
+          var cardNumber = data.find('card > number')[0].textContent
+          issueData.url = "https://" + document.location.hostname + "/projects/" + projectIdentifier + "/cards/" + cardNumber;
+        }));
+
+        return Promise.all(promises).then(function(results){return issueData;});
+      };
+
+      module.getIssueData = function(issueKey) {
+        var issueKeySplit = issueKey.split('-');
+        var project = issueKeySplit[0];
+        var number = issueKeySplit[1];
+        var url = "/api/v2/projects/" + project + "/cards/" + number + ".xml";
+        console.log("IssueUrl: " + url);
+        //console.log("Issue: " + issueKey + " Loading...");
+        return httpGet(url);
+      };
+
+      return module;
+    }({}));
+    issueTrackers.push(mingleFunctions);
 
     return issueTrackers;
   }
