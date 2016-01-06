@@ -389,7 +389,6 @@
   // http://www.cssdesk.com/T9hXg
 
   function printPreviewElement() {
-    console.log("global.printPreviewHtml: " + global.printPreviewHtml)
     var result = $('<div/>').html(global.printPreviewHtml).contents();
 
     // info
