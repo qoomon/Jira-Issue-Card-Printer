@@ -32,8 +32,7 @@
 
     //preconditions
     if ($("#card-printer-iframe").length > 0) {
-      alert("Card Printer already opened!");
-      return;
+      closePrintPreview();
     }
 
     console.log("Run...")
