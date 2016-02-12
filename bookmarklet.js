@@ -759,14 +759,14 @@
 
         // Project Board
         if (/.*\/projects\/.*/g.test(document.URL)) {
-          return $('.story[data-id]:has(.selected)').map(function() {
+          return $('.story[data-id]:has(.selector.selected)').map(function() {
             return $(this).attr('data-id');
           });
         }
         
         // Workspace Board
         if (/.*\/workspaces\/.*/g.test(document.URL)) {
-          return $('.story[data-id]:has(.selected)').map(function() {
+          return $('.story[data-id]:has(.selector.selected)').map(function() {
             return $(this).attr('data-id');
           });
         }
