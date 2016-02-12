@@ -757,13 +757,20 @@
           return [document.URL.match(/.*\/stories\/([^?]*).*/)[1]];
         }
 
-        // Board
+        // Project Board
         if (/.*\/projects\/.*/g.test(document.URL)) {
           return $('.story[data-id]:has(.selected)').map(function() {
             return $(this).attr('data-id');
           });
         }
-
+        
+        // Workspace Board
+        if (/.*\/workspaces\/.*/g.test(document.URL)) {
+          return $('.story[data-id]:has(.selected)').map(function() {
+            return $(this).attr('data-id');
+          });
+        }
+        
         return [];
       };
 
