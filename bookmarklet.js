@@ -6,14 +6,14 @@
   // YouTrack: http://qoomon.myjetbrains.com/youtrack/dashboard
 
   var global = {};
-  global.version = "4.4.1";
-  global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
+  global.version = "4.4.2";
+  global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
 
   global.isDev = document.currentScript == null;
 
   // enforce jQuery
   if (typeof jQuery == 'undefined') {
-    alert("jQuery is required!\n\nPlease create an issue at " + global.issueTrackingUrl);
+    alert("jQuery is required!\n\nPlease create an issue at\n" + global.issueTrackingUrl);
     return;
   }
   var $ = jQuery;
@@ -38,6 +38,7 @@
     console.log("Run...")
     for (issueTracker of getIssueTrackers()) {
       if(issueTracker.isEligible()){
+        console.log("Issue Tracker: " + issueTracker.name);
         global.appFunctions = issueTracker;
         break;
       }
@@ -51,8 +52,8 @@
     // add overlay frame
     var appFrame = createOverlayFrame();
     $("body").append(appFrame);
-    
-    
+
+
     // add convinient fields
     appFrame.window = appFrame.contentWindow;
     appFrame.document = appFrame.window.document;
@@ -125,10 +126,23 @@
     return Promise.all(promises);
   }
 
+  function error2object(value) {
+      if (value instanceof Error) {
+          var error = {};
+          Object.getOwnPropertyNames(value).forEach(function (key) {
+              error[key] = value[key];
+          });
+          return error;
+      }
+      return value;
+  }
+
   function handleError(error){
-    console.log("ERROR " + JSON.stringify(error,2,2));
-    ga('send', 'exception', { 'exDescription': error.message,'exFatal': true });
-    alert("Sorry something went wrong.\n\n" + error.message +"\n\nPlease create an issue at " + global.issueTrackingUrl + "\n\n" + error.stack);
+    error = error2object(error);
+    var error = JSON.stringify(error,2,2);
+    console.log("ERROR " + error);
+    ga('send', 'exception', { 'exDescription': error, 'exFatal': true });
+    alert("Sorry something went wrong\n\nPlease create an issue with following details at\n" + global.issueTrackingUrl + "\n\n" + error);
   }
 
   function saveSettings(){
@@ -216,7 +230,7 @@
       $("body", printFrameDocument).append(card);
 
       promises.push(global.appFunctions.getCardData(issueKey).then(function(cardData) {
-        console.log("cardData: " + JSON.stringify(cardData,2,2));
+        // console.log("cardData: " + JSON.stringify(cardData,2,2));
         ga('send', 'event', 'card', 'generate', cardData.type);
         fillCard(card, cardData);
         redrawCards();
@@ -351,8 +365,8 @@
     var cardMaxHeight = Math.floor(bodyElement.outerHeight() / rowCount);
 
     var cardElement = $(".card", printFrame.document);
-    var cardMinWidth = cardElement.css("min-width").replace("px", "");
-    var cardMinHeight = cardElement.css("min-height").replace("px", "");
+    var cardMinWidth = cardElement.css("min-width") ? cardElement.css("min-width").replace("px", "") : 0;
+    var cardMinHeight = cardElement.css("min-height") ? cardElement.css("min-height").replace("px", "") : 0;
 
     var scaleWidth = cardMaxWidth / cardMinWidth ;
     var scaleHeight = cardMaxHeight / cardMinHeight ;
@@ -550,6 +564,7 @@
     var issueTrackers = []
 
     var jiraFunctions = (function(module) {
+      module.name = "JIRA";
 
       module.isEligible = function(){
         return $("meta[name='application-name'][ content='JIRA']").length > 0;
@@ -558,28 +573,10 @@
       module.getSelectedIssueKeyList = function() {
 
         //Issues
-        if (/.*\/issues\/\?jql=.*/g.test(document.URL)) {
-          var jql = document.URL.match(/.*\?jql=(.*)/)[1];
-          var jqlIssues = [];
-          var url = '/rest/api/2/search?jql=' + jql + "&maxResults=500&fields=key";
-          console.log("IssueUrl: " + url);
-          //console.log("Issue: " + issueKey + " Loading...");
-          $.ajax({
-            type: 'GET',
-            url: url,
-            data: {},
-            dataType: 'json',
-            async: false,
-            success: function(responseData) {
-              console.log("responseData: " + responseData.issues);
-
-              $.each(responseData.issues, function(key, value) {
-                  jqlIssues.push(value.key);
-              });
-            },
+        if (/.*\/issues\/.*/g.test(document.URL)) {
+          return $('tr[data-issuekey]').map(function() {
+            return $(this).attr('data-issuekey');
           });
-          console.log("jqlIssues: " + jqlIssues);
-          return jqlIssues;
         }
 
         //Browse
@@ -663,8 +660,6 @@
         var url = '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
         console.log("IssueUrl: " + url);
         //console.log("Issue: " + issueKey + " Loading...");
-
-
         return httpGetJSON(url).then(function(responseData) {
           //console.log("Issue: " + issueKey + " Loaded!");
           // add custom fields with field names
@@ -684,6 +679,7 @@
     issueTrackers.push(jiraFunctions);
 
     var youTrackFunctions = (function(module) {
+      module.name = "YouTrack";
 
       module.isEligible = function(){
         return /.*myjetbrains.com\/youtrack\/.*/g.test(document.URL) || /.*youtrack.jetbrains.com\/.*/g.test(document.URL);
@@ -692,7 +688,7 @@
       module.getSelectedIssueKeyList = function() {
         //Detail View
         if (/.*\/issue\/.*/g.test(document.URL)) {
-          return [document.URL.replace(/.*\/issue\/([^?]*).*/)[1]];
+          return [document.URL.match(/.*\/issue\/([^?]*).*/)[1]];
         }
 
         // Agile Board
@@ -752,6 +748,7 @@
     issueTrackers.push(youTrackFunctions);
 
     var pivotalTrackerFunctions = (function(module) {
+      module.name = "PivotalTracker";
 
       module.isEligible = function(){
         return /.*pivotaltracker.com\/.*/g.test(document.URL);
@@ -769,14 +766,14 @@
             return $(this).attr('data-id');
           });
         }
-        
+
         // Workspace Board
         if (/.*\/workspaces\/.*/g.test(document.URL)) {
           return $('.story[data-id]:has(.selector.selected)').map(function() {
             return $(this).attr('data-id');
           });
         }
-        
+
         return [];
       };
 
@@ -821,6 +818,7 @@
     issueTrackers.push(pivotalTrackerFunctions);
 
     var trelloFunctions = (function(module) {
+      module.name = "trello";
 
       module.isEligible = function(){
         return /.*trello.com\/.*/g.test(document.URL);
@@ -876,6 +874,7 @@
     issueTrackers.push(trelloFunctions);
 
     var mingleFunctions = (function(module) {
+      module.name = "mingle";
 
       module.isEligible = function(){
         return /.*mingle.thoughtworks.com\/.*/g.test(document.URL);
@@ -1734,4 +1733,6 @@
 
      return resources;
    }
+
+
 })();
