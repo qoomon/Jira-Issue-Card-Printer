@@ -7,13 +7,13 @@
 
   var global = {};
   global.version = "4.4.0";
-  global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
+  global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
 
   global.isDev = document.currentScript == null;
 
   // enforce jQuery
   if (typeof jQuery == 'undefined') {
-    alert("jQuery is required!\n\nPlease create an issue at " + global.issueTrackingUrl);
+    alert("jQuery is required!\n\nPlease create an issue at\n" + global.issueTrackingUrl);
     return;
   }
   var $ = jQuery;
@@ -51,7 +51,7 @@
       console.log("App: " + "YouTrack");
       global.appFunctions = youTrackFunctions;
     } else {
-      alert("Unsupported app. Please create an issue at " + global.issueTrackingUrl);
+      alert("Unsupported app. Please create an issue at\n" + global.issueTrackingUrl);
       return;
     }
 
@@ -137,10 +137,23 @@
     return Promise.all(promises);
   }
 
+  function error2object(value) {
+      if (value instanceof Error) {
+          var error = {};
+          Object.getOwnPropertyNames(value).forEach(function (key) {
+              error[key] = value[key];
+          });
+          return error;
+      }
+      return value;
+  }
+
   function handleError(error){
-    console.log("ERROR " + error.stack);
+    error = error2object(error);
+    var error = JSON.stringify(error,2,2);
+    console.log("ERROR " + error);
     ga('send', 'exception', { 'exDescription': error.message,'exFatal': true });
-    alert("Sorry something went wrong.\n\n" + error.message +"\n\nPlease create an issue at " + global.issueTrackingUrl + "\n\n" + error.stack);
+    alert("Sorry something went wrong\n\nPlease create an issue with following details at\n" + global.issueTrackingUrl + "\n\n" + error);
   }
 
   function saveSettings(){
@@ -207,6 +220,7 @@
   }
 
   function renderCards(issueKeyList) {
+    console.log("issueKeyList: " + JSON.stringify(issueKeyList,2,2));
     var promises = [];
 
     var printFrameDocument = global.printFrame.document;
@@ -227,8 +241,9 @@
       card.find('.issue-id').text(issueKey);
       $("body", printFrameDocument).append(card);
 
+console.log("issueKey: " + JSON.stringify(issueKey,2,2));
       promises.push(global.appFunctions.getCardData(issueKey).then(function(cardData) {
-        console.log("cardData: " + JSON.stringify(cardData,2,2));
+        // console.log("cardData: " + JSON.stringify(cardData,2,2));
         ga('send', 'event', 'card', 'generate', cardData.type);
         fillCard(card, cardData);
         redrawCards();
@@ -717,28 +732,10 @@
     module.getSelectedIssueKeyList = function() {
 
       //Issues
-      if (/.*\/issues\/\?jql=.*/g.test(document.URL)) {
-        var jql = document.URL.replace(/.*\?jql=(.*)/, '$1');
-        var jqlIssues = [];
-        var url = '/rest/api/2/search?jql=' + jql + "&maxResults=500&fields=key";
-        console.log("IssueUrl: " + url);
-        //console.log("Issue: " + issueKey + " Loading...");
-        $.ajax({
-          type: 'GET',
-          url: url,
-          data: {},
-          dataType: 'json',
-          async: false,
-          success: function(responseData) {
-            console.log("responseData: " + responseData.issues);
-
-            $.each(responseData.issues, function(key, value) {
-                jqlIssues.push(value.key);
-            });
-          },
+      if (/.*\/issues\/.*/g.test(document.URL)) {
+        return $('tr[data-issuekey]').map(function() {
+          return $(this).attr('data-issuekey');
         });
-        console.log("jqlIssues: " + jqlIssues);
-        return jqlIssues;
       }
 
       //Browse
@@ -764,6 +761,7 @@
     module.getCardData = function(issueKey) {
       var promises = [];
       var issueData = {};
+      console.log("getCardData: " + JSON.stringify(issueKey,2,2));
 
       promises.push(module.getIssueData(issueKey).then(function(data) {
         var promises = [];
@@ -818,12 +816,11 @@
     };
 
     module.getIssueData = function(issueKey) {
+      console.log("getIssueData: " + JSON.stringify(issueKey,2,2));
       //https://docs.atlassian.com/jira/REST/latest/
       var url = '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
       console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
-
-
       return httpGetJSON(url).then(function(responseData) {
         //console.log("Issue: " + issueKey + " Loaded!");
         // add custom fields with field names
