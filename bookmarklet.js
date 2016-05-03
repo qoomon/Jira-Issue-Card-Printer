@@ -1321,7 +1321,7 @@
        background-color: GOLD;
        background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bulb.png);
      }
-     .issue-icon[type="bug"].issue-icon[type="problem"], .issue-icon[type="correction"],  {
+     .issue-icon[type="bug"], .issue-icon[type="problem"], .issue-icon[type="correction"]  {
        background-color: CRIMSON;
        background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bug.png);
      }
@@ -1329,7 +1329,7 @@
        background-color: ROYALBLUE;
        background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Flash.png);
      }
-     .issue-icon[type="task"], .issue-icon[type="sub-task"], .issue-icon[type="technical task"]
+     .issue-icon[type="task"], .issue-icon[type="sub-task"], .issue-icon[type="technical task"],
      .issue-icon[type="aufgabe"], .issue-icon[type="unteraufgabe"], .issue-icon[type="technische aufgabe"]  {
        background-color: WHEAT;
        background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Task.png);
@@ -1346,6 +1346,10 @@
      .issue-icon[type="research"] {
        background-color: MEDIUMTURQUOISE;
        background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/ErlenmeyerFlask.png);
+     }
+     .issue-icon[type="test"] {
+       background-color: ORANGE;
+       background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/CrashDummy.png);
      }
      .issue-estimate {
        position: absolute;
