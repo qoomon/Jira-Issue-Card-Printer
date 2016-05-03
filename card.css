@@ -3,9 +3,9 @@
   overflow: hidden;
 }
 html {
-  background: WHITE;
+  background-color: LIGHTGREY;
   padding: 0rem;
-  margin: 0rem;
+  margin: 1rem;
   font-size: 1.0cm;
   overflow-y: scroll;
 }
@@ -77,6 +77,7 @@ body {
   min-width: 14.5rem;
   min-height: 8.65rem;
   overflow: hidden;
+  background-color: WHITE;
 }
 .card::before {
     box-sizing: border-box;
@@ -178,7 +179,7 @@ body {
   background-position: center;
   background-size: 63%;
 }
-.issue-icon[type="loading"]{
+.issue-icon[type="loading"] {
   background-color: DEEPSKYBLUE;
   background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/CloudLoading.png);
 }
@@ -337,6 +338,9 @@ body {
     padding: 0.0mm;
   }
   html {
+    margin: 0.0mm;
+    padding: 0.0mm;
+    background-color: WHITE !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
