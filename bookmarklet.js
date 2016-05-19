@@ -565,6 +565,12 @@
 
     var jiraFunctions = (function(module) {
       module.name = "JIRA";
+      
+      module.baseUrl = function() {
+        var jiraBaseUrl = window.location.origin;
+        try { jiraBaseUrl = $("meta[name='ajs-jira-base-url']").attr('content'); } catch(ex){}
+        return jiraBaseUrl
+      }
 
       module.isEligible = function(){
         return $("meta[name='application-name'][ content='JIRA']").length > 0;
@@ -638,8 +644,8 @@
               issueData.superIssue.summary = data.fields.epicName;
             }));
           }
-
-          issueData.url = window.location.origin + "/browse/" + issueData.key;
+        
+          issueData.url = module.baseUrl() + "/browse/" + issueData.key;
 
           //LRS Specific field mapping
           if (true) {
@@ -657,7 +663,7 @@
 
       module.getIssueData = function(issueKey) {
         //https://docs.atlassian.com/jira/REST/latest/
-        var url = '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
+        var url = module.baseUrl() + '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
         console.log("IssueUrl: " + url);
         //console.log("Issue: " + issueKey + " Loading...");
         return httpGetJSON(url).then(function(responseData) {
