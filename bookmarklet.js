@@ -568,7 +568,7 @@
       
       module.baseUrl = function() {
         var jiraBaseUrl = window.location.origin;
-        try { jiraBaseUrl = $("meta[name='ajs-jira-base-url']").attr('content'); } catch(ex){}
+        try { jiraBaseUrl = $("input[title='baseURL']").attr('value'); } catch(ex){}
         return jiraBaseUrl
       }
 
