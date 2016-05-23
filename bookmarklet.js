@@ -155,6 +155,7 @@
     writeCookie("card_printer_hide_description", settings.hideDescription);
     writeCookie("card_printer_hide_assignee", settings.hideAssignee);
     writeCookie("card_printer_hide_due_date", settings.hideDueDate);
+    writeCookie("card_printer_hide_estimate", settings.hideEstimate);
     writeCookie("card_printer_hide_qr_code", settings.hideQrCode);
   }
 
@@ -168,6 +169,7 @@
     settings.hideDescription = parseBool(readCookie("card_printer_hide_description"), false);
     settings.hideAssignee = parseBool(readCookie("card_printer_hide_assignee"), false);
     settings.hideDueDate = parseBool(readCookie("card_printer_hide_due_date"), false);
+    settings.hideEstimate = parseBool(readCookie("card_printer_hide_estimate"), false);
     settings.hideQrCode = parseBool(readCookie("card_printer_hide_qr_code"), false);
   }
 
@@ -205,6 +207,7 @@
     $("#description-checkbox", appFrameDocument).attr('checked', !settings.hideDescription );
     $("#assignee-checkbox", appFrameDocument).attr('checked', !settings.hideAssignee );
     $("#due-date-checkbox", appFrameDocument).attr('checked', !settings.hideDueDate );
+    $("#estimate-checkbox", appFrameDocument).attr('checked', !settings.hideEstimate );
     $("#qr-code-checkbox", appFrameDocument).attr('checked', !settings.hideQrCode );
   }
 
@@ -291,9 +294,9 @@
       card.find('.issue-attachment').remove();
     }
 
-    //Story Points
-    if (data.storyPoints) {
-      card.find(".issue-estimate").text(data.storyPoints);
+    //Estimate
+    if (data.estimate) {
+      card.find(".issue-estimate").text(data.estimate);
     } else {
       card.find(".issue-estimate").remove();
     }
@@ -319,8 +322,10 @@
     $(".issue-description", printFrame.document).toggle(!settings.hideDescription);
     // hide/show assignee
     $(".issue-assignee", printFrame.document).toggle(!settings.hideAssignee);
-    // hide/show assignee
+    // hide/show due date
     $(".issue-due-box", printFrame.document).toggle(!settings.hideDueDate);
+    // hide/show estimate
+    $(".issue-estimate", printFrame.document).toggle(!settings.hideEstimate);
     // hide/show cr code
     $(".issue-qr-code", printFrame.document).toggle(!settings.hideQrCode);
 
@@ -458,6 +463,15 @@
       return true;
     });
 
+    // show due date
+
+    result.find("#estimate-checkbox").click(function() {
+      global.settings.hideEstimate = !this.checked;
+      saveSettings();
+      redrawCards();
+      return true;
+    });
+
     // show QR Code
 
     result.find("#qr-code-checkbox").click(function() {
@@ -565,7 +579,7 @@
 
     var jiraFunctions = (function(module) {
       module.name = "JIRA";
-      
+
       module.baseUrl = function() {
         var jiraBaseUrl = window.location.origin;
         try { jiraBaseUrl = $("input[title='baseURL']").attr('value'); } catch(ex){}
@@ -580,9 +594,19 @@
 
         //Issues
         if (/.*\/issues\/.*/g.test(document.URL)) {
-          return $('tr[data-issuekey]').map(function() {
-            return $(this).attr('data-issuekey');
+
+          var issues =  $('.issue-list').map(function() {
+              return $(this).attr('data-key');
           });
+
+          //backward compatibility
+          if (issues.empty()) {
+            issues =  $('tr[data-issuekey]').map(function() {
+              return $(this).attr('data-issuekey');
+            });
+          }
+
+          return issues;
         }
 
         //Browse
@@ -629,7 +653,7 @@
           }
 
           issueData.hasAttachment = data.fields.attachment.length > 0;
-          issueData.storyPoints = data.fields.storyPoints;
+          issueData.estimate = data.fields.storyPoints;
 
           if (data.fields.parent) {
             promises.push(module.getIssueData(data.fields.parent.key).then(function(data) {
@@ -644,7 +668,7 @@
               issueData.superIssue.summary = data.fields.epicName;
             }));
           }
-        
+
           issueData.url = module.baseUrl() + "/browse/" + issueData.key;
 
           //LRS Specific field mapping
@@ -803,7 +827,7 @@
 
           // TODO
           issueData.hasAttachment = false;
-          issueData.storyPoints = data.estimate;
+          issueData.estimate = data.estimate;
 
           issueData.url = data.url;
         }));
@@ -925,7 +949,7 @@
           // n/a issueData.hasAttachment = data.fields.attachment.length > 0;
 
           if(data.find('card > properties > property > name:contains(Estimate) ~ value').length > 0){
-            issueData.storyPoints = data.find('card > properties > property > name:contains(Estimate) ~ value')[0].textContent;
+            issueData.estimate = data.find('card > properties > property > name:contains(Estimate) ~ value')[0].textContent;
           }
 
           // n/a issueData.superIssue
@@ -1542,12 +1566,16 @@
                <label for="due-date-checkbox">Due Date</label>
              </div>
              <div class="ui-element checkbox" style="float: left;">
+               <input id="estimate-checkbox" type="checkbox"/>
+               <label for="estimate-checkbox"></label>
+               <label for="estimate-checkbox">Estimate</label>
+             </div>
+             <div class="ui-element checkbox" style="float: left;">
                <input id="qr-code-checkbox" type="checkbox"/>
                <label for="qr-code-checkbox"></label>
                <label for="qr-code-checkbox">QR Code</label>
              </div>
 
-             <div id="card-print-dialog-cancel" class="ui-element button" >Cancel</div>
              <div id="card-print-dialog-print" class="ui-element button button-primary" >Print</div>
            </div>
          </div>
