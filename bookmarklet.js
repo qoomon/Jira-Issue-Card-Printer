@@ -6,7 +6,7 @@
   // YouTrack: http://qoomon.myjetbrains.com/youtrack/dashboard
 
   var global = {};
-  global.version = "4.5.0";
+  global.version = "4.6.1";
   global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
 
   global.isDev = document.currentScript == null;
@@ -595,7 +595,7 @@
         //Issues
         if (/.*\/issues\/.*/g.test(document.URL)) {
 
-          var issues =  $('.issue-list').map(function() {
+          var issues =  $('.issue-list > li').map(function() {
               return $(this).attr('data-key');
           });
 
