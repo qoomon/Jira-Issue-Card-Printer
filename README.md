@@ -30,7 +30,7 @@ Marker to separate description into print and no print area ("~~~~~")
 ##### Jira Agile
 holding STRG / CMD or SHIFT and click on issues
 ##### Jira Classic
-search for issues und select *List View*
+just search for issues
 
 ### Support
 #### Browser
