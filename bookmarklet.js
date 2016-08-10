@@ -13,7 +13,7 @@
   }
 
   var global = {};
-  global.version = "4.6.2";
+  global.version = "4.6.3";
   global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
 
   global.isDev = document.currentScript == null;
@@ -705,6 +705,10 @@
           $.each(responseData.names, function(key, value) {
             if (key.startsWith("customfield_")) {
               var fieldName = value.toCamelCase();
+              // due to fielName is null sometimes for epicLink custom field
+              if (key == 'customfield_10006'){
+                fieldName = 'epicLink'
+              }
               //console.log("add new field: " + fieldName + " with value from " + key);
               responseData.fields[fieldName] = responseData.fields[key];
             }
