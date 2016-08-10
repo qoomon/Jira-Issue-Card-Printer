@@ -705,10 +705,16 @@
           $.each(responseData.names, function(key, value) {
             if (key.startsWith("customfield_")) {
               var fieldName = value.toCamelCase();
-              // due to fielName is null sometimes for epicLink custom field
               if (key == 'customfield_10006'){
                 fieldName = 'epicLink'
               }
+              if (key == 'customfield_10007'){
+                fieldName = 'epicName'
+              }
+              if (key == 'customfield_10002'){
+                fieldName = 'storyPoints'
+              }
+              
               //console.log("add new field: " + fieldName + " with value from " + key);
               responseData.fields[fieldName] = responseData.fields[key];
             }
