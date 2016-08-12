@@ -680,14 +680,6 @@
 
           issueData.url = module.baseUrl() + "/browse/" + issueData.key;
 
-          //LRS Specific field mapping
-          if (true) {
-            //Desired-Date
-            if (data.fields.desiredDate) {
-              issueData.dueDate = formatDate(new Date(data.fields.desiredDate));
-            }
-          }
-
           return Promise.all(promises);
         }));
 
@@ -705,18 +697,40 @@
           $.each(responseData.names, function(key, value) {
             if (key.startsWith("customfield_")) {
               var fieldName = value.toCamelCase();
-              if (key == 'customfield_10006'){
-                fieldName = 'epicLink'
+              var fieldValue = responseData.fields[key];
+
+              //deposit-solutions specific field mapping
+              if(/.*\.deposit-solutions.com/g.test(window.location.hostname)){
+                if (key == 'customfield_10006'){
+                  fieldName = 'epicLink'
+                }
+                if (key == 'customfield_10007'){
+                  fieldName = 'epicName'
+                }
+                if (key == 'customfield_10002'){
+                  fieldName = 'storyPoints'
+                }
               }
-              if (key == 'customfield_10007'){
-                fieldName = 'epicName'
-              }
-              if (key == 'customfield_10002'){
-                fieldName = 'storyPoints'
+              
+              //lufthansa specific field mapping
+               if(/.*trackspace.lhsystems.com/g.test(window.location.hostname)){
+                if (key == 'Xcustomfield_10006'){
+                  fieldName = 'epicLink'
+                }
+                if (key == 'Xcustomfield_10007'){
+                  fieldName = 'epicName'
+                }
+                if (key == 'Xcustomfield_10002'){
+                  fieldName = 'storyPoints'
+                }
+                if (fieldName == 'desiredDate') {
+                 fieldName ='dueDate'
+                 fieldValue = formatDate(new Date(fieldValue));
+                }
               }
               
               //console.log("add new field: " + fieldName + " with value from " + key);
-              responseData.fields[fieldName] = responseData.fields[key];
+              responseData.fields[fieldName] = fieldValue;
             }
           });
           return responseData;
