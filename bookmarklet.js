@@ -888,11 +888,18 @@
       }
 
       module.getSelectedIssueKeyList = function() {
+        //Board view
+        if (/.*\/b\/.*/g.test(document.URL)) {
+          return $( "textarea.list-header-name.is-editing" ).parent().parent().find(".list-cards > .list-card > .list-card-details > .list-card-title").map(function() {
+            return $(this).attr("href").match(/.*\/c\/([^/]*).*/)[1];
+          });
+        }
+        
         //Card View
         if (/.*\/c\/.*/g.test(document.URL)) {
           return [document.URL.match(/.*\/c\/([^/]*).*/)[1]];
         }
-
+        
         return [];
       };
 
