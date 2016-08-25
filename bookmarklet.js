@@ -13,7 +13,7 @@
   }
 
   var global = {};
-  global.version = "4.7.3";
+  global.version = "4.7.4";
   global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
 
   global.isDev = document.currentScript == null;
@@ -888,11 +888,20 @@
       }
 
       module.getSelectedIssueKeyList = function() {
-        //Board view
+        //Board View
         if (/.*\/b\/.*/g.test(document.URL)) {
-          return $( "textarea.list-header-name.is-editing" ).parent().parent().find(".list-cards > .list-card > .list-card-details > .list-card-title").map(function() {
+          // open card composer
+          var issueKeys = $( ".card-composer").parent().find(".list-card > .list-card-details > .list-card-title").map(function() {
             return $(this).attr("href").match(/.*\/c\/([^/]*).*/)[1];
           });
+          
+          //read only board
+          
+          var issueKeys2 = $( "textarea.list-header-name.is-editing" ).parent().parent().find(".list-cards > .list-card > .list-card-details > .list-card-title").map(function() {
+            return $(this).attr("href").match(/.*\/c\/([^/]*).*/)[1];
+          })
+
+          return jQuery.merge(issueKeys,issueKeys2 );
         }
         
         //Card View
