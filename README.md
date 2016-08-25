@@ -27,10 +27,17 @@ Just select Issue(s) then run the Bookmarklet.
 Marker to separate description into print and no print area ("~~~~~")
 
 #### Select multible issues
-##### Jira Agile
+##### Jira
+###### Jira Agile
 holding STRG / CMD or SHIFT and click on issues
-##### Jira Classic
+###### Jira Classic
 just search for issues
+##### Trello
+###### read-only access Boards 
+select the columns by click on the title so they get highlighted
+###### write access Boards 
+select a column by open the add new card input for spesific column
+
 
 ### Support
 #### Browser
