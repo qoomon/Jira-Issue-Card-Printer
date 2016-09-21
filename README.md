@@ -6,6 +6,9 @@ I've written a little bookmarklet for converting Jira issues in a pretty card la
 So long
 Bengt
 
+## Licence
+If you fork this project you are not allowed to remove the copyright section 'qoomon.com Bengt Brodersen'
+
 ### Card Layout
 ![Card Layout](CardExample.png)
 
