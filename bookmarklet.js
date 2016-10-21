@@ -1084,6 +1084,18 @@
         };
       })();
 
+      var getSiteAuthority = (function() {
+        var authority = null;
+        return function() {
+          if (!authority) {
+            var parser = document.createElement("a");
+            parser.href = location.href;
+            authority = parser.protocol + parser.hostname + parser.port;
+          }
+          return authority;
+        }
+      })();
+
       module.getCardData = function(issueKey) {
         var issueData = {};
         jQuery("#ArtifactListTable tr.EvenRow:not(#filter), #ArtifactListTable tr.OddRow:not(#filter)").each(function(trIdx, trEl) {
@@ -1109,7 +1121,7 @@
             }
             else if (field == "Artifact ID : Title") {
               issueData.summary = jQuery(tdEl).find("a").text();
-              issueData.url = jQuery(tdEl).find("a").attr("href");
+              issueData.url = getSiteAuthority() + jQuery(tdEl).find("a").attr("href");
             } else if (field == "Assigned To") {
               issueData.assignee = jQuery(tdEl).text();
               if (issueData.assignee == 'None') {
