@@ -1052,7 +1052,7 @@
           if (!map) {
             map = {};
             // commented out fields are not used yet for the card layout
-            var fieldPosMap = {
+            var rMap = {
               //"Customer": -1,
               //"Priority": -1,
               "Artifact ID\u00a0:\u00a0Title": -1,
@@ -1066,19 +1066,17 @@
             jQuery("#ArtifactListTable tr.ItemListHeader td").each(function (idx, el) {
               // only return the immediate field text without text from child elements
               const elText = jQuery(el).clone().children().remove().end().text();
-              if (elText in fieldPosMap) {
-                map[elText] = idx;
+              if (elText in rMap) {
+                rMap[elText] = idx;
               }
             });
 
             map = {};
-            for (f in fieldPosMap) {
-              if (fieldPosMap[f] == -1) {
-                alert("Please configure the field " + f + " in your current view.");
-                map = null;
-                return;
+            for (f in rMap) {
+              if (rMap[f] == -1) {
+                throw "Please configure the required field " + f + " in your current view.";
               }
-              map[fieldPosMap[f]] = f;
+              map[rMap[f]] = f;
             }
           }
           return map;
@@ -1086,11 +1084,9 @@
       })();
 
       module.getCardData = function(issueKey) {
-        const posFieldMap = determineFieldPositions();
-
         var issueData = {};
         jQuery("#ArtifactListTable tr.EvenRow:not(#filter), #ArtifactListTable tr.OddRow:not(#filter)").each(function(trIdx, trEl) {
-          const curKey = jQuery(el).find("input[type=checkbox][name=_listItem]")[0].value;
+          const curKey = jQuery(trEl).find("input[type=checkbox][name=_listItem]")[0].value;
           // skip processing of unwanted rows
           if (issueKey !=  curKey) {
             return;
@@ -1098,10 +1094,11 @@
           issueData.key = curKey;
           issueData.type = 'Bug';
           issueData.hasAttachment = false;
-          issueData.estimate = "";
+          issueData.estimate = '';
 
-          jQuery(el).find("td").each(function(tdIdx, tdEl) {
-            const field = posFieldMap[idx];
+          jQuery(trEl).find("td").each(function(tdIdx, tdEl) {
+            const posFieldMap = determineFieldPositions();
+            const field = posFieldMap[tdIdx];
             // skip unknown field / column
             if (!field) {
               return;
@@ -1581,7 +1578,6 @@
        height: 2.2rem;
        border-radius: 50%;
        background-color: WHITESMOKE;
-       background-image: url(https://www.colourbox.com/preview/10714847-evil-christmas-elf.jpg);
        background-repeat: no-repeat;
        background-position: center;
        background-size: cover;
