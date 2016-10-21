@@ -18,6 +18,13 @@
 
   global.isDev = document.currentScript == null;
 
+  // support for older jQuery versions
+  if (!jQuery.fn.on) {
+    jQuery.fn.on = function(action, handler) {
+      return jQuery.bind(action, handler);
+    };
+  }
+
   var $ = jQuery;
 
   // enforce jQuery
