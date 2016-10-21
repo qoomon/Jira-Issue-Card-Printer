@@ -1119,7 +1119,8 @@
         // see https://forge.collab.net/apidoc/
         return [];
       };
-      
+
+      return module;
     }({}));
     issueTrackers.push(teamForgeFunctions);
     
