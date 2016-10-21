@@ -1112,6 +1112,9 @@
               issueData.url = jQuery(tdEl).find("a").attr("href");
             } else if (field == "Assigned To") {
               issueData.assignee = jQuery(tdEl).text();
+              if (issueData.assignee == 'None') {
+                issueData.assignee = '';
+              }
             }
           });
         });
@@ -1586,8 +1589,8 @@
        //filter: contrast(200%) grayscale(100%);
        text-align: center;
        font-weight: bold;
-       font-size: 1.4rem;
-       line-height: 1.9rem;
+       font-size: 1.0rem;
+       line-height: 2.0rem;
      }
      .issue-epic-box {
        position: absolute;
