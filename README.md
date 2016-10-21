@@ -14,7 +14,7 @@ If you fork this project you are not allowed to remove the copyright section 'qo
 
 ### Installation
 #### Drag'n'Drop
-go to [Installation Site](https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarkInstallation.html)
+go to [Installation Site](https://tommyd3mdi.github.com/Jira-Issue-Card-Printer/bookmarkInstallation.html)
 
 *or*
 
