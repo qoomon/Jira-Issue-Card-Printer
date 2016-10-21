@@ -1029,7 +1029,7 @@
       module.name = "TeamForge";
       
       module.isEligible = function() {
-        return /^TeamForge[ ]:/.test(document.title);
+        return /^TeamForge\s:/.test(document.title);
       };
       
       module.getSelectedIssueKeyList = function() {
