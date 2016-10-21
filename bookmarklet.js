@@ -1025,6 +1025,104 @@
     }({}));
     issueTrackers.push(mingleFunctions);
 
+    var teamForgeFunctions = (function(module) {
+      module.name = "TeamForge";
+      
+      module.isEligible = function() {
+        return /^TeamForge[ ]:/.test(document.title);
+      };
+      
+      module.getSelectedIssueKeyList = function() {
+        var keys = [];
+        jQuery("input[type=checkbox][name=_listItem]").each(function(idx, el) { keys.push(el.value); });
+        return keys;
+      };
+
+      // determine the positions of configurable fields within the table
+      var determineFieldPositions = (function() {
+        var map = null;
+        return function() {
+          if (!map) {
+            map = {};
+            // commented out fields are not used yet for the card layout
+            var fieldPosMap = {
+              //"Customer": -1,
+              //"Priority": -1,
+              "Artifact ID : Title": -1,
+              "Assigned To": -1,
+              "Description": -1
+              //"Submitted By": -1,
+              //"Status": -1,
+              //"Category": -1
+            };
+
+            jQuery("#ArtifactListTable tr.ItemListHeader td").each(function (idx, el) {
+              // only return the immediate field text without text from child elements
+              const elText = jQuery(el).clone().children().remove().end().text();
+              if (elText in fieldPosMap) {
+                map[elText] = idx;
+              }
+            });
+
+            map = {};
+            for (f in fieldPosMap) {
+              if (fieldPosMap[f] == -1) {
+                alert("Please configure the field " + f + " in your current view.");
+                map = null;
+                return;
+              }
+              map[fieldPosMap[f]] = f;
+            }
+          }
+          return map;
+        };
+      })();
+
+      module.getCardData = function(issueKey) {
+        const posFieldMap = determineFieldPositions();
+
+        var issueData = {};
+        jQuery("#ArtifactListTable tr.EvenRow:not(#filter), #ArtifactListTable tr.OddRow:not(#filter)").each(function(trIdx, trEl) {
+          const curKey = jQuery(el).find("input[type=checkbox][name=_listItem]")[0].value;
+          // skip processing of unwanted rows
+          if (issueKey !=  curKey) {
+            return;
+          }
+          issueData.key = curKey;
+          issueData.type = 'Bug';
+          issueData.hasAttachment = false;
+          issueData.estimate = "";
+
+          jQuery(el).find("td").each(function(tdIdx, tdEl) {
+            const field = posFieldMap[idx];
+            // skip unknown field / column
+            if (!field) {
+              return;
+            }
+            if (field == "Description") {
+              issueData.description = jQuery(tdEl).text();
+            }
+            else if (field == "Artifact ID : Title") {
+              issueData.summary = jQuery(tdEl).find("a").text();
+              issueData.url = jQuery(tdEl).find("a").attr("href");
+            } else if (field == "Assigned To") {
+              issueData.assignee = jQuery(tdEl).text();
+            }
+          });
+        });
+
+        return Promise.resolve(issueData);
+      };
+
+      module.getIssueData = function(issueKey) {
+        // The TeamForge API uses OAuth for authentication purposes, so we cannot use that here
+        // see https://forge.collab.net/apidoc/
+        return [];
+      };
+      
+    }({}));
+    issueTrackers.push(teamForgeFunctions);
+    
     return issueTrackers;
   }
 
