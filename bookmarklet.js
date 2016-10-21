@@ -500,7 +500,7 @@
 
     // scale font
 
-    result.find("#scaleRange").on("input", function() {
+    result.find("#scaleRange").on('input', function() {
       global.settings.scale = $(this).val();
       saveSettings();
       redrawCards();
@@ -508,7 +508,7 @@
 
     // grid
 
-    result.find("#rowCount").on("input", function() {
+    result.find("#rowCount").change(function() {
       global.settings.rowCount = $(this).val();
       saveSettings();
       redrawCards();
@@ -518,7 +518,7 @@
     });
 
 
-    result.find("#columnCount").on("input", function() {
+    result.find("#columnCount").change(function() {
       global.settings.colCount = $(this).val();
       saveSettings();
       redrawCards();
@@ -1090,7 +1090,7 @@
           if (!authority) {
             var parser = document.createElement("a");
             parser.href = location.href;
-            authority = parser.protocol + parser.hostname + parser.port;
+            authority = parser.protocol + "//" + parser.hostname + parser.port;
           }
           return authority;
         }
