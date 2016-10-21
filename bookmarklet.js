@@ -1055,7 +1055,7 @@
             var fieldPosMap = {
               //"Customer": -1,
               //"Priority": -1,
-              "Artifact ID : Title": -1,
+              "Artifact ID\u00a0:\u00a0Title": -1,
               "Assigned To": -1,
               "Description": -1
               //"Submitted By": -1,
@@ -1675,7 +1675,7 @@
          <div id="card-print-dialog-header">
            <div id="card-print-dialog-title">Card Printer</div>
            <div id="info">
-             <label id="info-line"><b>Jira</b> - <b>Trello</b> - <b>YouTrack</b> - <b>PivotalTracker</b></label>
+             <label id="info-line"><b>Jira</b> - <b>Trello</b> - <b>YouTrack</b> - <b>PivotalTracker</b> - <b>TeamForge</b></label>
              <div id="report-issue" class="ui-element button" >Report Issues</div>
              <div id="about" class="ui-element button" >About</div>
            </div>
