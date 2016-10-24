@@ -120,7 +120,7 @@
     var promises = [];
 
     console.log("Init...")
-    initGoogleAnalytics();
+    //initGoogleAnalytics();
 
     addStringFunctions();
     loadSettings();
