@@ -13,7 +13,7 @@
   }
 
   var global = {};
-  global.version = "4.7.4";
+  global.version = "4.8.0";
   global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
 
   global.isDev = document.currentScript == null;
@@ -529,6 +529,8 @@
       return true;
     });
 
+    // show Epic 
+    
     result.find("#epic-checkbox").click(function() {
       global.settings.hideEpic = !this.checked;
       // can only display one of these two
@@ -559,7 +561,6 @@
     result.find("#rowCount").click(function() {
       this.select();
     });
-
 
     result.find("#columnCount").on('input',function() {
       global.settings.colCount = $(this).val();

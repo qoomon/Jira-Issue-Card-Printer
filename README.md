@@ -52,6 +52,7 @@ select a column by open the add new card input for spesific column
 * **Trello**
 * **PivotTracker**
 * **YouTrack**
+* **TeamForge**
 
 ###Info
 I make use of **Google Analytics** to get some usage feedback. Please let me.
