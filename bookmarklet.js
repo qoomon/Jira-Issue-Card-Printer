@@ -18,6 +18,13 @@
 
   global.isDev = document.currentScript == null;
 
+  // support for older jQuery versions
+  if (!jQuery.fn.on) {
+    jQuery.fn.on = function(action, handler) {
+      return jQuery.bind(action, handler);
+    };
+  }
+
   var $ = jQuery;
 
   // enforce jQuery
@@ -492,7 +499,7 @@
 
     // scale font
 
-    result.find("#scaleRange").on("input", function() {
+    result.find("#scaleRange").on('input', function() {
       global.settings.scale = $(this).val();
       saveSettings();
       redrawCards();
@@ -500,7 +507,7 @@
 
     // grid
 
-    result.find("#rowCount").on("input", function() {
+    result.find("#rowCount").on('input',function() {
       global.settings.rowCount = $(this).val();
       saveSettings();
       redrawCards();
@@ -510,7 +517,7 @@
     });
 
 
-    result.find("#columnCount").on("input", function() {
+    result.find("#columnCount").on('input',function() {
       global.settings.colCount = $(this).val();
       saveSettings();
       redrawCards();
