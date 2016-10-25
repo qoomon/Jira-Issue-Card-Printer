@@ -13,7 +13,7 @@
   }
 
   var global = {};
-  global.version = "4.9.0";
+  global.version = "4.9.1";
   global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
 
   global.isDev = document.currentScript == null;
@@ -737,7 +737,17 @@
 
       module.getSelectedIssueKeyList = function() {
 
-        //Issues
+        //Browse
+        if (/.*\/browse\/.*/g.test(document.URL)) {
+          return [document.URL.match(/.*\/browse\/([^?]*).*/)[1]];
+        }
+
+        //Project
+        if (/.*\/projects\/.*/g.test(document.URL)) {
+          return [document.URL.match(/.*\/projects\/[^\/]*\/[^\/]*\/([^?]*).*/)[1]];
+        }
+        
+         //Issues
         if (/.*\/issues\/.*/g.test(document.URL)) {
 
           var issues =  $('.issue-list > li').map(function() {
@@ -752,16 +762,6 @@
           }
 
           return issues;
-        }
-
-        //Browse
-        if (/.*\/browse\/.*/g.test(document.URL)) {
-          return [document.URL.match(/.*\/browse\/([^?]*).*/)[1]];
-        }
-
-        //Project
-        if (/.*\/projects\/.*/g.test(document.URL)) {
-          return [document.URL.match(/.*\/projects\/[^\/]*\/[^\/]*\/([^?]*).*/)[1]];
         }
 
         // RapidBoard
