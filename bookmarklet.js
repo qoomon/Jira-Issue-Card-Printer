@@ -13,7 +13,7 @@
   }
 
   var global = {};
-  global.version = "4.8.0";
+  global.version = "4.9.0";
   global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
 
   global.isDev = document.currentScript == null;
@@ -281,7 +281,57 @@
     card.find('.issue-id').text(data.key);
 
     //Type
-    card.find(".issue-icon").attr("type", data.type);
+    var backgroundColor;
+    var backgroundImage;
+    switch (data.type.toLowerCase()) {
+      default: 
+        backgroundColor = textColor(data.type.toLowerCase());
+        backgroundImage = 'http://identicon.org/?t=' + data.type.toLowerCase() + '&s=256&c=b';
+        break;
+      case 'story':
+      case 'user story':
+        backgroundColor = 'GOLD';
+        backgroundImage = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bulb.png';
+        break;
+      case 'bug':
+      case 'problem':
+      case 'correction':
+        backgroundColor = 'CRIMSON';
+        backgroundImage = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bug.png';
+        break;
+      case 'epic':
+        backgroundColor = 'ROYALBLUE';
+        backgroundImage = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Flash.png';
+        break;
+      case 'task':
+      case 'sub-task':
+      case 'technical task':
+      case 'aufgabe':
+      case 'unteraufgabe':
+      case 'technische aufgabe':
+        backgroundColor = 'WHEAT';
+        backgroundImage = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Task.png';
+        break;
+      case 'new feature':
+        backgroundColor = 'LIMEGREEN';
+        backgroundImage = "https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Plus.png";
+        break;
+      case 'improvement':
+      case 'verbesserung':
+        backgroundColor = 'CORNFLOWERBLUE';
+        backgroundImage = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Arrow.png';
+        break;
+      case 'research':
+        backgroundColor = 'MEDIUMTURQUOISE';
+        backgroundImage = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/ErlenmeyerFlask.png';
+        break;
+      case 'test':
+        backgroundColor = 'ORANGE';
+        backgroundImage = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/CrashDummy.png';
+        break;
+    }
+    card.find('.issue-icon').css('background-color', backgroundColor);
+    card.find('.issue-icon').css('background-image', 'url(' + backgroundImage + ')');
 
     //Summary
     card.find('.issue-summary').text(data.summary);
@@ -300,6 +350,7 @@
       } else {
         const initials = data.assignee.split(/ /).map(namePart => namePart[0].toUpperCase()).join('');
         card.find(".issue-assignee").text(initials);
+        card.find(".issue-assignee").css("background-color", textColor(initials));
       }
     } else {
       card.find(".issue-assignee").remove();
@@ -629,6 +680,39 @@
       .attr("type", "text/css")
       .html(global.cardCss);
     return result;
+  }
+  
+  function textColor(text){
+
+    const colours = [
+      '#EF5350',
+      '#EC407A',
+      '#AB47BC',
+      '#7E57C2',
+      '#5C6BC0',
+      '#42A5F5',
+      '#29B6F6',
+      '#26C6DA',
+      '#26A69A',
+      '#66BB6A',
+      '#9CCC65',
+      '#D4E157',
+      '#FFEE58',
+      '#FFCA28',
+      '#FFA726',
+      '#FF7043',
+      '#8D6E63',
+      '#78909C'
+    ];
+
+    var textHash = 0, i, chr, len;
+    for (i = 0, len = text.length; i < len; i++) {
+      chr   = text.charCodeAt(i);
+      textHash  = ((textHash << 5) - textHash) + chr;
+      textHash |= 0; // Convert to 32bit integer
+    }
+    const colourIndex = textHash % colours.length;
+    return colours[colourIndex];
   }
 
   //############################################################################################################################
@@ -1552,49 +1636,11 @@
        height: 3.0rem;
        width: 3.0rem;
        border-radius: 50%;
-       background-color: LIGHTSEAGREEN;
-       background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Objects.png);
+       background-color: DEEPSKYBLUE;
+       background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/CloudLoading.png);
        background-repeat: no-repeat;
        background-position: center;
        background-size: 63%;
-     }
-     .issue-icon[type="loading"]{
-       background-color: DEEPSKYBLUE;
-       background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/CloudLoading.png);
-     }
-     .issue-icon[type="story"], .issue-icon[type="user story"] {
-       background-color: GOLD;
-       background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bulb.png);
-     }
-     .issue-icon[type="bug"], .issue-icon[type="problem"], .issue-icon[type="correction"]  {
-       background-color: CRIMSON;
-       background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bug.png);
-     }
-     .issue-icon[type="epic"] {
-       background-color: ROYALBLUE;
-       background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Flash.png);
-     }
-     .issue-icon[type="task"], .issue-icon[type="sub-task"], .issue-icon[type="technical task"],
-     .issue-icon[type="aufgabe"], .issue-icon[type="unteraufgabe"], .issue-icon[type="technische aufgabe"]  {
-       background-color: WHEAT;
-       background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Task.png);
-     }
-     .issue-icon[type="new feature"] {
-       background-color: LIMEGREEN;
-       background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Plus.png);
-     }
-     .issue-icon[type="improvement"],
-     .issue-icon[type="verbesserung"] {
-       background-color: CORNFLOWERBLUE;
-       background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Arrow.png);
-     }
-     .issue-icon[type="research"] {
-       background-color: MEDIUMTURQUOISE;
-       background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/ErlenmeyerFlask.png);
-     }
-     .issue-icon[type="test"] {
-       background-color: ORANGE;
-       background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/CrashDummy.png);
      }
      .issue-estimate {
        position: absolute;
@@ -1641,7 +1687,6 @@
        height: 2.2rem;
        border-radius: 50%;
        background-color: WHITESMOKE;
-       background-image: url(https://www.colourbox.com/preview/10714847-evil-christmas-elf.jpg);
        background-repeat: no-repeat;
        background-position: center;
        background-size: cover;
