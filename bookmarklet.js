@@ -173,6 +173,8 @@
     writeCookie("card_printer_hide_due_date", settings.hideDueDate);
     writeCookie("card_printer_hide_estimate", settings.hideEstimate);
     writeCookie("card_printer_hide_qr_code", settings.hideQrCode);
+    writeCookie("card_printer_hide_tags", settings.hideTags);
+    writeCookie("card_printer_hide_epic", settings.hideEpic);
   }
 
   function loadSettings(){
@@ -187,6 +189,8 @@
     settings.hideDueDate = parseBool(readCookie("card_printer_hide_due_date"), false);
     settings.hideEstimate = parseBool(readCookie("card_printer_hide_estimate"), false);
     settings.hideQrCode = parseBool(readCookie("card_printer_hide_qr_code"), false);
+    settings.hideTags = parseBool(readCookie("card_printer_hide_tags"), true);
+    settings.hideEpic = parseBool(readCookie("card_printer_hide_epic"), false);
   }
 
   function print() {
@@ -225,6 +229,8 @@
     $("#due-date-checkbox", appFrameDocument).attr('checked', !settings.hideDueDate );
     $("#estimate-checkbox", appFrameDocument).attr('checked', !settings.hideEstimate );
     $("#qr-code-checkbox", appFrameDocument).attr('checked', !settings.hideQrCode );
+    $("#tags-checkbox", appFrameDocument).attr('checked', !settings.hideTags );
+    $("#epic-checkbox", appFrameDocument).attr('checked', !settings.hideEpic );
   }
 
   function renderCards(issueKeyList) {
@@ -325,6 +331,13 @@
       card.find(".issue-epic-box").remove();
     }
 
+    //Tags
+    if (data.tags) {
+      card.find(".issue-tags").text(data.tags.join(', '));
+    } else {
+      card.find(".issue-tags").remove();
+    }
+
     //QR-Code
     var qrCodeUrl = 'https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=' + encodeURIComponent(data.url);
     card.find(".issue-qr-code").css("background-image", "url('" + qrCodeUrl + "')");
@@ -344,6 +357,10 @@
     $(".issue-estimate", printFrame.document).toggle(!settings.hideEstimate);
     // hide/show cr code
     $(".issue-qr-code", printFrame.document).toggle(!settings.hideQrCode);
+    // hide/show tags
+    $(".issue-tags", printFrame.document).toggle(!settings.hideTags);
+    // hide/show epic
+    $(".issue-epic-box", printFrame.document).toggle(!settings.hideEpic);
 
     // enable/disable single card page
     $(".card", printFrame.document).css({ 'page-break-after' : '', 'float' : '', 'margin-bottom': '' });
@@ -492,6 +509,32 @@
 
     result.find("#qr-code-checkbox").click(function() {
       global.settings.hideQrCode = !this.checked;
+      saveSettings();
+      redrawCards();
+      return true;
+    });
+
+    // show Tags
+
+    result.find("#tags-checkbox").click(function() {
+      global.settings.hideTags = !this.checked;
+      // can only display one of these two
+      if (global.settings.hideTags == false ) {
+        global.settings.hideEpic = true;
+        $("#epic-checkbox", global.appFrame.document).attr('checked', false );
+      }
+      saveSettings();
+      redrawCards();
+      return true;
+    });
+
+    result.find("#epic-checkbox").click(function() {
+      global.settings.hideEpic = !this.checked;
+      // can only display one of these two
+      if (global.settings.hideEpic == false ) {
+        global.settings.hideTags = true;
+        $("#tags-checkbox", global.appFrame.document).attr('checked', false );
+      }
       saveSettings();
       redrawCards();
       return true;
@@ -1209,6 +1252,7 @@
            <div class="issue-qr-code badge"></div>
            <div class="issue-attachment badge"></div>
            <div class="issue-assignee badge"></div>
+           <div class="issue-tags badge"></div>
            <div class="issue-epic-box badge">
              <span class="issue-epic-id"></span><br>
              <span class="issue-epic-name"></span>
@@ -1490,8 +1534,28 @@
        //filter: contrast(200%) grayscale(100%);
        text-align: center;
        font-weight: bold;
-       font-size: 1.4rem;
-       line-height: 1.9rem;
+       font-size: 1.0rem;
+       line-height: 2.0rem;
+     }
+     .issue-tags {
+       position: absolute;
+       right: 2.5rem;
+       top: 0.4rem;
+       width: auto;
+       min-width: 2rem;
+       width: auto;
+       max-width: calc(100% - 7.5rem);
+       height: auto;
+       max-height: 1.9rem;
+       padding-top: 0.2rem;
+       padding-bottom: 0.2rem;
+       padding-left: 0.3rem;
+       padding-right: 0.3rem;
+       text-align: left;
+       font-size: 0.7rem;
+       line-height: 0.7rem;
+       font-style: italic;
+       background: lightyellow;
      }
      .issue-epic-box {
        position: absolute;
@@ -1576,7 +1640,7 @@
          <div id="card-print-dialog-header">
            <div id="card-print-dialog-title">Card Printer</div>
            <div id="info">
-             <label id="info-line"><b>Jira</b> - <b>Trello</b> - <b>YouTrack</b> - <b>PivotalTracker</b></label>
+             <label id="info-line"><b>Jira</b> - <b>Trello</b> - <b>YouTrack</b> - <b>PivotalTracker</b> - <b>TeamForge</b></label>
              <div id="report-issue" class="ui-element button" >Report Issues</div>
              <div id="about" class="ui-element button" >About</div>
            </div>
@@ -1631,6 +1695,16 @@
                <label for="qr-code-checkbox"></label>
                <label for="qr-code-checkbox">QR Code</label>
              </div>
+             <div class="ui-element checkbox" style="float: left;">
+               <input id="tags-checkbox" type="checkbox"/>
+               <label for="tags-checkbox"></label>
+               <label for="tags-checkbox">Tags</label>
+             </div>
+             <div class="ui-element checkbox" style="float: left;">
+               <input id="epic-checkbox" type="checkbox"/>
+               <label for="epic-checkbox"></label>
+               <label for="epic-checkbox">Epic</label>
+             </div>
 
              <div id="card-print-dialog-print" class="ui-element button button-primary" >Print</div>
            </div>
@@ -1660,7 +1734,7 @@
        right: 0px;
        left: 0px;
        height: calc(100% - 120px);
-       width: 1000px;
+       width: 1100px;
        margin: auto;
        border-style: solid;
        border-color: #cccccc;
