@@ -298,7 +298,8 @@
       if (data.avatarUrl) {
         card.find(".issue-assignee").css("background-image", "url('" + data.avatarUrl + "')");
       } else {
-        card.find(".issue-assignee").text(data.assignee[0].toUpperCase());
+        const initials = data.assignee.split(/ /).map(namePart => namePart[0].toUpperCase()).join('');
+        card.find(".issue-assignee").text(initials);
       }
     } else {
       card.find(".issue-assignee").remove();
