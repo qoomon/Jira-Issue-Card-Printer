@@ -283,10 +283,12 @@
     //Type
     var backgroundColor;
     var backgroundImage;
+    var backgroundSize = '63%';
     switch (data.type.toLowerCase()) {
-      default: 
+      default:
         backgroundColor = textColor(data.type.toLowerCase());
         backgroundImage = 'http://identicon.org/?t=' + data.type.toLowerCase() + '&s=256&c=b';
+        backgroundSize = '55%';
         break;
       case 'story':
       case 'user story':
@@ -332,6 +334,7 @@
     }
     card.find('.issue-icon').css('background-color', backgroundColor);
     card.find('.issue-icon').css('background-image', 'url(' + backgroundImage + ')');
+    card.find('.issue-icon').css('background-size', backgroundSize);
 
     //Summary
     card.find('.issue-summary').text(data.summary);
@@ -784,6 +787,7 @@
           issueData.type = data.fields.issuetype.name.toLowerCase();
           issueData.summary = data.fields.summary;
           issueData.description = data.renderedFields.description;
+          issueData.tags = data.fields.labels;
 
           if (data.fields.assignee) {
             issueData.assignee = data.fields.assignee.displayName;
@@ -1506,7 +1510,7 @@
          width: 100%;
          border-style: solid;
          border-bottom-width: 0.5rem;
-         border-image: url(https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/resources//Tearing.png);
+         border-image: url(https://rawgit.com/qoomon/Jira-Issue-Card-Printer/gh-pages/resources/Tearing.png);
          border-image-width: 0 0 0.7rem 0;
          border-image-slice: 56 0 56 1;
          border-image-repeat: round round;
@@ -1714,7 +1718,6 @@
        text-align: left;
        font-size: 0.7rem;
        line-height: 0.7rem;
-       font-style: italic;
        background: lightyellow;
      }
      .issue-epic-box {
