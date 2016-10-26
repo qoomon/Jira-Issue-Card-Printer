@@ -387,7 +387,7 @@
     }
 
     //Tags
-    if (data.tags) {
+    if (data.tags && data.tags.length > 0) {
       card.find(".issue-tags").text(data.tags.join(', '));
     } else {
       card.find(".issue-tags").remove();
