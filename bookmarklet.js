@@ -13,7 +13,7 @@
   }
 
   var global = {};
-  global.version = "4.9.1";
+  global.version = "4.10.1";
   global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
 
   global.isDev = document.currentScript == null;
