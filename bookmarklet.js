@@ -13,7 +13,7 @@
   }
 
   var global = {};
-  global.version = "4.11.1";
+  global.version = "4.12.0";
   global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
 
   // support for older jQuery versions
