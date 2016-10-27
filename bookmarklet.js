@@ -365,7 +365,8 @@
     }
 
     //Attachment
-    if (data.hasAttachment) {} else {
+    if (data.hasAttachment) {
+    } else {
       card.find('.issue-attachment').remove();
     }
 
@@ -1651,9 +1652,9 @@
        text-align: center;
      }
      .issue-qr-code {
-       position: absolute;
-       left: 0rem;
-       top: 0rem;
+       position: relative;
+       float: left;
+       margin-right: 0.5rem;
        width: 2.2rem;
        height: 2.2rem;
        background-image: url(https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=blog.qoomon.com);
@@ -1662,9 +1663,9 @@
        background-position: center;
      }
      .issue-attachment {
-       position: absolute;
-       left: 2.5rem;
-       top: 0rem;
+       position: relative;
+       float: left;
+       top: 0.1rem;
        width: 2.0rem;
        height: 2.0rem;
        border-radius: 50%;
@@ -1675,9 +1676,9 @@
        background-size: 70%;
      }
      .issue-assignee {
-       position: absolute;
-       top: 0rem;
-       right: 0rem;
+       position: relative;
+       float: right;
+       margin-left: 0.5rem;
        width: 2.2rem;
        height: 2.2rem;
        border-radius: 50%;
@@ -1693,8 +1694,8 @@
        line-height: 2.0rem;
      }
      .issue-tags-box {
-       position: absolute;
-       right: 2.5rem;
+       position: relative;
+       float: right;
        top: 0.1rem;
        width: auto;
        min-width: 2rem;
