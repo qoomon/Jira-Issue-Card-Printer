@@ -386,7 +386,7 @@
       tagElement.css('background-color', textColor(data.superIssue));
       card.find(".issue-tags-box").append(tagElement);
     }
-    
+
     //Labels
     if(data.labels){
       data.labels.forEach(function (label) {
@@ -398,10 +398,10 @@
         tagElement.css('background-color', textColor(label));
         card.find(".issue-tags-box").append(tagElement);
       });
-    }  
+    }
 
-    
-    
+
+
     //QR-Code
     var qrCodeUrl = 'https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=' + encodeURIComponent(data.url);
     card.find(".issue-qr-code").css("background-image", "url('" + qrCodeUrl + "')");
@@ -1700,14 +1700,15 @@
        min-width: 2rem;
        width: auto;
        max-width: calc(100% - 7.5rem);
-       height: auto;  
-       font-size: 0.7rem;
-       line-height: 0.7rem;
+       height: auto;
+       font-size: 0.6rem;
+       line-height: 0.6rem;
+       text-align: right;
      }
      .issue-tag {
-      padding: 2px 6px;
-       float: left;
-       margin: 2px;
+       display: inline-block;
+       padding: 0.1rem 0.2rem;
+       margin: 0.05rem 0.1rem;
        border-top-width: 0.08rem;
        border-left-width: 0.08rem;
        border-bottom-width: 0.14rem;
@@ -1716,7 +1717,7 @@
        overflow: hidden;
        text-overflow: ellipsis;
        white-space: nowrap;
-     }   
+     }
      .issue-due-date-box {
        position: absolute;
        right: 0rem;
