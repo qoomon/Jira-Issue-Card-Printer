@@ -13,7 +13,7 @@
   }
 
   var global = {};
-  global.version = "4.12.0";
+  global.version = "4.12.1";
   global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
 
   // support for older jQuery versions
@@ -688,23 +688,23 @@
   function textColor(text){
 
     const colours = [
-      '#EF5350',
-      '#EC407A',
-      '#AB47BC',
-      '#7E57C2',
-      '#5C6BC0',
-      '#42A5F5',
-      '#29B6F6',
-      '#26C6DA',
-      '#26A69A',
-      '#66BB6A',
-      '#9CCC65',
-      '#FFA726',
-      '#FFEE58',
-      '#FFCA28',
-      '#FFA726',
-      '#FF7043',
-      '#8D6E63'
+      '#ff5653',
+      '#ff5ecc',
+      '#de59f5',
+      '#ab7aff',
+      '#7f91fb',
+      '#38a1f7',
+      '#21b6f9',
+      '#26c6da',
+      '#27cebe',
+      '#78dc7c',
+      '#9ccc65',
+      '#f9a72f',
+      '#fde93d',
+      '#ffca28',
+      '#ffb343',
+      '#ff7d54',
+      '#d4a493'
     ];
 
     var textHash = 0, i, chr, len;
