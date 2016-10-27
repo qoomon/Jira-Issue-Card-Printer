@@ -13,7 +13,7 @@
   }
 
   var global = {};
-  global.version = "4.10.1";
+  global.version = "4.11.0";
   global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
 
   // support for older jQuery versions
@@ -284,6 +284,10 @@
         backgroundImage = 'http://identicon.org/?t=' + data.type.toLowerCase() + '&s=256&c=b';
         backgroundSize = '55%';
         break;
+      case 'default':
+        backgroundColor = 'SILVER';
+        backgroundImage = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/objects.png';
+        break;
       case 'story':
       case 'user story':
         backgroundColor = 'GOLD';
@@ -372,19 +376,21 @@
       card.find(".issue-estimate").remove();
     }
 
-    //Epic
-    if (data.superIssue) {
-      card.find(".issue-epic-id").text(data.superIssue.key);
-      card.find(".issue-epic-name").text(data.superIssue.summary);
-    } else {
-      card.find(".issue-epic-box").remove();
-    }
-
     //Tags
     if (data.tags && data.tags.length > 0) {
-      card.find(".issue-tags").text(data.tags.join(', '));
+      // card.find(".issue-tags-box").text(data.tags.join(', '));
+      data.tags.forEach(function (tag) {
+        var tagElement = $('<div />');
+        tagElement.addClass('badge');
+        tagElement.addClass('issue-tag');
+        tagElement.css('background-color', textColor(tag));
+        tagElement.text(tag.trunc(32));
+        card.find(".issue-tags-box").append(tagElement);
+      });
+      
+    
     } else {
-      card.find(".issue-tags").remove();
+      card.find(".issue-tags-box").remove();
     }
 
     //QR-Code
@@ -407,9 +413,7 @@
     // hide/show cr code
     $(".issue-qr-code", printFrame.document).toggle(!settings.hideQrCode);
     // hide/show tags
-    $(".issue-tags", printFrame.document).toggle(!settings.hideTags);
-    // hide/show epic
-    $(".issue-epic-box", printFrame.document).toggle(!settings.hideEpic);
+    $(".issue-tags-box", printFrame.document).toggle(!settings.hideTags);
 
     // enable/disable single card page
     $(".card", printFrame.document).css({ 'page-break-after' : '', 'float' : '', 'margin-bottom': '' });
@@ -693,13 +697,12 @@
       '#26A69A',
       '#66BB6A',
       '#9CCC65',
-      '#D4E157',
+      '#FFA726',
       '#FFEE58',
       '#FFCA28',
       '#FFA726',
       '#FF7043',
-      '#8D6E63',
-      '#78909C'
+      '#8D6E63'
     ];
 
     var textHash = 0, i, chr, len;
@@ -800,15 +803,11 @@
 
           if (data.fields.parent) {
             promises.push(module.getIssueData(data.fields.parent.key).then(function(data) {
-              issueData.superIssue = {};
-              issueData.superIssue.key = data.key;
-              issueData.superIssue.summary = data.fields.summary;
+              issueData.tags.push(data.key + ' ' + data.fields.summary)
             }));
           } else if (data.fields.epicLink) {
             promises.push(module.getIssueData(data.fields.epicLink).then(function(data) {
-              issueData.superIssue = {};
-              issueData.superIssue.key = data.key;
-              issueData.superIssue.summary = data.fields.epicName;
+              issueData.tags.push(data.key + ' ' + data.fields.epicName)
             }));
           }
 
@@ -1058,6 +1057,9 @@
 
           issueData.summary = data.name;
           issueData.description = data.desc;
+          issueDate.tags = data.labels.map(function(label){
+            return label.name;
+          })
 
           if (data.members && data.members.length > 0) {
             issueData.assignee = data.members[0].fullName;
@@ -1135,7 +1137,7 @@
             issueData.estimate = data.find('card > properties > property > name:contains(Estimate) ~ value')[0].textContent;
           }
 
-          // n/a issueData.superIssue
+          // TODO issueData.tags
 
           var projectIdentifier = data.find('card > project > identifier')[0].textContent;
           var cardNumber = data.find('card > number')[0].textContent
@@ -1370,6 +1372,12 @@
         return this.replace(/^\s+|\s+$/g, '');
       };
     }
+    
+    if (!String.prototype.trunc) {
+      String.prototype.trunc = function(limit) {
+        return (this.length > limit) ? this.substr(0,limit-1).trim() + '...' : this;
+      };
+    }
 
     if (!String.prototype.startsWith) {
       String.prototype.startsWith = function(str) {
@@ -1445,19 +1453,16 @@
            <div class="issue-qr-code badge"></div>
            <div class="issue-attachment badge"></div>
            <div class="issue-assignee badge"></div>
-           <div class="issue-tags badge"></div>
-           <div class="issue-epic-box badge">
-             <span class="issue-epic-id"></span><br>
-             <span class="issue-epic-name"></span>
-           </div>
+           <div class="issue-tags-box"></div>
          </div>
        </div>
      </div>
      */});
     resources.cardCss = multilineString(function(){/*
+     @import url('https://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,700');
      * {
        box-sizing: border-box;
-       overflow: hidden;
+       font-family: 'Gentium Book Basic';
      }
      html {
        background-color: LIGHTGREY;
@@ -1558,6 +1563,7 @@
        padding-bottom: 1.3rem;
      }
      .card-body {
+       overflow: hidden;
        position: relative;
        height: 100%;
        margin-left: 0.4rem;
@@ -1691,52 +1697,27 @@
        font-size: 1.0rem;
        line-height: 2.0rem;
      }
-     .issue-tags {
+     .issue-tags-box {
        position: absolute;
        right: 2.5rem;
-       top: 0.4rem;
+       top: 0.1rem;
        width: auto;
        min-width: 2rem;
        width: auto;
        max-width: calc(100% - 7.5rem);
-       height: auto;
-       max-height: 1.9rem;
-       padding-top: 0.2rem;
-       padding-bottom: 0.2rem;
-       padding-left: 0.3rem;
-       padding-right: 0.3rem;
-       text-align: left;
+       height: auto;  
        font-size: 0.7rem;
        line-height: 0.7rem;
-       background: lightyellow;
      }
-     .issue-epic-box {
-       position: absolute;
-       right: 2.5rem;
-       top: 0rem;
-       width: auto;
-       min-width: 2rem;
-       width: auto;
-       max-width: calc(100% - 7.5rem);
-       height: auto;
-       max-height: 2.2rem;
-       padding-top: 0.1rem;
-       padding-bottom: 0.2rem;
-       padding-left: 0.3rem;
-       padding-right: 0.3rem;
-       text-align: left;
-       font-size: 0.5rem;
-       line-height: 0.55rem;
-     }
-     .issue-epic-id {
-       font-size: 0.6rem;
-       font-weight: bold;
-       max-width: 1rem;
-     }
-     .issue-epic-name {
-       font-size: 0.55rem;
-       font-weight: bold;
-     }
+     .issue-tag {
+      padding: 2px 6px;
+       float: left;
+       margin: 2px;
+       border-top-width: 0.08rem;
+       border-left-width: 0.08rem;
+       border-bottom-width: 0.14rem;
+       border-right-width: 0.14rem;
+     }   
      .issue-due-date-box {
        position: absolute;
        right: 0rem;
