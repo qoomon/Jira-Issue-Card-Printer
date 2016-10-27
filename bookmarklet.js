@@ -13,7 +13,7 @@
   }
 
   var global = {};
-  global.version = "4.12.1";
+  global.version = "4.12.2";
   global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
 
   // support for older jQuery versions
@@ -1581,6 +1581,7 @@
        bottom: 0rem;
        height: 2.2rem;
        width: 100%;
+       overflow: hidden;
      }
      .issue-summary {
        font-weight: bold;
@@ -1709,12 +1710,13 @@
      .issue-tag {
        display: inline-block;
        padding: 0.1rem 0.2rem;
-       margin: 0.05rem 0.1rem;
-       border-top-width: 0.08rem;
-       border-left-width: 0.08rem;
-       border-bottom-width: 0.14rem;
-       border-right-width: 0.14rem;
-       max-width: 100%;
+       margin: 0.08rem 0.1rem;
+       margin-top: 0rem;
+       border-top-width: 0.1rem;
+       border-left-width: 0.1rem;
+       border-bottom-width: 0.15rem;
+       border-right-width: 0.15rem;
+       max-width: calc(100% - 0.25rem);
        overflow: hidden;
        text-overflow: ellipsis;
        white-space: nowrap;
