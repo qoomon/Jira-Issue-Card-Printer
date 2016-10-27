@@ -13,7 +13,7 @@
   }
 
   var global = {};
-  global.version = "4.11.0";
+  global.version = "4.11.1";
   global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
 
   // support for older jQuery versions
@@ -376,23 +376,32 @@
       card.find(".issue-estimate").remove();
     }
 
-    //Tags
-    if (data.tags && data.tags.length > 0) {
-      // card.find(".issue-tags-box").text(data.tags.join(', '));
-      data.tags.forEach(function (tag) {
+    //Supper Issue
+    if(data.superIssue){
+      var tagElement = $('<div />');
+      tagElement.text(data.superIssue);
+      tagElement.addClass('badge');
+      tagElement.addClass('issue-tag');
+      tagElement.addClass('issue-tag-super-issue');
+      tagElement.css('background-color', textColor(data.superIssue));
+      card.find(".issue-tags-box").append(tagElement);
+    }
+    
+    //Labels
+    if(data.labels){
+      data.labels.forEach(function (label) {
         var tagElement = $('<div />');
+        tagElement.text(label);
         tagElement.addClass('badge');
         tagElement.addClass('issue-tag');
-        tagElement.css('background-color', textColor(tag));
-        tagElement.text(tag.trunc(32));
+        tagElement.addClass('issue-tag-label');
+        tagElement.css('background-color', textColor(label));
         card.find(".issue-tags-box").append(tagElement);
       });
-      
-    
-    } else {
-      card.find(".issue-tags-box").remove();
-    }
+    }  
 
+    
+    
     //QR-Code
     var qrCodeUrl = 'https://chart.googleapis.com/chart?cht=qr&chs=256x256&chld=L|1&chl=' + encodeURIComponent(data.url);
     card.find(".issue-qr-code").css("background-image", "url('" + qrCodeUrl + "')");
@@ -412,8 +421,10 @@
     $(".issue-estimate", printFrame.document).toggle(!settings.hideEstimate);
     // hide/show cr code
     $(".issue-qr-code", printFrame.document).toggle(!settings.hideQrCode);
-    // hide/show tags
-    $(".issue-tags-box", printFrame.document).toggle(!settings.hideTags);
+    // hide/show super issue tag
+    $(".issue-tag-super-issue", printFrame.document).toggle(!settings.hideEpic);
+    // hide/show label tags
+    $(".issue-tag-label", printFrame.document).toggle(!settings.hideTags);
 
     // enable/disable single card page
     $(".card", printFrame.document).css({ 'page-break-after' : '', 'float' : '', 'margin-bottom': '' });
@@ -571,11 +582,6 @@
 
     result.find("#tags-checkbox").click(function() {
       global.settings.hideTags = !this.checked;
-      // can only display one of these two
-      if (global.settings.hideTags == false ) {
-        global.settings.hideEpic = true;
-        $("#epic-checkbox", global.appFrame.document).attr('checked', false );
-      }
       saveSettings();
       redrawCards();
       return true;
@@ -585,11 +591,6 @@
     
     result.find("#epic-checkbox").click(function() {
       global.settings.hideEpic = !this.checked;
-      // can only display one of these two
-      if (global.settings.hideEpic == false ) {
-        global.settings.hideTags = true;
-        $("#tags-checkbox", global.appFrame.document).attr('checked', false );
-      }
       saveSettings();
       redrawCards();
       return true;
@@ -711,7 +712,7 @@
       textHash  = ((textHash << 5) - textHash) + chr;
       textHash |= 0; // Convert to 32bit integer
     }
-    const colourIndex = textHash % colours.length;
+    const colourIndex = Math.abs(textHash) % colours.length;
     return colours[colourIndex];
   }
 
@@ -784,7 +785,7 @@
           issueData.type = data.fields.issuetype.name.toLowerCase();
           issueData.summary = data.fields.summary;
           issueData.description = data.renderedFields.description;
-          issueData.tags = data.fields.labels;
+          issueData.labels = data.fields.labels;
 
           if (data.fields.assignee) {
             issueData.assignee = data.fields.assignee.displayName;
@@ -803,11 +804,11 @@
 
           if (data.fields.parent) {
             promises.push(module.getIssueData(data.fields.parent.key).then(function(data) {
-              issueData.tags.push(data.key + ' ' + data.fields.summary)
+              issueData.superIssue = data.key + ' ' + data.fields.summary
             }));
           } else if (data.fields.epicLink) {
             promises.push(module.getIssueData(data.fields.epicLink).then(function(data) {
-              issueData.tags.push(data.key + ' ' + data.fields.epicName)
+              issueData.superIssue = data.key + ' ' + data.fields.epicName
             }));
           }
 
@@ -1057,7 +1058,7 @@
 
           issueData.summary = data.name;
           issueData.description = data.desc;
-          issueDate.tags = data.labels.map(function(label){
+          issueDate.labels = data.labels.map(function(label){
             return label.name;
           })
 
@@ -1137,7 +1138,7 @@
             issueData.estimate = data.find('card > properties > property > name:contains(Estimate) ~ value')[0].textContent;
           }
 
-          // TODO issueData.tags
+          // TODO issueData.labels
 
           var projectIdentifier = data.find('card > project > identifier')[0].textContent;
           var cardNumber = data.find('card > number')[0].textContent
@@ -1235,7 +1236,7 @@
           issueData.type = 'Bug';
           issueData.hasAttachment = false;
           issueData.estimate = '';
-          issueData.tags = [];
+          issueData.labels = [];
 
           jQuery(trEl).find("td").each(function(tdIdx, tdEl) {
             const posFieldMap = determineFieldPositions();
@@ -1256,7 +1257,7 @@
                 issueData.assignee = '';
               }
             } else if (field == "Customer" || field == "Category") {
-              issueData.tags.push(field + ":" + jQuery(tdEl).text())
+              issueData.labels.push(field + ":" + jQuery(tdEl).text())
             }
           });
         });
@@ -1370,12 +1371,6 @@
     if (!String.prototype.trim) {
       String.prototype.trim = function() {
         return this.replace(/^\s+|\s+$/g, '');
-      };
-    }
-    
-    if (!String.prototype.trunc) {
-      String.prototype.trunc = function(limit) {
-        return (this.length > limit) ? this.substr(0,limit-1).trim() + '...' : this;
       };
     }
 
@@ -1717,6 +1712,10 @@
        border-left-width: 0.08rem;
        border-bottom-width: 0.14rem;
        border-right-width: 0.14rem;
+       max-width: 100%;
+       overflow: hidden;
+       text-overflow: ellipsis;
+       white-space: nowrap;
      }   
      .issue-due-date-box {
        position: absolute;
