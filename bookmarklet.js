@@ -4,7 +4,7 @@
   // PivotTracker: https://www.pivotaltracker.com/n/projects/510733
   // Trello: https://trello.com/b/8zlPSh70/spike
   // YouTrack: http://qoomon.myjetbrains.com/youtrack/dashboard
-  
+
   if (!String.prototype.startsWith) {
     String.prototype.startsWith = function(searchString, position) {
       position = position || 0;
@@ -30,7 +30,7 @@
     alert("jQuery is required!\n\nPlease create an issue at\n" + global.issueTrackingUrl);
     return;
   }
-  
+
 
   // run
   try {
@@ -587,8 +587,8 @@
       return true;
     });
 
-    // show Epic 
-    
+    // show Epic
+
     result.find("#epic-checkbox").click(function() {
       global.settings.hideEpic = !this.checked;
       saveSettings();
@@ -683,7 +683,7 @@
       .html(global.cardCss);
     return result;
   }
-  
+
   function textColor(text){
 
     const colours = [
@@ -747,7 +747,7 @@
         if (/.*\/projects\/.*/g.test(document.URL)) {
           return [document.URL.match(/.*\/projects\/[^\/]*\/[^\/]*\/([^?]*).*/)[1]];
         }
-        
+
          //Issues
         if (/.*\/issues\/.*/g.test(document.URL)) {
 
@@ -845,7 +845,7 @@
                   fieldName = 'storyPoints'
                 }
               }
-              
+
               //lufthansa specific field mapping
                if(/.*trackspace.lhsystems.com/g.test(window.location.hostname)){
                 if (key == 'Xcustomfield_10006'){
@@ -862,7 +862,7 @@
                  fieldValue = formatDate(new Date(fieldValue));
                 }
               }
-              
+
               //console.log("add new field: " + fieldName + " with value from " + key);
               responseData.fields[fieldName] = fieldValue;
             }
@@ -1028,21 +1028,21 @@
           var issueKeys = $( ".card-composer").parent().find(".list-card > .list-card-details > .list-card-title").map(function() {
             return $(this).attr("href").match(/.*\/c\/([^/]*).*/)[1];
           });
-          
+
           //read only board
-          
+
           var issueKeys2 = $( "textarea.list-header-name.is-editing" ).parent().parent().find(".list-cards > .list-card > .list-card-details > .list-card-title").map(function() {
             return $(this).attr("href").match(/.*\/c\/([^/]*).*/)[1];
           })
 
           return jQuery.merge(issueKeys,issueKeys2 );
         }
-        
+
         //Card View
         if (/.*\/c\/.*/g.test(document.URL)) {
           return [document.URL.match(/.*\/c\/([^/]*).*/)[1]];
         }
-        
+
         return [];
       };
 
