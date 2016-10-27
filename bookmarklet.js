@@ -16,8 +16,6 @@
   global.version = "4.10.1";
   global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
 
-  global.isDev = document.currentScript == null;
-
   // support for older jQuery versions
   if (!jQuery.fn.on) {
     jQuery.fn.on = function(action, handler) {
@@ -126,10 +124,6 @@
     loadSettings();
 
     global.hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
-    if (global.isDev) {
-      console.log("DEVELOPMENT");
-      global.hostOrigin = "https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/";
-    }
     global.resourceOrigin = global.hostOrigin + "resources/";
 
     var resources = getResources();
@@ -1286,10 +1280,6 @@
   //############################################################################################################################
 
   function initGoogleAnalytics() {
-    if (global.isDev) {
-      this.ga = function(){ console.log("GoogleAnalytics: " + Object.keys(arguments).map(key => arguments[key]))}
-      return;
-    }
     // <GoogleAnalytics>
     (function(i, s, o, g, r, a, m) {
       i['GoogleAnalyticsObject'] = r;
