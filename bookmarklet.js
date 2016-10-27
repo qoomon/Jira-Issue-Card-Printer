@@ -366,6 +366,7 @@
 
     //Attachment
     if (data.hasAttachment) {
+      ;
     } else {
       card.find('.issue-attachment').remove();
     }
@@ -806,11 +807,11 @@
           if (data.fields.parent) {
             promises.push(module.getIssueData(data.fields.parent.key).then(function(data) {
               issueData.superIssue = data.key + ' ' + data.fields.summary
-            }));
+            }).catch(function(){}));
           } else if (data.fields.epicLink) {
             promises.push(module.getIssueData(data.fields.epicLink).then(function(data) {
               issueData.superIssue = data.key + ' ' + data.fields.epicName
-            }));
+            }).catch(function(){}));
           }
 
           issueData.url = module.baseUrl() + "/browse/" + issueData.key;
