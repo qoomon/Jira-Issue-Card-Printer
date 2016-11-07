@@ -349,7 +349,7 @@
       if (data.avatarUrl) {
         card.find(".issue-assignee").css("background-image", "url('" + data.avatarUrl + "')");
       } else {
-        const initials = data.assignee.split(/ /).map(namePart => namePart[0].toUpperCase()).join('');
+        const initials = data.assignee.trim().split(/ /).map(namePart => namePart[0].toUpperCase()).join('');
         card.find(".issue-assignee").text(initials);
         card.find(".issue-assignee").css("background-color", textColor(initials));
       }
