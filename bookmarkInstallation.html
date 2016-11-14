@@ -3,25 +3,23 @@
     <title>Card Printer Installation</title>
     <style>
     .button {
-      background: #60a7d4;
-      background-image: linear-gradient(to bottom, #60a7d4, #4890bd);
-      border-radius: 28px;
-      text-shadow: 1px 1px 27px #666666;
-      font-family: Arial;
-      color: #ffffff;
-      font-size: 18px;
-      padding: 10px 20px 10px 20px;
-
-      width: 100px;
-      margin: 10px ;
-      text-decoration: none;
+      width: 256px;
+      height: 256px;
+      margin: 32px ;
+      
+      background-image: url(Printer.png);
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      
+      box-shadow: 2px 5px 15px #888888;
     }
     </style>
   </head>
   <body>
     <b>Just Drag'n'Drop the button into your Bookmarks</b>
     <div class="button">
-        <a href="javascript:(function(){ var script = document.createElement(&quot;script&quot;); script.src = &quot;https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarklet.js&quot;; document.body.appendChild(script); document.body.removeChild(script);})();">CardPrinter</a>
+        <a href="javascript:(function(){ var script = document.createElement(&quot;script&quot;); script.src = &quot;https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarklet.js&quot;; document.body.appendChild(script); document.body.removeChild(script);})();"></a>
     </div>
   </body>
 </html>
