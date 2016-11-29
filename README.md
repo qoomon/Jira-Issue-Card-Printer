@@ -7,7 +7,11 @@ So long
 Bengt
 
 ## Licence
-If you fork this project you are not allowed to remove the copyright section 'qoomon.com Bengt Brodersen'
+It is free for personal and professional purpose.
+
+**You are not allowed to change and host this boockmarklet under your own github account.**
+
+You may fork this project to contribute.
 
 ### Card Layout
 ![Card Layout](CardExample.png)
