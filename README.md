@@ -17,6 +17,7 @@ You may fork this project to contribute.
 ![Card Layout](CardExample.png)
 
 ### Installation
+
 #### Drag'n'Drop
 go to [Installation Site](https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarkInstallation.html)
 
@@ -30,6 +31,11 @@ javascript:(function(){ var script = document.createElement("script"); script.sr
 
 ### Usage
 Just select Issue(s) then run the Bookmarklet.
+
+**Make sure to enable "Print Background Images and Colors"**
+* Google Chrome -> Print Preview -> More settings -> Options -> Background Graphics
+* Safari -> Print Preview -> Details -> Print Backgrounds
+* Internet Explore -> File -> Page Setup -> Paprer options -> Print Background Images and Colors
 
 Marker to separate description into print and no print area ("~~~~~")
 
