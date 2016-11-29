@@ -5,16 +5,98 @@
   // Trello: https://trello.com/b/8zlPSh70/spike
   // YouTrack: http://qoomon.myjetbrains.com/youtrack/dashboard
 
+  var global = {};
+  global.version = "5.0.0";
+  global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
+
+
   if (!String.prototype.startsWith) {
-    String.prototype.startsWith = function(searchString, position) {
+    String.prototype.startsWith = function(searchString, position){
       position = position || 0;
-      return this.indexOf(searchString, position) === position;
+      return this.substr(position, searchString.length) === searchString;
     };
   }
 
-  var global = {};
-  global.version = "4.12.2";
-  global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
+  if (!Array.from) {
+    Array.from = (function () {
+      var toStr = Object.prototype.toString;
+      var isCallable = function (fn) {
+        return typeof fn === 'function' || toStr.call(fn) === '[object Function]';
+      };
+      var toInteger = function (value) {
+        var number = Number(value);
+        if (isNaN(number)) { return 0; }
+        if (number === 0 || !isFinite(number)) { return number; }
+        return (number > 0 ? 1 : -1) * Math.floor(Math.abs(number));
+      };
+      var maxSafeInteger = Math.pow(2, 53) - 1;
+      var toLength = function (value) {
+        var len = toInteger(value);
+        return Math.min(Math.max(len, 0), maxSafeInteger);
+      };
+
+      // La propriété length de la méthode vaut 1.
+      return function from(arrayLike/*, mapFn, thisArg */) {
+        // 1. Soit C, la valeur this
+        var C = this;
+
+        // 2. Soit items le ToObject(arrayLike).
+        var items = Object(arrayLike);
+
+        // 3. ReturnIfAbrupt(items).
+        if (arrayLike == null) {
+          throw new TypeError("Array.from doit utiliser un objet semblable à un tableau - null ou undefined ne peuvent pas être utilisés");
+        }
+
+        // 4. Si mapfn est undefined, le mapping sera false.
+        var mapFn = arguments.length > 1 ? arguments[1] : void undefined;
+        var T;
+        if (typeof mapFn !== 'undefined') {
+          // 5. sinon
+          // 5. a. si IsCallable(mapfn) est false, on lève une TypeError.
+          if (!isCallable(mapFn)) {
+            throw new TypeError('Array.from: lorsqu il est utilisé le deuxième argument doit être une fonction');
+          }
+
+          // 5. b. si thisArg a été fourni, T sera thisArg ; sinon T sera undefined.
+          if (arguments.length > 2) {
+            T = arguments[2];
+          }
+        }
+
+        // 10. Soit lenValue pour Get(items, "length").
+        // 11. Soit len pour ToLength(lenValue).
+        var len = toLength(items.length);
+
+        // 13. Si IsConstructor(C) vaut true, alors
+        // 13. a. Soit A le résultat de l'appel à la méthode interne [[Construct]] avec une liste en argument qui contient l'élément len.
+        // 14. a. Sinon, soit A le résultat de ArrayCreate(len).
+        var A = isCallable(C) ? Object(new C(len)) : new Array(len);
+
+        // 16. Soit k égal à 0.
+        var k = 0;  // 17. On répète tant que k < len…
+        var kValue;
+        while (k < len) {
+          kValue = items[k];
+          if (mapFn) {
+            A[k] = typeof T === 'undefined' ? mapFn(kValue, k) : mapFn.call(T, kValue, k);
+          } else {
+            A[k] = kValue;
+          }
+          k += 1;
+        }
+        // 18. Soit putStatus égal à Put(A, "length", len, true).
+        A.length = len;  // 20. On renvoie A.
+        return A;
+      };
+    }());
+  }
+
+  // enforce jQuery
+  if (typeof jQuery == 'undefined') {
+    alert("jQuery is required!\n\nPlease create an issue at\n" + global.issueTrackingUrl);
+    return;
+  }
 
   // support for older jQuery versions
   if (!jQuery.fn.on) {
@@ -24,13 +106,6 @@
   }
 
   var $ = jQuery;
-
-  // enforce jQuery
-  if (typeof jQuery == 'undefined') {
-    alert("jQuery is required!\n\nPlease create an issue at\n" + global.issueTrackingUrl);
-    return;
-  }
-
 
   // run
   try {
@@ -49,10 +124,11 @@
       closePrintPreview();
     }
 
-    console.log("Run...")
-    for (issueTracker of getIssueTrackers()) {
+    console.log("Run...");
+    var issueTrackers = getIssueTrackers();
+    for (var i = 0; i < issueTrackers.length; i++) {
+      var issueTracker = issueTrackers[i];
       if(issueTracker.isEligible()){
-        console.log("Issue Tracker: " + issueTracker.name);
         global.appFunctions = issueTracker;
         break;
       }
@@ -61,6 +137,8 @@
     if(!global.appFunctions){
       alert("Unsupported app. Please create an issue at " + global.issueTrackingUrl);
       return;
+    } else {
+      console.log("Issue Tracker: " +   global.appFunctions.name);
     }
 
     // add overlay frame
@@ -89,16 +167,17 @@
     printFrame.document.close();
     global.printFrame = printFrame;
 
-    // add listeners to redraw crads on print event
+    // add listeners to redraw cards on print event
     printFrame.window.addEventListener("resize", redrawCards);
     printFrame.window.matchMedia("print").addListener(redrawCards);
 
-    // collect selcted issues
+    // collect selected issues
     var issueKeyList = global.appFunctions.getSelectedIssueKeyList();
     if (issueKeyList.length <= 0) {
       alert("Please select at least one issue.");
       return;
-    } else if (issueKeyList.length > 30) {
+    }
+    if (issueKeyList.length > 30) {
       var confirmResult = confirm("Are you sure you want select " + issueKeyList.length + " issues?");
       if (!confirmResult) {
         return;
@@ -117,7 +196,7 @@
   function init() {
     var promises = [];
 
-    console.log("Init...")
+    console.log("Init...");
     initGoogleAnalytics();
 
     addStringFunctions();
@@ -149,7 +228,7 @@
 
   function handleError(error){
     error = error2object(error);
-    var error = JSON.stringify(error,2,2);
+    error = JSON.stringify(error,2,2);
     console.log("ERROR " + error);
     ga('send', 'exception', { 'exDescription': error, 'exFatal': true });
     alert("Sorry something went wrong\n\nPlease create an issue with following details at\n" + global.issueTrackingUrl + "\n\n" + error);
@@ -189,6 +268,7 @@
 
   function print() {
     ga('send', 'event', 'button', 'click', 'print', $(".card", global.printFrame.contentWindow.document).length);
+    global.printFrame.contentWindow.focus();
     global.printFrame.contentWindow.print();
   }
 
@@ -279,11 +359,6 @@
     var backgroundImage;
     var backgroundSize = '63%';
     switch (data.type.toLowerCase()) {
-      default:
-        backgroundColor = textColor(data.type.toLowerCase());
-        backgroundImage = 'http://identicon.org/?t=' + data.type.toLowerCase() + '&s=256&c=b';
-        backgroundSize = '55%';
-        break;
       case 'default':
         backgroundColor = 'SILVER';
         backgroundImage = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/objects.png';
@@ -329,6 +404,10 @@
         backgroundColor = 'ORANGE';
         backgroundImage = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/CrashDummy.png';
         break;
+      default:
+        backgroundColor = textColor(data.type.toLowerCase());
+        backgroundImage = 'http://identicon.org/?t=' + data.type.toLowerCase() + '&s=256&c=b';
+        backgroundSize = '55%';
     }
     card.find('.issue-icon').css('background-color', backgroundColor);
     card.find('.issue-icon').css('background-image', 'url(' + backgroundImage + ')');
@@ -349,7 +428,9 @@
       if (data.avatarUrl) {
         card.find(".issue-assignee").css("background-image", "url('" + data.avatarUrl + "')");
       } else {
-        const initials = data.assignee.trim().split(/ /).map(namePart => namePart[0].toUpperCase()).join('');
+        const initials = data.assignee.trim().split(/\s/).map(function (namePart) {
+          return namePart[0].toUpperCase();
+        }).join('');
         card.find(".issue-assignee").text(initials);
         card.find(".issue-assignee").css("background-color", textColor(initials));
       }
@@ -365,9 +446,7 @@
     }
 
     //Attachment
-    if (data.hasAttachment) {
-      ;
-    } else {
+    if (!data.hasAttachment) {
       card.find('.issue-attachment').remove();
     }
 
@@ -380,13 +459,13 @@
 
     //Supper Issue
     if(data.superIssue){
-      var tagElement = $('<div />');
-      tagElement.text(data.superIssue);
-      tagElement.addClass('badge');
-      tagElement.addClass('issue-tag');
-      tagElement.addClass('issue-tag-super-issue');
-      tagElement.css('background-color', textColor(data.superIssue));
-      card.find(".issue-tags-box").append(tagElement);
+      var superIssueTagElement = $('<div />');
+      superIssueTagElement.text(data.superIssue);
+      superIssueTagElement.addClass('badge');
+      superIssueTagElement.addClass('issue-tag');
+      superIssueTagElement.addClass('issue-tag-super-issue');
+      superIssueTagElement.css('background-color', textColor(data.superIssue));
+      card.find(".issue-tags-box").append(superIssueTagElement);
     }
 
     //Labels
@@ -411,7 +490,7 @@
 
   function styleCards() {
     var settings = global.settings;
-    var printFrame = global.printFrame
+    var printFrame = global.printFrame;
 
     // hide/show description
     $(".issue-description", printFrame.document).toggle(!settings.hideDescription);
@@ -516,6 +595,7 @@
     var result = $('<div/>').html(global.printPreviewHtml).contents();
 
     // info
+
     result.find("#report-issue").click(function(event) {
       window.open('https://github.com/qoomon/Jira-Issue-Card-Printer/issues');
       return false;
@@ -600,7 +680,8 @@
 
     // scale font
 
-    result.find("#scaleRange").on('input', function() {
+    // change is needed for IE11 Support
+    result.find("#scaleRange").on('input change', function() {
       global.settings.scale = $(this).val();
       saveSettings();
       redrawCards();
@@ -675,7 +756,7 @@
 
   function cardElement(issueKey) {
     var result = $('<div/>').html(global.cardHtml).contents()
-      .attr("id", issueKey)
+      .attr("id", issueKey);
     return result;
   }
 
@@ -708,10 +789,11 @@
       '#d4a493'
     ];
 
-    var textHash = 0, i, chr, len;
-    for (i = 0, len = text.length; i < len; i++) {
-      chr   = text.charCodeAt(i);
-      textHash  = ((textHash << 5) - textHash) + chr;
+    var textHash = 0;
+    var i, chr;
+    for (i = 0; i < text.length; i+=1) {
+      chr = text.charCodeAt(i);
+      textHash = ((textHash << 5) - textHash) + chr;
       textHash |= 0; // Convert to 32bit integer
     }
     const colourIndex = Math.abs(textHash) % colours.length;
@@ -723,7 +805,7 @@
   //############################################################################################################################
 
   function getIssueTrackers(){
-    var issueTrackers = []
+    var issueTrackers = [];
 
     var jiraFunctions = (function(module) {
       module.name = "JIRA";
@@ -731,12 +813,12 @@
       module.baseUrl = function() {
         var jiraBaseUrl = window.location.origin;
         try { jiraBaseUrl = $("input[title='baseURL']").attr('value'); } catch(ex){}
-        return jiraBaseUrl
-      }
+        return jiraBaseUrl;
+      };
 
       module.isEligible = function(){
         return $("meta[name='application-name'][ content='JIRA']").length > 0;
-      }
+      };
 
       module.getSelectedIssueKeyList = function() {
 
@@ -806,11 +888,11 @@
 
           if (data.fields.parent) {
             promises.push(module.getIssueData(data.fields.parent.key).then(function(data) {
-              issueData.superIssue = data.key + ' ' + data.fields.summary
+              issueData.superIssue = data.key + ' ' + data.fields.summary;
             }).catch(function(){}));
           } else if (data.fields.epicLink) {
             promises.push(module.getIssueData(data.fields.epicLink).then(function(data) {
-              issueData.superIssue = data.key + ' ' + data.fields.epicName
+              issueData.superIssue = data.key + ' ' + data.fields.epicName;
             }).catch(function(){}));
           }
 
@@ -838,29 +920,29 @@
               //deposit-solutions specific field mapping
               if(/.*\.deposit-solutions.com/g.test(window.location.hostname)){
                 if (key == 'customfield_10006'){
-                  fieldName = 'epicLink'
+                  fieldName = 'epicLink';
                 }
                 if (key == 'customfield_10007'){
-                  fieldName = 'epicName'
+                  fieldName = 'epicName';
                 }
                 if (key == 'customfield_10002'){
-                  fieldName = 'storyPoints'
+                  fieldName = 'storyPoints';
                 }
               }
 
               //lufthansa specific field mapping
                if(/.*trackspace.lhsystems.com/g.test(window.location.hostname)){
                 if (key == 'Xcustomfield_10006'){
-                  fieldName = 'epicLink'
+                  fieldName = 'epicLink';
                 }
                 if (key == 'Xcustomfield_10007'){
-                  fieldName = 'epicName'
+                  fieldName = 'epicName';
                 }
                 if (key == 'Xcustomfield_10002'){
-                  fieldName = 'storyPoints'
+                  fieldName = 'storyPoints';
                 }
                 if (fieldName == 'desiredDate') {
-                 fieldName ='dueDate'
+                 fieldName ='dueDate';
                  fieldValue = formatDate(new Date(fieldValue));
                 }
               }
@@ -881,8 +963,8 @@
       module.name = "YouTrack";
 
       module.isEligible = function(){
-        return /.*myjetbrains.com\/youtrack\/.*/g.test(document.URL) || /.*youtrack.jetbrains.com\/.*/g.test(document.URL);
-      }
+        return (/.*myjetbrains.com\/youtrack\/.*/g).test(document.URL) || (/.*youtrack.jetbrains.com\/.*/g).test(document.URL);
+      };
 
       module.getSelectedIssueKeyList = function() {
         //Detail View
@@ -951,7 +1033,7 @@
 
       module.isEligible = function(){
         return /.*pivotaltracker.com\/.*/g.test(document.URL);
-      }
+      };
 
       module.getSelectedIssueKeyList = function() {
         //Single Story
@@ -1021,28 +1103,28 @@
 
       module.isEligible = function(){
         return /.*trello.com\/.*/g.test(document.URL);
-      }
+      };
 
       module.getSelectedIssueKeyList = function() {
         //Board View
         if (/.*\/b\/.*/g.test(document.URL)) {
           // open card composer
           var issueKeys = $( ".card-composer").parent().find(".list-card > .list-card-details > .list-card-title").map(function() {
-            return $(this).attr("href").match(/.*\/c\/([^/]*).*/)[1];
+            return $(this).attr("href").match(/.*\/c\/([^\/]*).*/)[1];
           });
 
           //read only board
 
           var issueKeys2 = $( "textarea.list-header-name.is-editing" ).parent().parent().find(".list-cards > .list-card > .list-card-details > .list-card-title").map(function() {
-            return $(this).attr("href").match(/.*\/c\/([^/]*).*/)[1];
-          })
+            return $(this).attr("href").match(/.*\/c\/([^\/]*).*/)[1];
+          });
 
           return jQuery.merge(issueKeys,issueKeys2 );
         }
 
         //Card View
         if (/.*\/c\/.*/g.test(document.URL)) {
-          return [document.URL.match(/.*\/c\/([^/]*).*/)[1]];
+          return [document.URL.match(/.*\/c\/([^\/]*).*/)[1]];
         }
 
         return [];
@@ -1062,7 +1144,7 @@
           issueData.description = data.desc;
           issueDate.labels = data.labels.map(function(label){
             return label.name;
-          })
+          });
 
           if (data.members && data.members.length > 0) {
             issueData.assignee = data.members[0].fullName;
@@ -1096,20 +1178,20 @@
 
       module.isEligible = function(){
         return /.*mingle.thoughtworks.com\/.*/g.test(document.URL);
-      }
+      };
 
       module.getSelectedIssueKeyList = function() {
         //Bord View - /projects/<project_name>/cards/grid
-        if (/.*\/projects\/[^/]*\/cards\/grid(\?.*)?/g.test(document.URL)) {
-          var project = document.URL.match(/.*\/projects\/([^/]*).*/)[1];
+        if (/.*\/projects\/[^\/]*\/cards\/grid(\?.*)?/g.test(document.URL)) {
+          var project = document.URL.match(/.*\/projects\/([^\/]*).*/)[1];
           var number = $(document).find('#card_show_lightbox_content > div > form[data-card-number]').attr('data-card-number');
           return [project + "-" + number];
         }
 
         //Card View - /projects/<project_name>/cards/<card_number>
-        if (/.*\/projects\/[^/]*\/cards\/\d+(\?.*)?/g.test(document.URL)) {
-          var project = document.URL.match(/.*\/projects\/([^/]*).*/)[1];
-          var number = document.URL.match(/.*\/projects\/[^/]*\/cards\/(\d+)(\?.*)?/)[1];
+        if (/.*\/projects\/[^\/]*\/cards\/\d+(\?.*)?/g.test(document.URL)) {
+          var project = document.URL.match(/.*\/projects\/([^\/]*).*/)[1];
+          var number = document.URL.match(/.*\/projects\/[^\/]*\/cards\/(\d+)(\?.*)?/)[1];
           return [project + "-" + number];
         }
 
@@ -1121,7 +1203,7 @@
         var issueData = {};
 
         promises.push(module.getIssueData(issueKey).then(function(data) {
-          data = $(data.documentElement)
+          data = $(data.documentElement);
 
           issueData.key = data.find('card > number')[0].textContent;
           issueData.type = data.find('card > card_type > name')[0].textContent.toLowerCase();
@@ -1143,7 +1225,7 @@
           // TODO issueData.labels
 
           var projectIdentifier = data.find('card > project > identifier')[0].textContent;
-          var cardNumber = data.find('card > number')[0].textContent
+          var cardNumber = data.find('card > number')[0].textContent;
           issueData.url = "https://" + document.location.hostname + "/projects/" + projectIdentifier + "/cards/" + cardNumber;
         }));
 
@@ -1203,12 +1285,12 @@
             });
 
             map = {};
-            for (f in rMap) {
+            Object.keys(rMap).forEach(function (f) {
               if (rMap[f] == -1) {
                 throw "Please configure the required field " + f + " in your current view.";
               }
               map[rMap[f]] = f;
-            }
+            });
           }
           return map;
         };
@@ -1223,7 +1305,7 @@
             authority = parser.protocol + "//" + parser.hostname + parser.port;
           }
           return authority;
-        }
+        };
       })();
 
       module.getCardData = function(issueKey) {
@@ -1259,7 +1341,7 @@
                 issueData.assignee = '';
               }
             } else if (field == "Customer" || field == "Category") {
-              issueData.labels.push(field + ":" + jQuery(tdEl).text())
+              issueData.labels.push(field + ":" + jQuery(tdEl).text());
             }
           });
         });
@@ -1393,8 +1475,8 @@
         // remove all characters that should not be in a variable name
         // as well underscores an numbers from the beginning of the string
         var s = this.replace(/([^a-zA-Z0-9_\- ])|^[_0-9]+/g, "").trim().toLowerCase();
-        // uppercase letters preceeded by a hyphen or a space
-        s = s.replace(/([ -]+)([a-zA-Z0-9])/g, function(a, b, c) {
+        // uppercase letters preceded by a hyphen or a space
+        s = s.replace(/([ \-]+)([a-zA-Z0-9])/g, function(a, b, c) {
           return c.toUpperCase();
         });
         // uppercase letters following numbers
@@ -1769,6 +1851,8 @@
        .card {
          page-break-inside: avoid !important;
          margin: 0.0mm !important;
+         min-width: 0.0rem;
+         min-height: 0.0rem;
        }
      }
      */});
@@ -2039,6 +2123,4 @@
 
      return resources;
    }
-
-
 })();
