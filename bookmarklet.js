@@ -94,7 +94,7 @@
 
   // enforce jQuery
   if (typeof jQuery == 'undefined') {
-    alert("jQuery is required!\n\nPlease create an issue at\n" + global.issueTrackingUrl);
+    alert("Unsupported Application " + document.URL + " or jQuery is missing!\n\nPlease create an issue at\n" + global.issueTrackingUrl);
     return;
   }
 
@@ -135,7 +135,7 @@
     }
 
     if(!global.appFunctions){
-      alert("Unsupported app. Please create an issue at " + global.issueTrackingUrl);
+      alert("Unsupported Application " + document.URL + " Please create an issue at " + global.issueTrackingUrl);
       return;
     } else {
       console.log("Issue Tracker: " +   global.appFunctions.name);
