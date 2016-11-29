@@ -1,7 +1,7 @@
-# Jira-Issue-Card-Printer
-Beautiful Jira Issue Card Printer
+# Issue-Card-Printer
+Beautiful Issue Card Printer
 
-I've written a little bookmarklet for converting Jira issues in a pretty card layout for printing.
+I've written a little bookmarklet for converting digital issues in a pretty card layout for printing.
 
 So long
 Bengt
