@@ -54,6 +54,7 @@ select a column by open the add new card input for spesific column
 #### Browser
 * **Chrome Browsers 46+**
 * **Safari 9+**.
+* **Internet Explore 11+**
 
 #### Issue tracker
 * **Jira**
