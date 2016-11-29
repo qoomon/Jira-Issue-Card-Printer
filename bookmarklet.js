@@ -602,7 +602,7 @@
     });
 
     result.find("#about").click(function(event) {
-      window.open('http://qoomon.blogspot.de/2014/01/jira-issue-card-printer-bookmarklet.html');
+      window.open('https://github.com/qoomon/Jira-Issue-Card-Printer');
       return false;
     });
 
