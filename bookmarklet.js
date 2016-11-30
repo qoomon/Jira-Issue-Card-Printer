@@ -1851,8 +1851,6 @@
        .card {
          page-break-inside: avoid !important;
          margin: 0.0mm !important;
-         min-width: 0.0rem;
-         min-height: 0.0rem;
        }
      }
      */});
