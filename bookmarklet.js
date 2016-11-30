@@ -6,7 +6,7 @@
   // YouTrack: http://qoomon.myjetbrains.com/youtrack/dashboard
 
   var global = {};
-  global.version = "5.0.0";
+  global.version = "5.0.1";
   global.issueTrackingUrl = "github.com/qoomon/Jira-Issue-Card-Printer";
 
 
@@ -170,6 +170,8 @@
     // add listeners to redraw cards on print event
     printFrame.window.addEventListener("resize", redrawCards);
     printFrame.window.matchMedia("print").addListener(redrawCards);
+    printFrame.window.onbeforeprint = redrawCards;
+    printFrame.window.onafterprint = redrawCards;
 
     // collect selected issues
     var issueKeyList = global.appFunctions.getSelectedIssueKeyList();
@@ -563,8 +565,8 @@
     style.id = 'gridStyle';
     style.type = 'text/css';
     style.innerHTML = ".card { "+
-    "width: calc( 100% / " + columnCount + " );" +
-    "height: calc( 100% / " + rowCount + " );"+
+    "width: calc( 99.9999999999% / " + columnCount + " );" +
+    "height: calc( 99.999999999% / " + rowCount + " );"+
     "}";
     $("head", printFrame.document).append(style);
   }
@@ -1332,7 +1334,7 @@
             if (field == "Description") {
               issueData.description = jQuery(tdEl).text();
             }
-            else if (field == "Artifact ID : Title") {
+            else if (field == "Artifact ID : Title") {
               issueData.summary = jQuery(tdEl).find("a").text();
               issueData.url = getSiteAuthority() + jQuery(tdEl).find("a").attr("href");
             } else if (field == "Assigned To") {
@@ -1836,6 +1838,7 @@
        background-position: center;
        background-size: 65%;
      }
+
      @media print {
        @page {
          margin: 0.0mm;
@@ -1845,11 +1848,12 @@
          margin: 0.0mm;
          padding: 0.0mm;
          background-color: WHITE !important;
-         -webkit-print-color-adjust: exact !important;
-         print-color-adjust: exact !important;
+         -webkit-print-color-adjust: exact;
+         print-color-adjust: exact;
        }
        .card {
          page-break-inside: avoid !important;
+         
          margin: 0.0mm !important;
        }
      }
