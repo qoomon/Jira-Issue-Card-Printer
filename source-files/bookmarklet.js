@@ -584,7 +584,7 @@
   // http://www.cssdesk.com/T9hXg
 
   function printPreviewElement() {
-    var result = $('<div/>').html("@@printPreview.html@@").contents();
+    var result = $('<div/>').html("@@printPreview.html@@:json").contents();
 
     // info
 
@@ -740,14 +740,14 @@
   function printPreviewElementStyle() {
     var result = $(document.createElement('style'))
       .attr("type", "text/css")
-      .html("@@printPreview.css@@");
+      .html("@@printPreview.css@@:json");
     return result;
   }
 
   // card layout: http://jsfiddle.net/qoomon/ykbLb2pw/76
 
   function cardElement(issueKey) {
-    var result = $('<div/>').html("@@card.html@@").contents()
+    var result = $('<div/>').html("@@card.html@@:json").contents()
       .attr("id", issueKey);
     return result;
   }
@@ -755,7 +755,7 @@
   function cardElementStyle() {
     var result = $(document.createElement('style'))
       .attr("type", "text/css")
-      .html("@@card.css@@");
+      .html("@@card.css@@:json");
     return result;
   }
 
