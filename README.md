@@ -18,16 +18,7 @@ You may fork this project to contribute.
 
 ### Installation
 
-#### Drag'n'Drop
 go to [Installation Site](https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarkInstallation.html)
-
-*or*
-
-#### Manually
-Create Bookmark with following content.
-```
-javascript:(function(){ var script = document.createElement("script"); script.src = "https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarklet.js"; document.body.appendChild(script); document.body.removeChild(script);})();
-```
 
 ### Usage
 Just select Issue(s) then run the Bookmarklet.

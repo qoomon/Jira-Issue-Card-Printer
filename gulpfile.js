@@ -73,7 +73,7 @@ function resolvePlaceholder(file, encoding, placeholderRegex, encodeFunction){
       }
       const replacementFileContent = fs.readFileSync(replacementFile, { encoding: encoding });
       const replacementFileValue = encodeFunction(replacementFileContent);
-      fileContentResolved = fileContentResolved.replace(placeholder, replacementFileValue);
+      fileContentResolved = fileContentResolved.replace(new RegExp(placeholder, 'g'), replacementFileValue);
   }
 
   return fileContentResolved;
