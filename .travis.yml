@@ -4,9 +4,8 @@ node_js:
 before_script:
   - npm install
 script:
-  - if [[ $TRAVIS_BRANCH =~ ^master$ ]]; then
-      npm run gulp build
-    fi
+  - [[ $TRAVIS_BRANCH =~ ^master$ ]]
+    && npm run gulp build
 env:
   global:
     secure: jWp5IJt8EjpHEWeeMuA4mAZtu5Pbc7R1h3ReUM6Y1JfFnRUfYHWDtBZGgIbOvls3+IQjoP9Wz+KK8P5npE4vElloQPqLRXmRAznwr/smb1kY0BfPMNrAbIgZjoaN994KhDqjzMWWk2qUzfS8tbkkZHQzE1NhG36nszHGeNTXarU=
