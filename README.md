@@ -6,10 +6,10 @@ I've written a little bookmarklet for converting digital issues in a pretty card
 So long
 Bengt
 
-## Licence
+## License
 It is free for personal and professional purpose.
 
-**You are not allowed to change and host this boockmarklet under your own github account.**
+**You are not allowed to change and host this bookmarklet under your own github account.**
 
 You may fork this project to contribute.
 
@@ -24,7 +24,7 @@ go to [Installation Site](https://qoomon.github.io/Jira-Issue-Card-Printer/bookm
 *or*
 
 #### Manually
-Create Bookmark with folowing content.
+Create Bookmark with following content.
 ```
 javascript:(function(){ var script = document.createElement("script"); script.src = "https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarklet.js"; document.body.appendChild(script); document.body.removeChild(script);})();
 ```
@@ -33,21 +33,21 @@ javascript:(function(){ var script = document.createElement("script"); script.sr
 Just select Issue(s) then run the Bookmarklet.
 
 * **Internet Explore - Make sure to enable "Print Background Images and Colors"**
- * File -> Page Setup -> Paprer options -> Print Background Images and Colors
+ * File -> Page Setup -> Paper options -> Print Background Images and Colors
 
 Marker to separate description into print and no print area ("~~~~~")
 
-#### Select multible issues
+#### Select multiple issues
 ##### Jira
 ###### Jira Agile
 holding STRG / CMD or SHIFT and click on issues
 ###### Jira Classic
 just search for issues
 ##### Trello
-###### read-only access Boards 
+###### read-only access Boards
 select the columns by click on the title so they get highlighted
-###### write access Boards 
-select a column by open the add new card input for spesific column
+###### write access Boards
+select a column by open the add new card input for specific column
 
 
 ### Support

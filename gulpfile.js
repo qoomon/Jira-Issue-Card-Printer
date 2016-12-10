@@ -6,8 +6,10 @@ const del = require('del');
 const fs = require('fs');
 const path = require('path');
 
+const destDir = 'dist/';
+
 gulp.task('clean', function () {
-   return del(['dist']);
+   return del([destDir]);
 });
 
 gulp.task('watch', function () {
@@ -20,7 +22,7 @@ gulp.task('build', function(callback) {
 
 gulp.task('copy-resources', function() {
   return gulp.src('resources-files/**')
-    .pipe(gulp.dest('dist/resources/'));
+    .pipe(gulp.dest(destDir + 'resources/'));
 });
 
 gulp.task('build-js', function() {
@@ -32,7 +34,7 @@ gulp.task('build-js', function() {
       file.contents = new Buffer(fileContentResolved);
       callback(null,file);
     }))
-    .pipe(gulp.dest('dist/'));
+    .pipe(gulp.dest(destDir));
 });
 
 gulp.task('build-html', function() {
@@ -48,12 +50,12 @@ gulp.task('build-html', function() {
       file.contents = new Buffer(fileContentResolved);
       callback(null,file);
     }))
-    .pipe(gulp.dest('dist/'));
+    .pipe(gulp.dest(destDir));
 });
 
 gulp.task('build-css', function() {
   return gulp.src('source-files/bookmarkInstallation.css')
-    .pipe(gulp.dest('dist/'));
+    .pipe(gulp.dest(destDir));
 });
 
 
