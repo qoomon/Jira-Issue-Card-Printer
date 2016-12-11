@@ -49,10 +49,18 @@ select a column by open the add new card input for specific column
 
 #### Issue tracker
 * **Jira**
+ * e.g. https://connect.atlassian.net/browse/NERDS-33286
 * **Trello**
+ * e.g. https://trello.com/b/8zlPSh70/spike
 * **PivotTracker**
+ * e.g. https://www.pivotaltracker.com/n/projects/510733
 * **YouTrack**
+ * e.g. http://qoomon.myjetbrains.com/youtrack/dashboard
 * **TeamForge**
+ * unknown 
+* **Mingle**
+ * unknown 
+
 
 ###Info
 I make use of **Google Analytics** to get some usage feedback.

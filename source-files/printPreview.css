@@ -62,7 +62,7 @@
   position: relative;
   float: right;
   display: inline-block;
-  height 30px;
+  height: 30px;
 }
 #info {
   position: relative;
@@ -156,7 +156,7 @@ label[for] {
 input[type=number].numberInput {
     color: #656565;
     position: relative;
-    top: -2;
+    top: -2px;
     font-size: 12px;
     font-weight: 700;
     width:1.5em;

@@ -10,7 +10,11 @@
   "devDependencies": {
     "del": "^2.2.2",
     "gulp": "^3.9.1",
+    "gulp-concat": "latest",
     "gulp-sequence": "^0.4.6",
+    "gulp-uglify": "^2.0.0",
+    "gulp-wrapper": "^1.0.0",
+    "merge2": "^1.0.2",
     "through2": "^2.0.3"
   }
 }
