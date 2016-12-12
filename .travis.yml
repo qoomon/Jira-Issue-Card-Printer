@@ -8,16 +8,13 @@ script:
     if [[ $TRAVIS_BRANCH =~ ^master$ ]]; then
       npm run gulp build
 
-      cd 'dist'
-      git init
-      git branch -m gh-pages
+      git clone --depth 1 -b 'gh-pages' --single-branch 'https://github.com/qoomon/Jira-Issue-Card-Printer.git' gh-pages
+      cd 'gh-pages'
+      git rm -r '*' --ignore-unmatch
+      cp -R ../dist/ ./
       git add .
-      git stash push
-      git remote add origin 'https://${GH_TOKEN}@github.com/qoomon/Jira-Issue-Card-Printer.git'
-      git pull --rebase origin gh-pages
-      git stash pop
       git commit -m "Travis Build"
-      echo git push origin gh-pages
+      git push
     fi
 
 env:
