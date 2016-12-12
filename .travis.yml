@@ -13,7 +13,10 @@ script:
       git rm -r '*' --ignore-unmatch
       cp -R ../dist/ ./
       git add .
-      git commit -m "Travis Build"
+      git commit -m "Travis Build" -m "Source Branch $TRAVIS_BRANCH" -m "$(git show --format='%an' )"
+
+      git config user.name "travis"
+      git config user.email "travis"
       git push
     fi
 
