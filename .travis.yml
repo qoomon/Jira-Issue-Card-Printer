@@ -8,23 +8,22 @@ script:
     if [[ $TRAVIS_BRANCH =~ ^master$ ]]; then
       npm run gulp build
 
+      echo 'Deploy to "gh-pages"'
       git clone --depth 1 -b 'gh-pages' --single-branch "https://github.com/qoomon/Jira-Issue-Card-Printer.git" gh-pages
       cd 'gh-pages'
       git rm -r '*' --ignore-unmatch --quiet
 
-      cp -R ../dist/ ./
+      cp -R ../dist/* ./
+      echo 'files...'    
       ls
+      echo '...!'    
       git add .
+      git status
 
       git config user.name "travis"
       git config user.email "travis"
       git commit -m "Travis Build" -m "Source Branch $TRAVIS_BRANCH" -m "$(git show -s --format='short' )"
 
-      git status
       echo git config push.default simple
       echo git push
     fi
-
-env:
-  global:
-    secure: jWp5IJt8EjpHEWeeMuA4mAZtu5Pbc7R1h3ReUM6Y1JfFnRUfYHWDtBZGgIbOvls3+IQjoP9Wz+KK8P5npE4vElloQPqLRXmRAznwr/smb1kY0BfPMNrAbIgZjoaN994KhDqjzMWWk2qUzfS8tbkkZHQzE1NhG36nszHGeNTXarU=
