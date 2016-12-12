@@ -6,4 +6,4 @@ before_script:
 script:
   - npm run gulp build
   - [[ $TRAVIS_BRANCH =~ ^master$ ]] && ./deploy_gh-pages.sh
-    
+
