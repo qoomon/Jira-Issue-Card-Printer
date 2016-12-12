@@ -8,7 +8,7 @@ script:
     if [[ $TRAVIS_BRANCH =~ ^master$ ]]; then
       npm run gulp build
 
-      git clone --depth 1 -b 'gh-pages' --single-branch 'https://GH_TOKEN@github.com/qoomon/Jira-Issue-Card-Printer.git' gh-pages
+      git clone --depth 1 -b 'gh-pages' --single-branch "https://${GH_TOKEN}@github.com/qoomon/Jira-Issue-Card-Printer.git" gh-pages
       cd 'gh-pages'
       git rm -r '*' --ignore-unmatch
 
