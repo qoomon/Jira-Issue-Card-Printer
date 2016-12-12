@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <title>Card Printer Installation</title>
+    <link rel="stylesheet" type="text/css" href="bookmarkInstallation.css">
+    <style>
+      body {
+        padding: 16px;
+      }
+      .button {
+
+        width: 96px;
+        height: 96px;
+        margin: 32px;
+        margin-left: 110px;
+        border-radius: 50%;
+
+        background-image: url(resources/Printer.png);
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: contain;
+
+        box-shadow: 2px 4px 15px #888888;
+
+        color: transparent;
+      }
+      .button > a {
+        display: block;
+        height: 100%;
+        width: 100%;
+        color: transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <b>Just Drag'n'Drop the button into your Bookmarks</b>
+    <div class="button">
+        <a href="(function(){         var head = document.getElementsByTagName('head')[0];         var scriptElement = document.createElement('script');         scriptElement.src = 'https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarklet.js';         head.appendChild(scriptElement);         head.removeChild(scriptElement); })(); ">IssueCardPrinter</a>
+    </div>
+    <p>
+    <b>Or create Bookmark with following content</b>
+    <div>
+      "(function(){         var head = document.getElementsByTagName('head')[0];         var scriptElement = document.createElement('script');         scriptElement.src = 'https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarklet.js';         head.appendChild(scriptElement);         head.removeChild(scriptElement); })(); "
+    </div>
+  </body>
+</html>

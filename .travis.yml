@@ -4,22 +4,20 @@ node_js:
 before_script:
   - npm install
 script:
+  - npm run gulp build
+after_success: 
   - |
     if [[ $TRAVIS_BRANCH =~ ^master$ ]]; then
-      npm run gulp build
-
       echo 'Deploy to "gh-pages"'
       git clone --depth 1 -b 'gh-pages' --single-branch "https://github.com/qoomon/Jira-Issue-Card-Printer.git" gh-pages
       cd 'gh-pages'
-      git rm -r '*' --ignore-unmatch --quiet
+        git rm -r '*' --ignore-unmatch --quiet
 
-      cp -R ../dist/* ./ 
-      git add .
+        cp -R ../dist/* ./ 
+        git add .
 
-      git config user.name "travis"
-      git config user.email "travis"
-      git commit -m "Travis Build" -m "Source Branch $TRAVIS_BRANCH" -m "$(git show -s --format='short' )"
+        git -c user.name='travis' -c user.email='travis' commit -m "Travis Build" -m "Source Branch $TRAVIS_BRANCH" -m "$(git show -s --format='short' )"
 
-      git config push.default simple
-      git push
+        git push -f -q "https://qoomon:${GH_TOKEN}@github.com/qoomon/Jira-Issue-Card-Printer.git" gh-pages &2>/dev/null
+      cd -
     fi
