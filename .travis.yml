@@ -5,7 +5,6 @@ before_script:
   - npm install
 script:
   - npm run gulp build
-after_success: 
   - |
     if [[ $TRAVIS_BRANCH =~ ^master$ ]]; then
       echo 'Deploy to "gh-pages"'
@@ -21,3 +20,4 @@ after_success:
         git push -f -q "https://qoomon:${GH_TOKEN}@github.com/qoomon/Jira-Issue-Card-Printer.git" gh-pages &2>/dev/null
       cd -
     fi
+  
