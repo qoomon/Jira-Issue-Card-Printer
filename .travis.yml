@@ -8,5 +8,5 @@ before_script:
   - npm install
 script:
   - npm run gulp build
-  - if [[ $TRAVIS_BRANCH =~ ^master$ ]]; then ./deploy_gh-pages.sh fi
+  - if [[ $TRAVIS_BRANCH =~ ^master$ ]]; then ./deploy_gh-pages.sh; fi
 
