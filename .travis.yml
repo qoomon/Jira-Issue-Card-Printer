@@ -17,7 +17,7 @@ script:
 
         git -c user.name='travis' -c user.email='travis' commit -m "Travis Build" -m "Source Branch $TRAVIS_BRANCH" -m "$(git show -s --format='short' )"
 
-        git push -f -q "https://qoomon:${GH_TOKEN}@github.com/qoomon/Jira-Issue-Card-Printer.git" gh-pages &2>/dev/null
+        git push -f -q "https://qoomon:${GH_TOKEN}@github.com/qoomon/Jira-Issue-Card-Printer.git" gh-pages:gh-pages &2>/dev/null
       cd -
     fi
   
