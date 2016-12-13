@@ -1,13 +1,27 @@
 #!/bin/sh
-echo 'Deploy to "gh-pages"'
-git clone --depth 1 -b 'gh-pages' --single-branch "https://github.com/qoomon/Jira-Issue-Card-Printer.git" gh-pages
-cd 'gh-pages'
-  git rm -r '*' --ignore-unmatch --quiet
 
-  cp -R ../dist/* ./ 
-  git add .
+GIT_REPO="https://qoomon:${GH_TOKEN}@github.com/qoomon/Jira-Issue-Card-Printer.git"
+SOURCE_BRANCH="${TRAVIS_BRANCH}"
+SOURCE_FOLDER='dist'
+CLONE_FOLDER='gh-pages'
+TARGET_BRANCH='gh-pages'
 
-  git -c user.name='travis' -c user.email='travis' commit -m "Travis Build" -m "Source Branch $TRAVIS_BRANCH" -m "$(git show -s --format='short' )"
+echo "Deploy to '${TARGET_BRANCH}'"
 
-  git push -f -q "https://qoomon:${GH_TOKEN}@github.com/qoomon/Jira-Issue-Card-Printer.git" gh-pages:gh-pages &2>/dev/null
-cd -
+echo "Clone '${TARGET_BRANCH}' to '${CLONE_FOLDER}'"
+git clone --branch ${TARGET_BRANCH} --depth 1  ${GIT_REPO} ${CLONE_FOLDER}
+cd ${CLONE_FOLDER}; git rm -r . --ignore-unmatch --quiet
+
+echo "Apply '${SOURCE_FOLDER}'"
+cp -R ../${SOURCE_FOLDER}/* ./
+git add .
+
+echo "Commit changes to '${TARGET_BRANCH}'"
+git config user.name 'Travis'
+git config user.email '<>'
+git commit -m "Travis Build" -m "Source Branch ${SOURCE_BRANCH}" -m "$(git show -s --format='short')"
+
+echo "Push to '${TARGET_BRANCH}'"
+git push -q origin ${TARGET_BRANCH}
+
+
