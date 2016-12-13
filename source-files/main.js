@@ -1,7 +1,7 @@
 (function () {
 
     var global = {};
-    global.version = "5.0.1";
+    global.version = "5.0.2";
     global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
 
     // enforce jQuery
