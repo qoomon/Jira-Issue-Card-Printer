@@ -44,7 +44,7 @@ body {
     width: 100%;
     border-style: solid;
     border-bottom-width: 0.5rem;
-    border-image: url(https://rawgit.com/qoomon/Jira-Issue-Card-Printer/gh-pages/resources/Tearing.png);
+    border-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/Tearing.png);
     border-image-width: 0 0 0.7rem 0;
     border-image-slice: 56 0 56 1;
     border-image-repeat: round round;
