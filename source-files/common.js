@@ -1,11 +1,3 @@
-function httpGet() {
-    return Promise.resolve($.get.apply(this, arguments));
-}
-
-function httpGetJSON() {
-    return Promise.resolve($.getJSON.apply(this, arguments));
-}
-
 
 //trim string - remove leading and trailing whitespaces
 if (!String.prototype.trim) {
@@ -120,4 +112,28 @@ if (!Array.from) {
             return A;
         };
     }());
+}
+
+// enforce jQuery
+if (typeof jQuery == 'undefined' && typeof $ == 'undefined') {
+    alert("jQuery is missing!\n\nPlease create an issue at\n" + global.issueTrackingUrl);
+    return;
+}
+
+// support for older jQuery versions
+if (!jQuery.fn.on) {
+    jQuery.fn.on = function (action, handler) {
+        return jQuery.bind(action, handler);
+    };
+}
+
+var $ = $ || jQuery;
+
+
+function httpGet() {
+    return Promise.resolve($.get.apply(this, arguments));
+}
+
+function httpGetJSON() {
+    return Promise.resolve($.getJSON.apply(this, arguments));
 }

@@ -259,7 +259,7 @@ body {
   border-left-width: 0.1rem;
   border-bottom-width: 0.15rem;
   border-right-width: 0.15rem;
-  max-width: calc(100% - 0.25rem);
+  max-width: 5.0rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -311,7 +311,7 @@ body {
   }
   .card {
     page-break-inside: avoid !important;
-    
+
     margin: 0.0mm !important;
   }
 }
