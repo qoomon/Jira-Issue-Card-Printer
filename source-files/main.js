@@ -1,7 +1,7 @@
   (function () {
 
       var global = {};
-      global.version = "5.0.3";
+      global.version = "5.0.4";
       global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
 
       // <GoogleAnalytics>
@@ -27,7 +27,7 @@
           error = error2object(error);
           error = JSON.stringify(error);
           console.log("ERROR " + error);
-          ga('send', 'exception', {'exDescription': global.version + " - " + error, 'exFatal': true});
+          ga('send', 'exception', {'exDescription': global.version + " - " + document.location.host + "\n" + error, 'exFatal': true});
           alert("Sorry something went wrong\n\nPlease create an issue with following details at\n" + global.issueTrackingUrl + "\n\n" + error);
       }
 
