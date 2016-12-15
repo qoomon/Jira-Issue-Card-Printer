@@ -20,8 +20,6 @@ git clone --branch "${TARGET_BRANCH}" --depth 1 "${TARGET_REPO}" "${CLONE_FOLDER
     git rm -r . --ignore-unmatch --quiet
     cp -R ../${SOURCE_FOLDER}/* ./
     git add .
-
-    echo "--- Commit Changes"
     git config user.name 'Travis'
     git config user.email '<>'
     git commit -m "Travis Build" -m "Source Branch ${SOURCE_BRANCH}" -m "$(git show -s --format='short')"
