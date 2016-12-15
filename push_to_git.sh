@@ -1,15 +1,17 @@
 #!/bin/sh
 
-GIT_REPO="https://qoomon:${GH_TOKEN}@github.com/qoomon/Jira-Issue-Card-Printer.git"
+SOURCE_FOLDER="$1"
 SOURCE_BRANCH="${TRAVIS_BRANCH}"
-SOURCE_FOLDER='dist'
-CLONE_FOLDER='gh-pages'
-TARGET_BRANCH='gh-pages'
+
+TARGET_REPO="$2"
+TARGET_BRANCH="$3"
+
+CLONE_FOLDER='.deploy'
 
 echo "Deploy to '${TARGET_BRANCH}'"
 
 echo "Clone '${TARGET_BRANCH}' to '${CLONE_FOLDER}'"
-git clone --branch ${TARGET_BRANCH} --depth 1  ${GIT_REPO} ${CLONE_FOLDER}
+git clone --branch ${TARGET_BRANCH} --depth 1  ${TARGET_REPO} ${CLONE_FOLDER}
 cd ${CLONE_FOLDER}; git rm -r . --ignore-unmatch --quiet
 
 echo "Apply '${SOURCE_FOLDER}'"

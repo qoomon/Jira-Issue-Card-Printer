@@ -2,12 +2,11 @@ var JiraModule = (function (module) {
     module.name = "JIRA";
 
     module.baseUrl = function () {
-        var jiraBaseUrl = window.location.origin;
         try {
-            jiraBaseUrl = $("input[title='baseURL']").attr('value');
+            return $("input[title='baseURL']").attr('value');
         } catch (ex) {
+            return window.location.origin;
         }
-        return jiraBaseUrl;
     };
 
     module.isEligible = function () {
@@ -78,18 +77,12 @@ var JiraModule = (function (module) {
             }
 
             issueData.hasAttachment = data.fields.attachment.length > 0;
-            issueData.estimate = data.fields.storyPoints;
+            issueData.estimate = data.fields.estimate;
 
             if (data.fields.parent) {
-                promises.push(module.getIssueData(data.fields.parent.key).then(function (data) {
-                    issueData.superIssue = data.key + ' ' + data.fields.summary;
-                }).catch(function () {
-                }));
-            } else if (data.fields.epicLink) {
-                promises.push(module.getIssueData(data.fields.epicLink).then(function (data) {
-                    issueData.superIssue = data.key + ' ' + data.fields.epicName;
-                }).catch(function () {
-                }));
+                issueData.superIssue = data.fields.parent.key + ' ' + data.fields.parent.fields.summary;
+            } else if (data.fields.epic) {
+                 issueData.superIssue = data.fields.epic.key + ' ' + data.fields.epic.name;
             }
 
             issueData.url = module.baseUrl() + "/browse/" + issueData.key;
@@ -103,50 +96,20 @@ var JiraModule = (function (module) {
     };
 
     module.getIssueData = function (issueKey) {
-        //https://docs.atlassian.com/jira/REST/latest/
-        var url = module.baseUrl() + '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
+        // https://docs.atlassian.com/jira/REST/latest/
+        // var url = module.baseUrl() + '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
+        var url = module.baseUrl() + '/rest/agile/1.0/issue/' + issueKey + '?expand=renderedFields,names';
         console.log("IssueUrl: " + url);
         //console.log("Issue: " + issueKey + " Loading...");
         return httpGetJSON(url).then(function (responseData) {
             //console.log("Issue: " + issueKey + " Loaded!");
             // add custom fields with field names
-            $.each(responseData.names, function (key, value) {
-                if (key.startsWith("customfield_")) {
-                    var fieldName = value.toCamelCase();
-                    var fieldValue = responseData.fields[key];
-
-                    //deposit-solutions specific field mapping
-                    if (/.*\.deposit-solutions.com/g.test(window.location.hostname)) {
-                        if (key == 'customfield_10006') {
-                            fieldName = 'epicLink';
-                        }
-                        if (key == 'customfield_10007') {
-                            fieldName = 'epicName';
-                        }
-                        if (key == 'customfield_10002') {
-                            fieldName = 'storyPoints';
-                        }
+            $.each(responseData.names, function (fieldKey, fieldName) {
+                // try to generate estimate fields
+                if (fieldKey.startsWith("customfield_")) {
+                    if( ['storyPoints', 'storyPunkte'].indexOf(fieldName.toCamelCase()) > -1 ){
+                        responseData.fields.estimate = responseData.fields[fieldKey];
                     }
-
-                    //lufthansa specific field mapping
-                    if (/.*trackspace.lhsystems.com/g.test(window.location.hostname)) {
-                        if (key == 'Xcustomfield_10006') {
-                            fieldName = 'epicLink';
-                        }
-                        if (key == 'Xcustomfield_10007') {
-                            fieldName = 'epicName';
-                        }
-                        if (key == 'Xcustomfield_10002') {
-                            fieldName = 'storyPoints';
-                        }
-                        if (fieldName == 'desiredDate') {
-                            fieldName = 'dueDate';
-                            fieldValue = formatDate(new Date(fieldValue));
-                        }
-                    }
-
-                    //console.log("add new field: " + fieldName + " with value from " + key);
-                    responseData.fields[fieldName] = fieldValue;
                 }
             });
             return responseData;

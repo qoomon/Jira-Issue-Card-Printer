@@ -83,7 +83,7 @@
         $("body", global.appFrame.document).append($('<div/>').html("@@printPreview.html:string@@").contents());
         printPreviewJs();
 
-        updatePrintDialoge();
+        updatePrintDialogue();
 
         // get print content frame
         var printFrame = $("#card-print-dialog-content-iframe", global.appFrame.document)[0];
@@ -177,7 +177,7 @@
         return appFrame;
     }
 
-    function updatePrintDialoge() {
+    function updatePrintDialogue() {
         var appFrameDocument = global.appFrame.document;
         var settings = global.settings;
         $("#scaleRange", appFrameDocument).val(settings.scale);
