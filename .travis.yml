@@ -7,7 +7,6 @@ cache:
 before_script:
   - npm install
 script:
-  - npm run gulp build-uglify
+  - npm run gulp build
   - |
     [[ $TRAVIS_BRANCH =~ ^master$ ]] && ./push_to_git.sh 'dist' "https://qoomon:${GH_TOKEN}@github.com/qoomon/Jira-Issue-Card-Printer.git" 'gh-pages'
-
