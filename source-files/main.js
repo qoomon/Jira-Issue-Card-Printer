@@ -52,7 +52,7 @@
 
         if (!global.appFunctions) {
             alert("Unsupported Application " + document.URL + " Please create an issue at " + global.issueTrackingUrl);
-            return;
+            return Promise.resolve();
         } else {
             console.log("Issue Tracker: " + global.appFunctions.name);
             ga('set', 'page', '/cardprinter');
@@ -97,12 +97,12 @@
         var issueKeyList = global.appFunctions.getSelectedIssueKeyList();
         if (issueKeyList.length <= 0) {
             alert("Please select at least one issue.");
-            return;
+            return Promise.resolve();
         }
         if (issueKeyList.length > 30) {
             var confirmResult = confirm("Are you sure you want select " + issueKeyList.length + " issues?");
             if (!confirmResult) {
-                return;
+                return Promise.resolve();
             }
         }
 
