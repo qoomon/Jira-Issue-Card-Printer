@@ -3,10 +3,15 @@ node_js:
   - 'node'
 cache:
   directories:
-  - node_modules
-before_script:
+    - node_modules
+install:
   - npm install
+before_script:
+  - function onBranch { [[ "$TRAVIS_BRANCH" =~ $1 ]]; }
 script:
-  - npm run gulp build
-  - |
-    [[ $TRAVIS_BRANCH =~ ^master$ ]] && ./push_to_git.sh 'dist' "https://qoomon:${GH_TOKEN}@github.com/qoomon/Jira-Issue-Card-Printer.git" 'gh-pages'
+  - npm run build
+deploy:
+  provider: script
+  script: ./push_to_git.sh 'dist' "https://qoomon:${GH_TOKEN}@github.com/qoomon/Jira-Issue-Card-Printer.git" 'gh-pages'
+  on:
+    branch: /^master$/
