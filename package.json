@@ -3,18 +3,17 @@
   "description": "Beautiful Issue Card Printer",
   "author": "Bengt Brodersen",
   "license": "SEE LICENSE IN README.md",
+  "repository": "https://github.com/qoomon/Jira-Issue-Card-Printer.git",
   "scripts": {
     "test": "echo \"Error: no test specified\"",
-    "build": "gulp build"
-  },
-  "browserify": {
-    "transform": [
-      "brfs"
-    ]
+    "build": "gulp build",
+    "build-uglify": "gulp build-uglify"
   },
   "devDependencies": {
     "brfs": "^1.4.3",
     "browserify": "^13.1.1",
+    "bulk-require": "^1.0.0",
+    "bulkify": "^1.4.2",
     "del": "^2.2.2",
     "gulp": "^3.9.1",
     "gulp-concat": "latest",

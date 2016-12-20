@@ -1,5 +1,6 @@
-var ga = require('./lib/google-analytics');
+var bulkRequire = require('bulk-require');
 
+require('./lib/google-analytics');
 require('./lib/polyfill');
 
 var fs = require('fs');
@@ -7,115 +8,84 @@ var $ = require('jquery');
 
 var cookies = require('./lib/cookies');
 
-var jiraIssueTracker = require('./lib/jira-issue-tracker');
+//var issueTrackers = bulkRequire(__dirname, [ 'lib/*-issue-tracker.js' ]);
+var issueTrackers = [
+        require('./lib/jira-issue-tracker'),
+        require('./lib/mingle-issue-tracker'),
+        require('./lib/pivotal-issue-tracker'),
+        require('./lib/teamforge-issue-tracker'),
+        require('./lib/trello-issue-tracker'),
+        require('./lib/youtrack-issue-tracker')
+    ];
 
 var global = {};
 global.version = "5.0.6";
 global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
 
-// run
-try {
-    var issueTrackers = [
-        jiraIssueTracker
+var textColor = function(text) {
+
+    const colours = [
+        '#ff5653',
+        '#ff5ecc',
+        '#de59f5',
+        '#ab7aff',
+        '#7f91fb',
+        '#38a1f7',
+        '#21b6f9',
+        '#26c6da',
+        '#27cebe',
+        '#78dc7c',
+        '#9ccc65',
+        '#fde93d',
+        '#ffca28',
+        '#ffb343',
+        '#ff9604',
+        '#ff7d54'
     ];
-    main(issueTrackers).catch(handleError);
-} catch (e) {
-    handleError(e);
+
+    var textHash = 0;
+    var i, chr;
+    for (i = 0; i < text.length; i += 1) {
+        chr = text.charCodeAt(i);
+        textHash = ((textHash << 5) - textHash) + chr;
+        textHash |= 0; // Convert to 32bit integer
+    }
+    const colourIndex = Math.abs(textHash) % colours.length;
+    return colours[colourIndex];
 }
 
-function handleError(error) {
-    error = error2object(error);
-    error = JSON.stringify(error);
-    console.log("ERROR " + error);
-    ga('send', 'exception', {'exDescription': global.version + " - " + document.location.host + "\n" + error, 'exFatal': true});
-    alert("Sorry something went wrong\n\nPlease create an issue with following details at\n" + global.issueTrackingUrl + "\n\n" + error);
+var formatDate = function(date) {
+    var shortMonths = {
+        'Jan': 1,
+        'Feb': 2,
+        'Mar': 3,
+        'Apr': 4,
+        'May': 5,
+        'Jun': 6,
+        'Jul': 7,
+        'Aug': 8,
+        'Sep': 9,
+        'Oct': 10,
+        'Nov': 11,
+        'Dec': 12
+    };
+    var dateSplit = date.toString().split(" ");
+    // Mo 28.11.
+    return dateSplit[0] + " " + dateSplit[2] + "." + shortMonths[dateSplit[1]] + ".";
 }
 
-function main(issueTrackers) {
-    loadSettings();
-
-    var promises = [];
-
-    //preconditions
-    if ($("#card-printer-iframe").length > 0) {
-        closePrintPreview();
-    }
-
-    console.log("Run...");
-    for (var i = 0; i < issueTrackers.length; i++) {
-        var issueTracker = issueTrackers[i];
-        if (issueTracker.isEligible()) {
-            global.appFunctions = issueTracker;
-            break;
-        }
-    }
-
-    if (!global.appFunctions) {
-        alert("Unsupported Application " + document.URL + " Please create an issue at " + global.issueTrackingUrl);
-        return Promise.resolve();
-    } else {
-        console.log("Issue Tracker: " + global.appFunctions.name);
-        ga('set', 'page', '/cardprinter');
-    }
-
-    ga('send', 'pageview');
-
-    // add overlay frame
-    var appFrame = createOverlayFrame();
-    $("body").append(appFrame);
-
-    // add convinient fields
-    appFrame.window = appFrame.contentWindow;
-    appFrame.document = appFrame.window.document;
-    appFrame.document.open();
-    appFrame.document.close();
-    global.appFrame = appFrame;
-
-    // add print dialog content
-    $("head", global.appFrame.document).prepend($('<style>').html(fs.readFileSync(__dirname + '/printPreview.css', 'utf8')));
-    $("body", global.appFrame.document).append($('<div/>').html(fs.readFileSync(__dirname + '/printPreview.html', 'utf8')).contents());
-    printPreviewJs();
-
-    updatePrintDialogue();
-
-    // get print content frame
-    var printFrame = $("#card-print-dialog-content-iframe", global.appFrame.document)[0];
-    // add convinient fields
-    printFrame.window = printFrame.contentWindow;
-    printFrame.document = printFrame.window.document;
-    printFrame.document.open();
-    printFrame.document.close();
-    global.printFrame = printFrame;
-
-    // add listeners to redraw cards on print event
-    printFrame.window.addEventListener("resize", redrawCards);
-    printFrame.window.matchMedia("print").addListener(redrawCards);
-    printFrame.window.onbeforeprint = redrawCards;
-    printFrame.window.onafterprint = redrawCards;
-
-    // collect selected issues
-    var issueKeyList = global.appFunctions.getSelectedIssueKeyList();
-    if (issueKeyList.length <= 0) {
-        alert("Please select at least one issue.");
-        return Promise.resolve();
-    }
-    if (issueKeyList.length > 30) {
-        var confirmResult = confirm("Are you sure you want select " + issueKeyList.length + " issues?");
-        if (!confirmResult) {
-            return Promise.resolve();
-        }
-    }
-
-    // render cards
-    promises.push(renderCards(issueKeyList));
-
-    $("#card-print-dialog-title", global.appFrame.document).text("Card Printer " + global.version + " - Loading issues...");
-    return Promise.all(promises).then(function () {
-        $("#card-print-dialog-title", global.appFrame.document).text("Card Printer " + global.version);
-    });
+var resizeIframe = function(iframe) {
+    iframe = $(iframe);
+    iframe.height(iframe[0].contentWindow.document.body.height);
 }
 
-function saveSettings() {
+var parseBool = function(text, def) {
+    if (text == 'true') return true;
+    else if (text == 'false') return false;
+    else return def;
+}
+
+var saveSettings = function() {
     var settings = global.settings;
     cookies.write("card_printer_scale", settings.scale);
     cookies.write("card_printer_row_count", settings.rowCount);
@@ -131,7 +101,7 @@ function saveSettings() {
     cookies.write("card_printer_hide_epic", settings.hideEpic);
 }
 
-function loadSettings() {
+var loadSettings = function() {
     var settings = global.settings = global.settings || {};
     settings.scale = parseFloat(cookies.read("card_printer_scale")) || 0.0;
     settings.rowCount = parseInt(cookies.read("card_printer_row_count")) || 2;
@@ -147,13 +117,13 @@ function loadSettings() {
     settings.hideEpic = parseBool(cookies.read("card_printer_hide_epic"), false);
 }
 
-function print() {
+var print = function() {
     ga('send', 'event', 'button', 'click', 'print', $(".card", global.printFrame.contentWindow.document).length);
     global.printFrame.contentWindow.focus();
     global.printFrame.contentWindow.print();
 }
 
-function createOverlayFrame() {
+var createOverlayFrame = function() {
     var appFrame = document.createElement('iframe');
     appFrame.id = "card-printer-iframe";
     $(appFrame).css({
@@ -170,7 +140,7 @@ function createOverlayFrame() {
     return appFrame;
 }
 
-function updatePrintDialogue() {
+var updatePrintDialogue = function() {
     var appFrameDocument = global.appFrame.document;
     var settings = global.settings;
     $("#scaleRange", appFrameDocument).val(settings.scale);
@@ -188,51 +158,133 @@ function updatePrintDialogue() {
     $("#epic-checkbox", appFrameDocument).attr('checked', !settings.hideEpic);
 }
 
-function renderCards(issueKeyList) {
-    var promises = [];
+var scaleCards = function() {
+    var settings = global.settings;
+    var printFrame = global.printFrame;
 
-    var printFrameDocument = global.printFrame.document;
+    var scaleValue = settings.scale * 2.0;
+    var scaleRoot;
+    if (scaleValue < 0) {
+        scaleRoot = 1.0 / (1.0 - scaleValue);
+    } else {
+        scaleRoot = 1.0 * (1.0 + scaleValue);
+    }
 
-    printFrameDocument.open();
-    printFrameDocument.write("<head/><body></body>");
-    printFrameDocument.close();
+    var rowCount = settings.rowCount;
+    var columnCount = settings.colCount;
 
-    $("head", printFrameDocument).append($('<style>').html(fs.readFileSync(__dirname + '/card.css', 'utf8')));
-    $("body", printFrameDocument).append("<div id='preload'/>");
-    $("#preload", printFrameDocument).append("<div class='zigzag'/>");
+    // scale
 
-    console.log("load " + issueKeyList.length + " issues...");
+    // reset scale
+    $("html", printFrame.document).css("font-size", scaleRoot + "cm");
+    $("#gridStyle", printFrame.document).remove();
 
-    $.each(issueKeyList, function (index, issueKey) {
-        var card = $('<div/>').html(fs.readFileSync(__dirname + '/card.html', 'utf8')).contents()
-            .attr("id", issueKey)
-            .attr("index", index);
-        card.find('.issue-id').text(issueKey);
-        $("body", printFrameDocument).append(card);
+    // calculate scale
 
-        promises.push(global.appFunctions.getCardData(issueKey).then(function (cardData) {
-            // console.log("cardData: " + JSON.stringify(cardData,2,2));
-            ga('send', 'event', 'card', 'generate', cardData.type);
-            fillCard(card, cardData);
-            redrawCards();
-        }));
-    });
+    var bodyElement = $("body", printFrame.document);
+    var cardMaxWidth = Math.floor(bodyElement.outerWidth() / columnCount);
+    var cardMaxHeight = bodyElement.outerHeight() > 0 ? Math.floor(bodyElement.outerHeight() / rowCount) : 0;
 
-    console.log("wait for issues loaded...");
-    return Promise.all(promises).then(function () {
-        console.log("...all issues loaded.");
-        redrawCards();
+    var cardElement = $(".card", printFrame.document);
+    var cardMinWidth = cardElement.css("min-width") ? cardElement.css("min-width").replace("px", "") : 0;
+    var cardMinHeight = cardElement.css("min-height") ? cardElement.css("min-height").replace("px", "") : 0;
+
+    var scaleWidth = cardMaxWidth / cardMinWidth;
+    var scaleHeight = cardMaxHeight / cardMinHeight;
+    var scale = Math.min(scaleWidth, scaleHeight, 1);
+
+    // scale
+    $("html", printFrame.document).css("font-size", ( scaleRoot * scale ) + "cm");
+
+    // grid size
+    var style = document.createElement('style');
+    style.id = 'gridStyle';
+    style.type = 'text/css';
+    style.innerHTML = ".card { " +
+        "width: calc( 99.9999999999% / " + columnCount + " );" +
+        "height: calc( 99.999999999% / " + rowCount + " );" +
+        "}";
+    $("head", printFrame.document).append(style);
+}
+
+var cropCards = function() {
+    var cardElements = Array.from(global.printFrame.document.querySelectorAll(".card"));
+    cardElements.forEach(function (cardElement) {
+        var cardContent = cardElement.querySelectorAll(".card-body")[0];
+        if (cardContent.scrollHeight > cardContent.offsetHeight) {
+            cardContent.classList.add("zigzag");
+        } else {
+            cardContent.classList.remove("zigzag");
+        }
     });
 }
 
-function redrawCards() {
-    applyCardOptions();
-    scaleCards();
-    cropCards();
-    resizeIframe(global.printFrame);
+var getIconStyle = function(type) {
+    var style = {};
+    style.color = textColor(type.toLowerCase());
+    style.image = 'https://identicon.org/?t=' + type.toLowerCase() + '&s=256&c=b';
+    style.size = '55%';
+
+    switch (type.toLowerCase()) {
+        case 'default':
+            style.color = 'SILVER';
+            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/objects.png';
+            style.size = '63%';
+            break;
+        case 'story':
+        case 'user story':
+            style.color = 'GOLD';
+            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bulb.png';
+            style.size = '63%';
+            break;
+        case 'bug':
+        case 'problem':
+        case 'correction':
+            style.color = 'CRIMSON';
+            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bug.png';
+            style.size = '63%';
+            break;
+        case 'epic':
+            style.color = 'ROYALBLUE';
+            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Flash.png';
+            style.size = '63%';
+            break;
+        case 'task':
+        case 'sub-task':
+        case 'technical task':
+        case 'aufgabe':
+        case 'unteraufgabe':
+        case 'technische aufgabe':
+            style.color = 'WHEAT';
+            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Task.png';
+            style.size = '63%';
+            break;
+        case 'new feature':
+            style.color = 'LIMEGREEN';
+            style.image = "https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Plus.png";
+            style.size = '63%';
+            break;
+        case 'improvement':
+        case 'verbesserung':
+            style.color = 'CORNFLOWERBLUE';
+            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Arrow.png';
+            style.size = '63%';
+            break;
+        case 'research':
+            style.color = 'MEDIUMTURQUOISE';
+            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/ErlenmeyerFlask.png';
+            style.size = '63%';
+            break;
+        case 'test':
+            style.color = 'ORANGE';
+            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/CrashDummy.png';
+            style.size = '63%';
+            break;
+    }
+    return style;
 }
 
-function fillCard(card, data) {
+var fillCard = function(card, data) {
     //Key
     card.find('.issue-id').text(data.key);
 
@@ -315,72 +367,7 @@ function fillCard(card, data) {
     card.find(".issue-qr-code").css("background-image", "url('" + qrCodeUrl + "')");
 }
 
-function getIconStyle(type) {
-    var style = {};
-    style.color = textColor(type.toLowerCase());
-    style.image = 'https://identicon.org/?t=' + type.toLowerCase() + '&s=256&c=b';
-    style.size = '55%';
-
-    switch (type.toLowerCase()) {
-        case 'default':
-            style.color = 'SILVER';
-            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/objects.png';
-            style.size = '63%';
-            break;
-        case 'story':
-        case 'user story':
-            style.color = 'GOLD';
-            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bulb.png';
-            style.size = '63%';
-            break;
-        case 'bug':
-        case 'problem':
-        case 'correction':
-            style.color = 'CRIMSON';
-            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bug.png';
-            style.size = '63%';
-            break;
-        case 'epic':
-            style.color = 'ROYALBLUE';
-            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Flash.png';
-            style.size = '63%';
-            break;
-        case 'task':
-        case 'sub-task':
-        case 'technical task':
-        case 'aufgabe':
-        case 'unteraufgabe':
-        case 'technische aufgabe':
-            style.color = 'WHEAT';
-            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Task.png';
-            style.size = '63%';
-            break;
-        case 'new feature':
-            style.color = 'LIMEGREEN';
-            style.image = "https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Plus.png";
-            style.size = '63%';
-            break;
-        case 'improvement':
-        case 'verbesserung':
-            style.color = 'CORNFLOWERBLUE';
-            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Arrow.png';
-            style.size = '63%';
-            break;
-        case 'research':
-            style.color = 'MEDIUMTURQUOISE';
-            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/ErlenmeyerFlask.png';
-            style.size = '63%';
-            break;
-        case 'test':
-            style.color = 'ORANGE';
-            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/CrashDummy.png';
-            style.size = '63%';
-            break;
-    }
-    return style;
-}
-
-function applyCardOptions() {
+var applyCardOptions = function() {
     var settings = global.settings;
     var printFrame = global.printFrame;
 
@@ -416,72 +403,55 @@ function applyCardOptions() {
     }
 }
 
-function scaleCards() {
-    var settings = global.settings;
-    var printFrame = global.printFrame;
-
-    var scaleValue = settings.scale * 2.0;
-    var scaleRoot;
-    if (scaleValue < 0) {
-        scaleRoot = 1.0 / (1.0 - scaleValue);
-    } else {
-        scaleRoot = 1.0 * (1.0 + scaleValue);
-    }
-
-    var rowCount = settings.rowCount;
-    var columnCount = settings.colCount;
-
-    // scale
-
-    // reset scale
-    $("html", printFrame.document).css("font-size", scaleRoot + "cm");
-    $("#gridStyle", printFrame.document).remove();
-
-    // calculate scale
-
-    var bodyElement = $("body", printFrame.document);
-    var cardMaxWidth = Math.floor(bodyElement.outerWidth() / columnCount);
-    var cardMaxHeight = bodyElement.outerHeight() > 0 ? Math.floor(bodyElement.outerHeight() / rowCount) : 0;
-
-    var cardElement = $(".card", printFrame.document);
-    var cardMinWidth = cardElement.css("min-width") ? cardElement.css("min-width").replace("px", "") : 0;
-    var cardMinHeight = cardElement.css("min-height") ? cardElement.css("min-height").replace("px", "") : 0;
-
-    var scaleWidth = cardMaxWidth / cardMinWidth;
-    var scaleHeight = cardMaxHeight / cardMinHeight;
-    var scale = Math.min(scaleWidth, scaleHeight, 1);
-
-    // scale
-    $("html", printFrame.document).css("font-size", ( scaleRoot * scale ) + "cm");
-
-    // grid size
-    var style = document.createElement('style');
-    style.id = 'gridStyle';
-    style.type = 'text/css';
-    style.innerHTML = ".card { " +
-        "width: calc( 99.9999999999% / " + columnCount + " );" +
-        "height: calc( 99.999999999% / " + rowCount + " );" +
-        "}";
-    $("head", printFrame.document).append(style);
+var redrawCards = function() {
+    applyCardOptions();
+    scaleCards();
+    cropCards();
+    resizeIframe(global.printFrame);
 }
 
-function cropCards() {
-    var cardElements = Array.from(global.printFrame.document.querySelectorAll(".card"));
-    cardElements.forEach(function (cardElement) {
-        var cardContent = cardElement.querySelectorAll(".card-body")[0];
-        if (cardContent.scrollHeight > cardContent.offsetHeight) {
-            cardContent.classList.add("zigzag");
-        } else {
-            cardContent.classList.remove("zigzag");
-        }
+var renderCards = function(issueKeyList) {
+    var promises = [];
+
+    var printFrameDocument = global.printFrame.document;
+
+    printFrameDocument.open();
+    printFrameDocument.write("<head/><body></body>");
+    printFrameDocument.close();
+
+    $("head", printFrameDocument).append($('<style>').html(fs.readFileSync(__dirname + '/card.css', 'utf8')));
+    $("body", printFrameDocument).append("<div id='preload'/>");
+    $("#preload", printFrameDocument).append("<div class='zigzag'/>");
+
+    console.log("load " + issueKeyList.length + " issues...");
+
+    $.each(issueKeyList, function (index, issueKey) {
+        var card = $('<div/>').html(fs.readFileSync(__dirname + '/card.html', 'utf8')).contents()
+            .attr("id", issueKey)
+            .attr("index", index);
+        card.find('.issue-id').text(issueKey);
+        $("body", printFrameDocument).append(card);
+
+        promises.push(global.appFunctions.getCardData(issueKey).then(function (cardData) {
+            // console.log("cardData: " + JSON.stringify(cardData,2,2));
+            ga('send', 'event', 'card', 'generate', cardData.type);
+            fillCard(card, cardData);
+            redrawCards();
+        }));
+    });
+
+    console.log("wait for issues loaded...");
+    return Promise.all(promises).then(function () {
+        console.log("...all issues loaded.");
+        redrawCards();
     });
 }
 
-function closePrintPreview() {
+var closePrintPreview = function() {
     $("#card-printer-iframe").remove();
 }
 
-function printPreviewJs() {
+var printPreviewJs = function() {
 
     var documentBody = $("body", global.appFrame.document);
 
@@ -632,72 +602,9 @@ function printPreviewJs() {
     });
 }
 
-// Util Functions ##################################################################################################
 
-function textColor(text) {
 
-    const colours = [
-        '#ff5653',
-        '#ff5ecc',
-        '#de59f5',
-        '#ab7aff',
-        '#7f91fb',
-        '#38a1f7',
-        '#21b6f9',
-        '#26c6da',
-        '#27cebe',
-        '#78dc7c',
-        '#9ccc65',
-        '#fde93d',
-        '#ffca28',
-        '#ffb343',
-        '#ff9604',
-        '#ff7d54'
-    ];
-
-    var textHash = 0;
-    var i, chr;
-    for (i = 0; i < text.length; i += 1) {
-        chr = text.charCodeAt(i);
-        textHash = ((textHash << 5) - textHash) + chr;
-        textHash |= 0; // Convert to 32bit integer
-    }
-    const colourIndex = Math.abs(textHash) % colours.length;
-    return colours[colourIndex];
-}
-
-function formatDate(date) {
-    var shortMonths = {
-        'Jan': 1,
-        'Feb': 2,
-        'Mar': 3,
-        'Apr': 4,
-        'May': 5,
-        'Jun': 6,
-        'Jul': 7,
-        'Aug': 8,
-        'Sep': 9,
-        'Oct': 10,
-        'Nov': 11,
-        'Dec': 12
-    };
-    var dateSplit = date.toString().split(" ");
-    // Mo 28.11.
-    return dateSplit[0] + " " + dateSplit[2] + "." + shortMonths[dateSplit[1]] + ".";
-}
-
-function resizeIframe(iframe) {
-    iframe = $(iframe);
-    iframe.height(iframe[0].contentWindow.document.body.height);
-}
-
-function parseBool(text, def) {
-    if (text == 'true') return true;
-    else if (text == 'false') return false;
-    else return def;
-}
-
-function error2object(value) {
+var error2object = function(value) {
     if (value instanceof Error) {
         var error = {};
         Object.getOwnPropertyNames(value).forEach(function (key) {
@@ -707,4 +614,107 @@ function error2object(value) {
     }
     return value;
 }
+
+var main = function(issueTrackers) {
+    loadSettings();
+
+    var promises = [];
+
+    //preconditions
+    if ($("#card-printer-iframe").length > 0) {
+        closePrintPreview();
+    }
+
+    console.log("Run...");
+    for (var i = 0; i < issueTrackers.length; i++) {
+        var issueTracker = issueTrackers[i];
+        if (issueTracker.isEligible()) {
+            global.appFunctions = issueTracker;
+            break;
+        }
+    }
+
+    if (!global.appFunctions) {
+        alert("Unsupported Application " + document.URL + " Please create an issue at " + global.issueTrackingUrl);
+        return Promise.resolve();
+    } else {
+        console.log("Issue Tracker: " + global.appFunctions.name);
+        ga('set', 'page', '/cardprinter');
+    }
+
+    ga('send', 'pageview');
+
+    // add overlay frame
+    var appFrame = createOverlayFrame();
+    $("body").append(appFrame);
+
+    // add convinient fields
+    appFrame.window = appFrame.contentWindow;
+    appFrame.document = appFrame.window.document;
+    appFrame.document.open();
+    appFrame.document.close();
+    global.appFrame = appFrame;
+
+    // add print dialog content
+    $("head", global.appFrame.document).prepend($('<style>').html(fs.readFileSync(__dirname + '/printPreview.css', 'utf8')));
+    $("body", global.appFrame.document).append($('<div/>').html(fs.readFileSync(__dirname + '/printPreview.html', 'utf8')).contents());
+    printPreviewJs();
+
+    updatePrintDialogue();
+
+    // get print content frame
+    var printFrame = $("#card-print-dialog-content-iframe", global.appFrame.document)[0];
+    // add convinient fields
+    printFrame.window = printFrame.contentWindow;
+    printFrame.document = printFrame.window.document;
+    printFrame.document.open();
+    printFrame.document.close();
+    global.printFrame = printFrame;
+
+    // add listeners to redraw cards on print event
+    printFrame.window.addEventListener("resize", redrawCards);
+    printFrame.window.matchMedia("print").addListener(redrawCards);
+    printFrame.window.onbeforeprint = redrawCards;
+    printFrame.window.onafterprint = redrawCards;
+
+    // collect selected issues
+    var issueKeyList = global.appFunctions.getSelectedIssueKeyList();
+    if (issueKeyList.length <= 0) {
+        alert("Please select at least one issue.");
+        return Promise.resolve();
+    }
+    if (issueKeyList.length > 30) {
+        var confirmResult = confirm("Are you sure you want select " + issueKeyList.length + " issues?");
+        if (!confirmResult) {
+            return Promise.resolve();
+        }
+    }
+
+    // render cards
+    promises.push(renderCards(issueKeyList));
+
+    $("#card-print-dialog-title", global.appFrame.document).text("Card Printer " + global.version + " - Loading issues...");
+    return Promise.all(promises).then(function () {
+        $("#card-print-dialog-title", global.appFrame.document).text("Card Printer " + global.version);
+    });
+}
+
+var handleError = function (error) {
+    error = error2object(error);
+    error = JSON.stringify(error);
+    console.log("ERROR " + error);
+    ga('send', 'exception', {'exDescription': global.version + " - " + document.location.host + "\n" + error, 'exFatal': true});
+    closePrintPreview();
+    alert("Sorry something went wrong\n\nPlease create an issue with following details at\n" + global.issueTrackingUrl + "\n\n" + error);
+}
+
+// Main Method ##################################################################################################
+try {
+    main(issueTrackers).catch(handleError);
+} catch (e) {
+    handleError(e);
+}
+
+
+
 

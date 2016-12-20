@@ -42,7 +42,14 @@ gulp.task('copy-resources', function () {
 });
 
 gulp.task('build-bookmarklet', function () {
-     return browserify('source-files/main.js').bundle()
+     return browserify({
+            entries: ['source-files/main.js'],
+            transform: [
+                  "bulkify",
+                  "brfs"
+                ]
+        })
+        .bundle()
         .pipe(source('bookmarklet.js'))
         .pipe(gulp.dest(destDir));
 });
