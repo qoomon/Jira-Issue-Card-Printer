@@ -1,13 +1,13 @@
 #!/bin/sh
 set -e
 
-if [ $# -ne 3 ]; then
-    echo "Usage: ... <SOURCE_FOLDER> <SOURCE_BRANCH> <TARGET_REPO> <TARGET_BRANCH>"
+if [ $# -ne 4 ]; then
+    echo "Usage: ... <SOURCE_FOLDER> <COMMIT_MESSAGE> <TARGET_REPO> <TARGET_BRANCH>"
     exit 1;
 fi
 
 SOURCE_FOLDER="$1"
-SOURCE_BRANCH="$2"
+COMMIT_MESSAGE="$(echo "$2")"
 
 TARGET_REPO="$3"
 TARGET_BRANCH="$4"
@@ -33,14 +33,11 @@ git pull --rebase --no-tags --depth 1 'origin' "${TARGET_BRANCH}"
 git branch --set-upstream-to="origin/${TARGET_BRANCH}" --quiet
 
 echo ''
-echo '--- Update to Stash'
+echo '--- Update to Stash & Commit Changes'
 git rm -r . --ignore-unmatch --quiet
 git stash pop --quiet
-
-echo ''
-echo '--- Commit Changes'
-git commit -m "Travis Build" -m "Source Branch ${SOURCE_BRANCH}" -m "$(cd ..; git show -s --format='short')" --quiet
-git log -n 1 --name-status HEAD --oneline --stat
+git commit -am "$COMMIT_MESSAGE" --quiet
+git --no-pager log -n 1 --name-status --stat --oneline
 
 echo ''
 echo '--- Push Changes'
