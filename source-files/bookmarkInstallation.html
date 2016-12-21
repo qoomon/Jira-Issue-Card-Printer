@@ -34,12 +34,12 @@
   <body>
     <b>Just Drag'n'Drop the button into your Bookmarks</b>
     <div class="button">
-        <a href="javascript:@@bookmarkletLoader.js:url@@">IssueCardPrinter</a>
+        <a href="javascript%3A%21function%28%29%7Bvar+e%3Ddocument.getElementsByTagName%28head%22%29%5B0%5D%2Ct%3Ddocument.createElement%28%22script%22%29%3Bt.src%3D%22https%3A%2F%2Fqoomon.github.io%2FJira-Issue-Card-Printer%2Fbookmarklet.js%22%2Ce.appendChild%28t%29%2Ce.removeChild%28t%29%7D%28%29%3B">IssueCardPrinter</a>
     </div>
     <p>
     <b>Or create Bookmark with following content</b>
     <div>
-      "javascript:@@bookmarkletLoader.js:url@@"
+      javascript:!function(){var e=document.getElementsByTagName(head")[0],t=document.createElement("script");t.src="https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarklet.js",e.appendChild(t),e.removeChild(t)}();
     </div>
   </body>
 </html>
