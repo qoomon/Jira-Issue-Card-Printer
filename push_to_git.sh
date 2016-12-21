@@ -36,7 +36,7 @@ echo ''
 echo '--- Update to Stash & Commit Changes'
 git rm -r . --ignore-unmatch --quiet
 git stash pop --quiet
-git commit -am "$COMMIT_MESSAGE" --quiet
+git commit -am $"$COMMIT_MESSAGE" --quiet
 git --no-pager log -n 1 --name-status --stat --oneline
 
 echo ''
