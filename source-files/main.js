@@ -8,19 +8,18 @@ var $ = require('jquery');
 
 var cookies = require('./lib/cookies');
 
-//var issueTrackers = bulkRequire(__dirname, [ 'lib/*-issue-tracker.js' ]);
-var issueTrackers = [
-        require('./lib/jira-issue-tracker'),
-        require('./lib/mingle-issue-tracker'),
-        require('./lib/pivotal-issue-tracker'),
-        require('./lib/teamforge-issue-tracker'),
-        require('./lib/trello-issue-tracker'),
-        require('./lib/youtrack-issue-tracker')
-    ];
-
 var global = {};
-global.version = "5.0.6";
+global.version = "5.0.7";
 global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
+
+var issueTrackers = [
+    require('./lib/jira-issue-tracker'),
+    require('./lib/mingle-issue-tracker'),
+    require('./lib/pivotal-issue-tracker'),
+    require('./lib/teamforge-issue-tracker'),
+    require('./lib/trello-issue-tracker'),
+    require('./lib/youtrack-issue-tracker')
+];
 
 var textColor = function(text) {
 

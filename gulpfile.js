@@ -45,7 +45,6 @@ gulp.task('build-bookmarklet', function () {
      return browserify({
             entries: ['source-files/main.js'],
             transform: [
-                  "bulkify",
                   "brfs"
                 ]
         })
