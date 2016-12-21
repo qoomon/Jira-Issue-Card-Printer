@@ -36,11 +36,12 @@ echo ''
 echo '--- Update to Stash & Commit Changes'
 git rm -r . --ignore-unmatch --quiet
 git stash pop --quiet
-git commit -am "$COMMIT_MESSAGE" --quiet
-git --no-pager log -n 1 --name-status --stat --oneline
+if git commit -am "$COMMIT_MESSAGE" --quiet; then
+    git --no-pager log -n 1 --name-status --stat --oneline
 
-echo ''
-echo '--- Push Changes'
-git push
+    echo ''
+    echo '--- Push Changes'
+    echo git push
+fi
 
 
