@@ -1,11 +1,10 @@
 #!/bin/sh
+set -e
 
 if [ $# -ne 3 ]; then
     echo "Usage: ... <SOURCE_FOLDER> <SOURCE_BRANCH> <TARGET_REPO> <TARGET_BRANCH>"
     exit 1;
 fi
-
-GIT_USERNAME='Travis'
 
 SOURCE_FOLDER="$1"
 SOURCE_BRANCH="$2"
@@ -14,8 +13,6 @@ TARGET_REPO="$3"
 TARGET_BRANCH="$4"
 
 echo "Deploy '$SOURCE_FOLDER' to '${TARGET_REPO}' '$TARGET_BRANCH'"
-
-set -e
 
 cd "${SOURCE_FOLDER}";
 
@@ -42,7 +39,7 @@ git stash pop --quiet
 
 echo ''
 echo '--- Commit Changes'
-git commit -m "Travis Build" -m "Source Branch ${SOURCE_BRANCH}" -m "$(git show -s --format='short')" --quiet
+git commit -m "Travis Build" -m "Source Branch ${SOURCE_BRANCH}" -m "$(cd ..; git show -s --format='short')" --quiet
 git log -n 1 --name-status HEAD --oneline --stat
 
 echo ''
