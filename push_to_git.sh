@@ -6,27 +6,42 @@ SOURCE_BRANCH="${TRAVIS_BRANCH}"
 TARGET_REPO="$2"
 TARGET_BRANCH="$3"
 
-CLONE_FOLDER='.deploy'
-
 echo "Deploy '$SOURCE_FOLDER' to '${TARGET_REPO}' '$TARGET_BRANCH'"
 
-echo "--- Clone Repo"
-rm -rf .deploy "$CLONE_FOLDER"
-git clone --branch "${TARGET_BRANCH}" --depth 1 "${TARGET_REPO}" "${CLONE_FOLDER}"
-(
-    cd "${CLONE_FOLDER}";
+set -e
 
-    echo "--- Apply Changes"
-    git rm -r . --ignore-unmatch --quiet
-    cp -R ../${SOURCE_FOLDER}/* ./
-    git add .
-    git config user.name 'Travis'
-    git config user.email '<>'
-    git commit -m "Travis Build" -m "Source Branch ${SOURCE_BRANCH}" -m "$(git show -s --format='short')"
+cd "${SOURCE_FOLDER}";
 
-    echo "--- Push Changes"
-    git push -q 'origin' "${TARGET_BRANCH}"
-)
-rm -rf .deploy "$CLONE_FOLDER"
+rm -rf '.git'
+git init
+git config user.name 'Travis'
+git config user.email '<>'
+
+echo ''
+echo '--- Stash Files'
+git commit --allow-empty -m '.' --quiet
+git add .
+git stash --quiet
+
+echo ''
+echo '--- Pull Target Repository'
+git branch --move "${TARGET_BRANCH}"
+git remote add 'origin' "${TARGET_REPO}"
+git pull --rebase --no-tags --depth 1 'origin' "${TARGET_BRANCH}"
+git branch --set-upstream-to="origin/${TARGET_BRANCH}" --quiet
+
+echo ''
+echo '--- Update to Stash'
+git rm -r . --ignore-unmatch --quiet
+git stash pop --quiet
+
+echo ''
+echo '--- Commit Changes'
+git commit -m "Travis Build" -m "Source Branch ${SOURCE_BRANCH}" -m "$(git show -s --format='short')" --quiet
+git log -n 1 --name-status HEAD --oneline --stat
+
+echo ''
+echo '--- Push Changes'
+echo git push
 
 

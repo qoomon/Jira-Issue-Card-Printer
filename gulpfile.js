@@ -30,11 +30,11 @@ gulp.task('build', function (callback) {
         'clean',
         [
             'copy-resources',
-            'build-bookmarklet'
+            'build-bookmarklet',
+            'build-bookmarklet-installation-site'
         ],
         callback);
 });
-
 
 gulp.task('copy-resources', function () {
     return gulp.src('resources-files/**')
@@ -60,12 +60,21 @@ gulp.task('build-uglify', function (callback) {
     'build',
     'uglify-bookmarklet',
     callback);
+});
 
+gulp.task('copy-resources', function () {
+    return gulp.src('resources-files/**')
+        .pipe(gulp.dest(destDir + 'resources/'));
 });
 
 gulp.task('uglify-bookmarklet', function (callback) {
     return gulp.src(destDir + 'bookmarklet.js')
         .pipe(gulpUglify())
+        .pipe(gulp.dest(destDir));
+});
+
+gulp.task('build-bookmarklet-installation-site', function () {
+    return gulp.src('source-files/bookmarkInstallation.html')
         .pipe(gulp.dest(destDir));
 });
 
