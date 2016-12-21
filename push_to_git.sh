@@ -1,10 +1,17 @@
 #!/bin/sh
 
-SOURCE_FOLDER="$1"
-SOURCE_BRANCH="${TRAVIS_BRANCH}"
+if [ $# -ne 3 ]; then
+    echo "Usage: ... <SOURCE_FOLDER> <SOURCE_BRANCH> <TARGET_REPO> <TARGET_BRANCH>"
+    exit 1;
+fi
 
-TARGET_REPO="$2"
-TARGET_BRANCH="$3"
+GIT_USERNAME='Travis'
+
+SOURCE_FOLDER="$1"
+SOURCE_BRANCH="$2"
+
+TARGET_REPO="$3"
+TARGET_BRANCH="$4"
 
 echo "Deploy '$SOURCE_FOLDER' to '${TARGET_REPO}' '$TARGET_BRANCH'"
 
@@ -14,8 +21,6 @@ cd "${SOURCE_FOLDER}";
 
 rm -rf '.git'
 git init
-git config user.name 'Travis'
-git config user.email '<>'
 
 echo ''
 echo '--- Stash Files'
