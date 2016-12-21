@@ -41,6 +41,6 @@ git --no-pager log -n 1 --name-status --stat --oneline
 
 echo ''
 echo '--- Push Changes'
-echo git push
+git push
 
 
