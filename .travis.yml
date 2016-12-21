@@ -10,4 +10,4 @@ install:
   - npm install
 script:
   - npm run build
-  - if [[ "$TRAVIS_BRANCH" =~ ^master$ ]]; then ./push_to_git.sh 'dist' "repository $(git remote get-url origin)\nbranch ${TRAVIS_BRANCH}\n$(git show -s --format='short')" "https://qoomon:${GH_TOKEN}@github.com/qoomon/Jira-Issue-Card-Printer.git" 'gh-pages'; else echo 'ignored.'; fi
+  - if [[ "$TRAVIS_BRANCH" =~ ^master$ ]]; then ./push_to_git.sh 'dist' "repository ...\nbranch ${TRAVIS_BRANCH}\n$(git show -s --format='short')" "https://qoomon:${GH_TOKEN}@github.com/qoomon/Jira-Issue-Card-Printer.git" 'gh-pages'; else echo 'ignored.'; fi
