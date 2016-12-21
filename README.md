@@ -1,4 +1,6 @@
 # Issue-Card-Printer
+[![Build Status](https://travis-ci.org/qoomon/Jira-Issue-Card-Printer.svg?branch=master)](https://travis-ci.org/qoomon/Jira-Issue-Card-Printer)
+
 Beautiful Issue Card Printer
 
 I've written a little bookmarklet for converting digital issues in a pretty card layout for printing.
