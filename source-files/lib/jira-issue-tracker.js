@@ -55,11 +55,18 @@ var getSelectedIssueKeyList = function () {
 
 var getIssueData = function (issueKey) {
     // https://docs.atlassian.com/jira/REST/latest/
-    // var url = baseUrl() + '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
-    var url = baseUrl() + '/rest/agile/1.0/issue/' + issueKey + '?expand=renderedFields,names';
-    console.log("IssueUrl: " + url);
+
+    var urlAgile = baseUrl() + '/rest/agile/1.0/issue/' + issueKey + '?expand=renderedFields,names';
+    var urlClassic = baseUrl() + '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
+
     //console.log("Issue: " + issueKey + " Loading...");
-    return $.getJSON(url).then(function (responseData) {
+    return new Promise(function (fulfill, reject){
+        console.log("IssueUrl: " + urlAgile);
+        $.getJSON(urlAgile).done(fulfill).fail( function() {
+                console.log("IssueUrl: " + urlClassic);
+                $.get(urlClassic).done(fulfill).fail(reject);
+            });
+        }).then(function (responseData) {
         //console.log("Issue: " + issueKey + " Loaded!");
         // add custom fields with field names
         $.each(responseData.names, function (fieldKey, fieldName) {

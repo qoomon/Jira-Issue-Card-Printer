@@ -35,7 +35,9 @@ var getIssueData = function (issueKey) {
     var url = "/1/cards/" + issueKey + "?members=true";
     console.log("IssueUrl: " + url);
     //console.log("Issue: " + issueKey + " Loading...");
-    return $.getJSON(url);
+    return new Promise(function (fulfill, reject){
+        $.getJSON(url).done(fulfill).fail(reject);
+    });
 };
 
 var getCardData = function (issueKey, callback) {
