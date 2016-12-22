@@ -41,7 +41,7 @@ if git commit -am "$COMMIT_MESSAGE" --quiet; then
 
     echo ''
     echo '--- Push Changes'
-    git push
+    git push 'origin' "${TARGET_BRANCH}"
 fi
 
 
