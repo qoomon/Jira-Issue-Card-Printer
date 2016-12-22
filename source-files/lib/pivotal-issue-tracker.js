@@ -52,7 +52,7 @@ var getCardData = function (issueKey) {
         }
 
         if (data.deadline) {
-            issueData.dueDate = formatDate(new Date(data.deadline));
+            issueData.dueDate = new Date(data.deadline);
         }
 
         // TODO

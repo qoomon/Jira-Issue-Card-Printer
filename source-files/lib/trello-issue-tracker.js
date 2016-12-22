@@ -60,7 +60,7 @@ var getCardData = function (issueKey, callback) {
         }
 
         if (data.due) {
-            issueData.dueDate = formatDate(new Date(data.due));
+            issueData.dueDate = new Date(data.due);
         }
 
         issueData.hasAttachment = data.attachments > 0;

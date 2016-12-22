@@ -51,7 +51,7 @@ var getCardData = function (issueKey, callback) {
             // TODOissueData.avatarUrl
         }
 
-        // n/a issueData.dueDate = formatDate(new Date(dueDate));
+        // n/a issueData.dueDate = new Date(dueDate);
         // n/a issueData.hasAttachment = data.fields.attachment.length > 0;
 
         if (data.find('card > properties > property > name:contains(Estimate) ~ value').length > 0) {

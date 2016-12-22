@@ -95,7 +95,7 @@ var getCardData = function (issueKey) {
         }
 
         if (data.fields.duedate) {
-            issueData.dueDate = formatDate(new Date(data.fields.duedate));
+            issueData.dueDate = new Date(data.fields.duedate);
         }
 
         issueData.hasAttachment = data.fields.attachment.length > 0;

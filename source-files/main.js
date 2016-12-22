@@ -9,7 +9,7 @@ var $ = require('jquery');
 var cookies = require('./lib/cookies');
 
 var global = {};
-global.version = "5.0.8";
+global.version = "5.0.9";
 global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
 
 var issueTrackers = [
@@ -320,7 +320,7 @@ var fillCard = function(card, data) {
 
     //Due-Date
     if (data.dueDate) {
-        card.find(".issue-due-date").text(data.dueDate);
+        card.find(".issue-due-date").text(formatDate(data.dueDate));
     } else {
         card.find(".issue-due-box").remove();
     }
