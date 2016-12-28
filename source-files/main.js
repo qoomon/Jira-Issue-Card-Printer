@@ -1,5 +1,3 @@
-var bulkRequire = require('bulk-require');
-
 require('./lib/google-analytics');
 require('./lib/polyfill');
 
