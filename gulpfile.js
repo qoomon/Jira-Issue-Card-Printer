@@ -6,6 +6,7 @@ const gulpMerge = require('merge2');
 const gulpConcat = require('gulp-concat');
 const gulpWrap = require('gulp-wrapper');
 const gulpUglify = require('gulp-uglify');
+const gulpSourcemaps = require('gulp-sourcemaps');
 const gulpDel = require('del');
 
 var browserify = require('browserify');
@@ -68,7 +69,9 @@ gulp.task('copy-resources', function () {
 
 gulp.task('uglify-bookmarklet', function (callback) {
     return gulp.src(destDir + 'bookmarklet.js')
+        .pipe(gulpSourcemaps.init())
         .pipe(gulpUglify())
+        .pipe(gulpSourcemaps.write('./'))
         .pipe(gulp.dest(destDir));
 });
 

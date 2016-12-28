@@ -2,15 +2,16 @@
 set -e
 
 if [ $# -ne 4 ]; then
-    echo "Usage: ... <SOURCE_FOLDER> <COMMIT_MESSAGE> <TARGET_REPO> <TARGET_BRANCH>"
+    echo "Usage: ... <SOURCE_FOLDER> <TARGET_REPO> <TARGET_BRANCH> <COMMIT_MESSAGE>"
     exit 1;
 fi
 
 SOURCE_FOLDER="$1"
-COMMIT_MESSAGE="$(echo "$2")"
 
-TARGET_REPO="$3"
-TARGET_BRANCH="$4"
+TARGET_REPO="$2"
+TARGET_BRANCH="$3"
+
+COMMIT_MESSAGE="$(echo "$4")"
 
 echo "Deploy '$SOURCE_FOLDER' to '${TARGET_REPO}' '$TARGET_BRANCH'"
 
