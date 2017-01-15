@@ -1,4 +1,6 @@
 require('./lib/google-analytics');
+ga('create', 'UA-50840116-3', { 'alwaysSendReferrer': true});
+
 require('./lib/polyfill');
 
 var fs = require('fs');
