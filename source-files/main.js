@@ -706,7 +706,7 @@ var handleError = function (error) {
     error = JSON.stringify(error);
     console.log("ERROR " + error);
     ga('send', 'exception', {'exDescription': global.version + " - " + document.location.host + "\n" + error, 'exFatal': true});
-    closePrintPreview();
+    // closePrintPreview();
     alert("Sorry something went wrong\n\nPlease create an issue with following details at\n" + global.issueTrackingUrl + "\n\n" + error);
 }
 
