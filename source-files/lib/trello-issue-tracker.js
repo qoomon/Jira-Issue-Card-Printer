@@ -52,7 +52,7 @@ var getCardData = function (issueKey, callback) {
 
         issueData.summary = data.name;
         issueData.description = data.desc;
-        issueDate.labels = data.labels.map(function (label) {
+        issueData.labels = data.labels.map(function (label) {
             return label.name;
         });
 
