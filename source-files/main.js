@@ -230,7 +230,7 @@ var getIconStyle = function(type) {
     switch (type.toLowerCase()) {
         case 'default':
             style.color = 'SILVER';
-            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/objects.png';
+            style.image = 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Objects.png';
             style.size = '63%';
             break;
         case 'story':
