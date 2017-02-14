@@ -52,6 +52,8 @@ select a column by open the add new card input for specific column
 #### Issue tracker
 * **Jira**
  * e.g. https://connect.atlassian.net/browse/NERDS-33286
+* Bitbucket Issue Tracker
+ * eg https://bitbucket.org/tutorials/tutorials.bitbucket.org/issues
 * **Trello**
  * e.g. https://trello.com/b/8zlPSh70/spike
 * **PivotTracker**
