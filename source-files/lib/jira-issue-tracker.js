@@ -75,6 +75,11 @@ var getIssueData = function (issueKey) {
                 if( ['storyPoints', 'storyPunkte'].indexOf(fieldName.toCamelCase()) > -1 ){
                     responseData.fields.estimate = responseData.fields[fieldKey];
                 }
+                if( ['epicLink', 'eposVerknüpfung'].indexOf(fieldName.toCamelCase()) > -1 ){
+                    responseData.fields.epic = {};
+                    responseData.fields.epic.key = responseData.fields[fieldKey];
+                    responseData.fields.epic.name = "";
+                }
             }
         });
         return responseData;
