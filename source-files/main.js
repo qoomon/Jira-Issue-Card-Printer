@@ -9,7 +9,7 @@ var $ = require('jquery');
 var cookies = require('./lib/cookies');
 
 var global = {};
-global.version = "5.2.0";
+global.version = "5.2.1";
 global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
 
 var issueTrackers = [

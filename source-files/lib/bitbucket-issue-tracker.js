@@ -8,8 +8,15 @@ var isEligible = function () {
 
 var getSelectedIssueKeyList = function () {
 
-    //issues
-    if (/.*\/issues\/.*/g.test(document.URL)) {
+    //issues list
+    if (/.*\/issues(\?|$)/g.test(document.URL)) {
+        return $('.iterable-item .text .issue-list--title a').map(function () {
+            return $(this).attr('title').match(/#([^:]+):/)[1];
+        });
+    }
+
+    //single issue
+    if (/.*\/issues\/.+/g.test(document.URL)) {
         return [document.URL.match(/.*\/issues\/([^/]*).*/)[1]];
     }
 
@@ -20,7 +27,7 @@ var getIssueData = function (issueKey) {
     // https://confluence.atlassian.com/bitbucket/use-the-bitbucket-cloud-rest-apis
 
     var repo = document.location.pathname.match(/([^/]+\/[^/]+).*/)[1]
-    var url = "//api.bitbucket.org/2.0/repositories/" + repo + "/issues/" + issueKey;
+    var url = "/api/2.0/repositories/" + repo + "/issues/" + issueKey;
     console.log("IssueUrl: " + url);
     //console.log("Issue: " + issueKey + " Loading...");
     return new Promise(function (fulfill, reject){
