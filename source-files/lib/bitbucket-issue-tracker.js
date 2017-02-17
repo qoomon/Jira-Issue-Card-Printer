@@ -27,7 +27,7 @@ var getIssueData = function (issueKey) {
     // https://confluence.atlassian.com/bitbucket/use-the-bitbucket-cloud-rest-apis
 
     var repo = document.location.pathname.match(/([^/]+\/[^/]+).*/)[1]
-    var url = "/api/2.0/repositories/" + repo + "/issues/" + issueKey;
+    var url = "/!api/2.0/repositories/" + repo + "/issues/" + issueKey;
     console.log("IssueUrl: " + url);
     //console.log("Issue: " + issueKey + " Loading...");
     return new Promise(function (fulfill, reject){
