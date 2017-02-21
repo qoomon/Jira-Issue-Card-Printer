@@ -99,7 +99,7 @@ var getCardData = function (issueKey) {
         issueData.labels = data.fields.labels;
 
         if (data.fields.assignee) {
-            issueData.assignee = data.fields.assignee.displayName;
+            issueData.assignee = data.fields.assignee.displayName.replace(/\[[^[]*\]/,'');
             var avatarUrl = data.fields.assignee.avatarUrls['48x48'];
             if (avatarUrl.indexOf("ownerId=") >= 0) {
                 issueData.avatarUrl = avatarUrl;

@@ -314,7 +314,7 @@ var fillCard = function(card, data) {
         if (data.avatarUrl) {
             card.find(".issue-assignee").css("background-image", "url('" + data.avatarUrl + "')");
         } else {
-            const initials = data.assignee.trim().split(/\s/).map(function (namePart) {
+            var initials = data.assignee.trim().split(/\s/).map(function (namePart) {
                 return namePart[0].toUpperCase();
             }).join('');
             card.find(".issue-assignee").text(initials);
