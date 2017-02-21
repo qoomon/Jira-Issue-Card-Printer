@@ -10,6 +10,7 @@ const gulpSourcemaps = require('gulp-sourcemaps');
 const gulpDel = require('del');
 
 var browserify = require('browserify');
+
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 
@@ -46,6 +47,7 @@ gulp.task('build-bookmarklet', function () {
      return browserify({
             entries: ['source-files/main.js'],
             transform: [
+                  "packageify",
                   "brfs"
                 ]
         })

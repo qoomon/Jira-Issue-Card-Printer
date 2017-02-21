@@ -9,6 +9,8 @@ So long
 Bengt
 
 ## License
+[Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)](https://creativecommons.org/licenses/by-nd/4.0/) 
+
 It is free for personal and professional purpose.
 
 **You are not allowed to change and host this bookmarklet under your own github account.**

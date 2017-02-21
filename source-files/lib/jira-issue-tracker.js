@@ -110,7 +110,7 @@ var getCardData = function (issueKey) {
             issueData.dueDate = new Date(data.fields.duedate);
         }
 
-        issueData.hasAttachment = data.fields.attachment.length > 0;
+        issueData.hasAttachment = data.fields.attachment ? data.fields.attachment.length > 0 : false;
         issueData.estimate = data.fields.estimate;
 
         if (data.fields.parent) {

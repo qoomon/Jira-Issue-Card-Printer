@@ -1,16 +1,19 @@
-require('./lib/google-analytics');
-ga('create', 'UA-50840116-3', { 'alwaysSendReferrer': true});
+var global = {
+    name: require('package.name'),
+    version: require('package.version'),
+    author: require('package.author'),
+    license: require('package.license'),
+    repository: require('package.repository'),
+    issueTrackingUrl: require('package.bugs.url'),
+};
 
 require('./lib/polyfill');
+require('./lib/google-analytics'); ga('create', 'UA-50840116-3', { 'alwaysSendReferrer': true});
 
 var fs = require('fs');
 var $ = require('jquery');
 
 var cookies = require('./lib/cookies');
-
-var global = {};
-global.version = "5.2.2";
-global.issueTrackingUrl = "https://github.com/qoomon/Jira-Issue-Card-Printer";
 
 var issueTrackers = [
     require('./lib/jira-issue-tracker'),
