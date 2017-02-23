@@ -1,4 +1,4 @@
-##ä CORS Proxy Servises
+## CORS Proxy Servises
 
 * https://jsonp.afeld.me/?url=${URL}
 * http://cors.io/?u=${URL}

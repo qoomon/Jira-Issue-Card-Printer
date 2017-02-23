@@ -115,7 +115,7 @@ var getCardData = function (issueKey) {
 
         if (data.fields.parent) {
             issueData.superIssue = data.fields.parent.key + ' ' + data.fields.parent.fields.summary;
-        } else if (data.fields.epic) {
+        } else if (data.fields.epic && data.fields.epic.key) {
              issueData.superIssue = data.fields.epic.key + ' ' + data.fields.epic.name;
         }
 
