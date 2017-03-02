@@ -1,8 +1,10 @@
 #!/bin/sh
 set -e
 
-if [ $# -ne 4 ]; then
-    echo "Usage: ... <SOURCE_FOLDER> <TARGET_REPO> <TARGET_BRANCH> <COMMIT_MESSAGE>"
+# source https://gist.github.com/qoomon/41697079eef82a56f8de51357c7ee9d9
+
+if [ $# -ne 3 ]; then
+    echo "Usage: ... <SOURCE_FOLDER> <TARGET_REPO> <TARGET_BRANCH>"
     exit 1;
 fi
 
@@ -10,8 +12,7 @@ SOURCE_FOLDER="$1"
 
 TARGET_REPO="$2"
 TARGET_BRANCH="$3"
-
-COMMIT_MESSAGE="$(echo "$4")"
+COMMIT_MESSAGE="$(git log --format='%h %s%nAuthor: %an <%ae>')\n$(git config --get remote.origin.url)"
 
 echo "Deploy '$SOURCE_FOLDER' to '${TARGET_REPO}' '$TARGET_BRANCH'"
 
@@ -44,5 +45,3 @@ if git commit -am "$COMMIT_MESSAGE" --quiet; then
     echo '--- Push Changes'
     git push 'origin' "${TARGET_BRANCH}"
 fi
-
-
