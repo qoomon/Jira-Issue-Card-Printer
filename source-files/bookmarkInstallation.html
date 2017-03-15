@@ -1,7 +1,15 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Card Printer Installation</title>
     <link rel="stylesheet" type="text/css" href="bookmarkInstallation.css">
+      <!-- Latest compiled and minified CSS -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+      <!-- Latest compiled and minified JavaScript -->
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <style>
       body {
         padding: 16px;
@@ -31,14 +39,20 @@
     </style>
   </head>
   <body>
-    <b>Just Drag'n'Drop the button into your Bookmarks</b>
+    <div class="container theme-showcase" role="main">
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+    <h1>Jira Card Printer</h1>
+    <p>Just Drag'n'Drop the button into your Bookmarks</p>
+    </div>
     <div class="button">
-        <a href="javascript:(function()%7B var head %3D document.getElementsByTagName(%27head%27)%5B0%5D%3B var scriptElement %3D document.createElement(%27script%27)%3B scriptElement.src %3D %27https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarklet.js%27%3B head.appendChild(scriptElement)%3B head.removeChild(scriptElement)%3B %7D)()%3B">IssueCardPrinter</a>
+        <a href="javascript:(function()%7B var head %3D document.getElementsByTagName(%27head%27)%5B0%5D%3B var scriptElement %3D document.createElement(%27script%27)%3B scriptElement.src %3D %27http://localhost/bookmarklet.js%27%3B head.appendChild(scriptElement)%3B head.removeChild(scriptElement)%3B %7D)()%3B">IssueCardPrinter</a>
     </div>
     <p>
     <b>Or create Bookmark with following content</b>
-    <div>
-      javascript:(function(){var e=document.getElementsByTagName("head")[0],t=document.createElement("script");t.src="https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarklet.js",e.appendChild(t),e.removeChild(t)})();
-    </div>
+    <pre><code>
+javascript:(function(){var e=document.getElementsByTagName("head")[0],t=document.createElement("script");t.src="http://localhost/bookmarklet.js",e.appendChild(t),e.removeChild(t)})();
+    </code></pre>
   </body>
 </html>

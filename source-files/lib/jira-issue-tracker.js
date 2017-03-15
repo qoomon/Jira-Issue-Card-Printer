@@ -72,7 +72,7 @@ var getIssueData = function (issueKey) {
         $.each(responseData.names, function (fieldKey, fieldName) {
             // try to generate estimate fields
             if (fieldKey.startsWith("customfield_")) {
-                if( ['storyPoints', 'storyPunkte'].indexOf(fieldName.toCamelCase()) > -1 ){
+                if( ['storyPoints', 'storyPunkte', 'backlogEstimate'].indexOf(fieldName.toCamelCase()) > -1 ){
                     responseData.fields.estimate = responseData.fields[fieldKey];
                 }
                 if( ['epicLink', 'eposVerknüpfung'].indexOf(fieldName.toCamelCase()) > -1 ){
