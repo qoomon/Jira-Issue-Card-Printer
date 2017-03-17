@@ -13,8 +13,6 @@ html {
 body {
   padding: 0rem;
   margin: 0rem;
-  max-height: 100%;
-  max-width: 100%;
   overflow: visible;
 }
 .badge, .shadow {
@@ -299,10 +297,14 @@ body {
 
 @media print {
   @page {
+    width: 100vw; 
+    height: 100vh;
     margin: 0.0mm;
     padding: 0.0mm;
   }
   html {
+    width: 100vw; 
+    height: 100vh;
     margin: 0.0mm;
     padding: 0.0mm;
     background-color: WHITE !important;
@@ -311,7 +313,6 @@ body {
   }
   .card {
     page-break-inside: avoid !important;
-
     margin: 0.0mm !important;
   }
 }
