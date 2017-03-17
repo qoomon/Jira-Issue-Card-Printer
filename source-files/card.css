@@ -301,7 +301,8 @@ body {
     padding: 0.0mm;
   }
   html {
-
+    width: 100vw; 
+    height: 100vh;
     margin: 0.0mm;
     padding: 0.0mm;
     background-color: WHITE !important;
