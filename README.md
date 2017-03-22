@@ -68,7 +68,7 @@ select a column by open the add new card input for specific column
   * unknown 
 
 
-###Info
+### Info
 I make use of **Google Analytics** to get some usage feedback.
 I will only track the **pageview** and the **amount of rendered cards**
 **I do and will not track anything else**
