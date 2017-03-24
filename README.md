@@ -17,12 +17,14 @@ It is free for personal and professional purpose.
 
 You may fork this project to contribute.
 
-### Card Layout
-![Card Layout](CardExample.png)
-
 ### Installation
 
 go to [Installation Site](https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarkInstallation.html)
+
+
+### Card Layout
+![Card Layout](CardExample.png)
+
 
 ### Usage
 Just select Issue(s) then run the Bookmarklet.
