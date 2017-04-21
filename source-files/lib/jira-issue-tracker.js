@@ -68,14 +68,13 @@ var getIssueData = function (issueKey) {
             });
         }).then(function (responseData) {
         //console.log("Issue: " + issueKey + " Loaded!");
-        // add custom fields with field names
         $.each(responseData.names, function (fieldKey, fieldName) {
-            // try to generate estimate fields
+            // try to fetch cutom fields
             if (fieldKey.startsWith("customfield_")) {
-                if( ['storyPoints', 'storyPunkte', 'backlogEstimate'].indexOf(fieldName.toCamelCase()) > -1 ){
+                if( !responseData.fields.estimate && ['storyPoints', 'storyPunkte', 'backlogEstimate'].indexOf(fieldName.toCamelCase()) > -1 ){
                     responseData.fields.estimate = responseData.fields[fieldKey];
                 }
-                if( ['epicLink', 'eposVerknüpfung'].indexOf(fieldName.toCamelCase()) > -1 ){
+                if( !responseData.fields.epic && ['epicLink', 'eposVerknüpfung'].indexOf(fieldName.toCamelCase()) > -1 ){
                     responseData.fields.epic = {};
                     responseData.fields.epic.key = responseData.fields[fieldKey];
                     responseData.fields.epic.name = "";
