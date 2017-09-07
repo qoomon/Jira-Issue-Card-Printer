@@ -22,6 +22,6 @@ script:
 deploy:
   skip_cleanup: true
   provider: script
-  script: scripts/deploy_to_git.sh 'dist' "https://${GH_TOKEN}@github.com/qoomon/Jira-Issue-Card-Printer.git" 'gh-pages'
+  script: scripts/deploy_to_git.sh 'dist' 'git@github.com:qoomon/Jira-Issue-Card-Printer.git' 'gh-pages'
   on:
     branch: master
