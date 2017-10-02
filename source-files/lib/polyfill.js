@@ -1,4 +1,8 @@
 
+if (!window.Promise) {
+  window.Promise = require('promise-polyfill');;
+}
+
 //trim string - remove leading and trailing whitespaces
 if (!String.prototype.trim) {
     String.prototype.trim = function () {

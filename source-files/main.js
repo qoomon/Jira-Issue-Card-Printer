@@ -9,7 +9,7 @@ var global = {
 
 require('./lib/polyfill');
 require('./lib/google-analytics'); ga('create', 'UA-50840116-3', { 'alwaysSendReferrer': true});
-
+ 
 var fs = require('fs');
 var $ = require('jquery');
 
