@@ -27,7 +27,7 @@ var issueTrackers = [
 
 var textColor = function(text) {
 
-    const colours = [
+    var colours = [
         '#ff5653',
         '#ff5ecc',
         '#de59f5',
@@ -53,7 +53,7 @@ var textColor = function(text) {
         textHash = ((textHash << 5) - textHash) + chr;
         textHash |= 0; // Convert to 32bit integer
     }
-    const colourIndex = Math.abs(textHash) % colours.length;
+    var colourIndex = Math.abs(textHash) % colours.length;
     return colours[colourIndex];
 }
 
@@ -715,7 +715,7 @@ var handleError = function (error) {
 
 // Main Method ##################################################################################################
 try {
-    main(issueTrackers).catch(handleError);
+    main(issueTrackers)['catch'](handleError);
 } catch (e) {
     handleError(e);
 }

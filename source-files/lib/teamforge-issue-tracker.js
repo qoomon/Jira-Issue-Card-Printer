@@ -33,7 +33,7 @@ var determineFieldPositions = (function () {
 
             jQuery("#ArtifactListTable tr.ItemListHeader td").each(function (idx, el) {
                 // only return the immediate field text without text from child elements
-                const elText = jQuery(el).clone().children().remove().end().text();
+                var elText = jQuery(el).clone().children().remove().end().text();
                 if (elText in rMap) {
                     rMap[elText] = idx;
                 }
@@ -66,7 +66,7 @@ var getSiteAuthority = (function () {
 var getCardData = function (issueKey) {
     var issueData = {};
     jQuery("#ArtifactListTable tr.EvenRow:not(#filter), #ArtifactListTable tr.OddRow:not(#filter)").each(function (trIdx, trEl) {
-        const curKey = jQuery(trEl).find("input[type=checkbox][name=_listItem]")[0].value;
+        var curKey = jQuery(trEl).find("input[type=checkbox][name=_listItem]")[0].value;
         // skip processing of unwanted rows
         if (issueKey != curKey) {
             return;
@@ -78,8 +78,8 @@ var getCardData = function (issueKey) {
         issueData.labels = [];
 
         jQuery(trEl).find("td").each(function (tdIdx, tdEl) {
-            const posFieldMap = determineFieldPositions();
-            const field = posFieldMap[tdIdx];
+            var posFieldMap = determineFieldPositions();
+            var field = posFieldMap[tdIdx];
             // skip unknown field / column
             if (!field) {
                 return;
