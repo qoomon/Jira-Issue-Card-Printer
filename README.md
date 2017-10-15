@@ -23,7 +23,7 @@ go to [Installation Site](https://qoomon.github.io/Jira-Issue-Card-Printer/bookm
 
 
 ### Card Layout
-![Card Layout](CardExample.png)
+![Card Layout](doc/CardExample.png)
 
 
 ### Usage
