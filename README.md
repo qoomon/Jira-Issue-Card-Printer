@@ -13,7 +13,7 @@ Bengt
 
 It is free for personal and professional purpose.
 
-**You are not allowed to change and host this bookmarklet under your own github account.**
+**You are not allowed to change or host this bookmarklet on your own.**
 
 You may fork this project to contribute.
 
