@@ -3,11 +3,13 @@ var $ = require('jquery');
 var name = "JIRA";
 
 var baseUrl = function () {
-    try {
-        return $("input[title='baseURL']").attr('value');
-    } catch (ex) {
-        return window.location.origin;
-    }
+  var result = window.location.origin;
+  if (AJS && AJS.params && AJS.params.baseURL){
+    result = AJS.params.baseURL;
+  } else if ($("input[title='baseURL']") && $("input[title='baseURL']").val()){
+    result = $("input[title='baseURL']").val();
+  }
+  return result;
 };
 
 var isEligible = function () {

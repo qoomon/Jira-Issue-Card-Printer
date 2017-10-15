@@ -698,7 +698,7 @@ var main = function(issueTrackers) {
     // render cards
     promises.push(renderCards(issueKeyList));
 
-    $("#card-print-dialog-title", global.appFrame.document).text("Card Printer " + global.version + " - Loading issues...");
+    $("#card-print-dialog-title", global.appFrame.document).html("Card Printer " + global.version + " - <b>Loading...</b>");
     return Promise.all(promises).then(function () {
         $("#card-print-dialog-title", global.appFrame.document).text("Card Printer " + global.version);
     });
