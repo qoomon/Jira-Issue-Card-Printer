@@ -25,3 +25,4 @@ deploy:
   script: scripts/deploy_to_git.sh 'dist' 'git@github.com:qoomon/Jira-Issue-Card-Printer.git' 'gh-pages'
   on:
     branch: master
+    condition: $TRAVIS_REPO_SLUG = qoomon/Jira-Issue-Card-Printer
