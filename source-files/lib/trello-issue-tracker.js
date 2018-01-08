@@ -15,11 +15,10 @@ var getSelectedIssueKeyList = function () {
         });
 
         //read only board
-
-        var issueKeys2 = $("textarea.list-header-name.is-editing").parent().parent().find(".list-cards > .list-card > .list-card-details > .list-card-title").map(function () {
+        var issueKeys2 = $("textarea.list-header-name.is-editing").parent().parent().find(".list-cards > .list-card").map(function () {
             return $(this).attr("href").match(/.*\/c\/([^\/]*).*/)[1];
         });
-
+        
         return jQuery.merge(issueKeys, issueKeys2);
     }
 
