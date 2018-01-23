@@ -1,4 +1,10 @@
 var $ = require('jquery');
+var marked = require('marked');
+marked.setOptions({
+  gfm: true,
+  breaks: true
+});
+
 
 var name = "trello";
 
@@ -50,7 +56,7 @@ var getCardData = function (issueKey, callback) {
         issueData.type = 'default';
 
         issueData.summary = data.name;
-        issueData.description = data.desc;
+        issueData.description = marked(data.desc);
         issueData.labels = data.labels.map(function (label) {
             return label.name;
         });
