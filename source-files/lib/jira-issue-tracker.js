@@ -68,7 +68,7 @@ var getIssueData = function (issueKey) {
                 console.log("IssueUrl: " + urlClassic);
                 $.get(urlClassic).done(fulfill).fail(reject);
             });
-        }).then(function (responseData) {
+    }).then(function (responseData) {
         //console.log("Issue: " + issueKey + " Loaded!");
         $.each(responseData.names, function (fieldKey, fieldName) {
             // try to fetch cutom fields
@@ -117,7 +117,7 @@ var getCardData = function (issueKey) {
         if (data.fields.parent) {
             issueData.superIssue = data.fields.parent.key + ' ' + data.fields.parent.fields.summary;
         } else if (data.fields.epic && data.fields.epic.key) {
-             issueData.superIssue = data.fields.epic.key + ' ' + data.fields.epic.name;
+            issueData.superIssue = data.fields.epic.key + ' ' + data.fields.epic.name;
         }
 
         issueData.url = baseUrl() + "/browse/" + issueData.key;

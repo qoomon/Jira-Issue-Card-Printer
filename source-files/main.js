@@ -22,7 +22,8 @@ var issueTrackers = [
     require('./lib/pivotal-issue-tracker'),
     require('./lib/teamforge-issue-tracker'),
     require('./lib/trello-issue-tracker'),
-    require('./lib/youtrack-issue-tracker')
+    require('./lib/youtrack-issue-tracker'),
+    require('./lib/kanboard-issue-tracker')
 ];
 
 var textColor = function(text) {
@@ -227,7 +228,7 @@ var cropCards = function() {
 var getIconStyle = function(type) {
     var style = {};
     style.color = textColor(type.toLowerCase());
-    style.image = 'https://identicon.org/?t=' + type.toLowerCase() + '&s=256&c=b';
+    style.image = 'https://identicon.org/?t=' + encodeURIComponent(type.toLowerCase()) + '&s=256&c=b';
     style.size = '55%';
 
     switch (type.toLowerCase()) {
