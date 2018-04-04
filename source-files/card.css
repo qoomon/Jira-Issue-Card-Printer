@@ -252,7 +252,7 @@ body {
   display: inline-block;
   padding: 0.1rem 0.2rem;
   margin: 0.08rem 0.1rem;
-  margin-top: 0rem;
+  margin-top: -0.1rem;
   border-top-width: 0.1rem;
   border-left-width: 0.1rem;
   border-bottom-width: 0.15rem;
@@ -261,7 +261,6 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  display: block
 }
 .issue-due-date-box {
   position: absolute;
