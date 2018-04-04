@@ -119,10 +119,9 @@ body {
 }
 .card-footer {
   position: absolute;
-  bottom: 0rem;
+  bottom: -0.2rem;
   height: 2.2rem;
   width: 100%;
-  overflow: hidden;
 }
 .issue-summary {
   font-weight: bold;
@@ -231,7 +230,6 @@ body {
 .issue-tags-box {
   position: relative;
   float: right;
-  top: 0.1rem;
   width: auto;
   min-width: 2rem;
   width: auto;
