@@ -1,11 +1,4 @@
-var global = {
-    name: require('package.name'),
-    version: require('package.version'),
-    author: require('package.author'),
-    license: require('package.license'),
-    repository: require('package.repository'),
-    issueTrackingUrl: require('package.bugs.url'),
-};
+var global = {};
 
 require('./lib/polyfill');
 require('./lib/google-analytics'); ga('create', 'UA-50840116-3', { 'alwaysSendReferrer': true});
@@ -426,8 +419,8 @@ var renderCards = function(issueKeyList) {
     printFrameDocument.close();
 
     $("head", printFrameDocument).append($('<style>').html(fs.readFileSync(__dirname + '/card.css', 'utf8')));
-    $("body", printFrameDocument).append("<div id='preload'/>");
-    $("#preload", printFrameDocument).append("<div class='zigzag'/>");
+    // preload some resources
+    $("head", printFrameDocument).append($('<link rel="subresource"/>').attr('href', 'https://qoomon.github.io/Jira-Issue-Card-Printer/resources/Tearing.png'));
 
     console.log("load " + issueKeyList.length + " issues...");
 
@@ -608,8 +601,6 @@ var printPreviewJs = function() {
     });
 }
 
-
-
 var error2object = function(value) {
     if (value instanceof Error) {
         var error = {};
@@ -641,7 +632,7 @@ var main = function(issueTrackers) {
     }
 
     if (!global.appFunctions) {
-        alert("Unsupported Application " + document.URL + " Please create an issue at " + global.issueTrackingUrl);
+        alert("Unsupported Application " + document.URL + " Please create an issue at " + APP.issueTrackingUrl);
         return Promise.resolve();
     } else {
         console.log("Issue Tracker: " + global.appFunctions.name);
@@ -699,9 +690,9 @@ var main = function(issueTrackers) {
     // render cards
     promises.push(renderCards(issueKeyList));
 
-    $("#card-print-dialog-title", global.appFrame.document).html("Card Printer " + global.version + " - <b>Loading...</b>");
+    $("#card-print-dialog-title", global.appFrame.document).html("Card Printer " + APP.version + " - <b>Loading...</b>");
     return Promise.all(promises).then(function () {
-        $("#card-print-dialog-title", global.appFrame.document).text("Card Printer " + global.version);
+        $("#card-print-dialog-title", global.appFrame.document).text("Card Printer " + APP.version);
     });
 }
 
@@ -709,7 +700,7 @@ var handleError = function (error) {
     error = error2object(error);
     error = JSON.stringify(error);
     console.log("ERROR " + error);
-    ga('send', 'exception', {'exDescription': global.version + " - " + document.location.host + "\n" + error, 'exFatal': true});
+    ga('send', 'exception', {'exDescription': APP.version + " - " + document.location.host + "\n" + error, 'exFatal': true});
     // closePrintPreview();
     alert("Sorry something went wrong\n\nPlease create an issue with following details at\n" + global.issueTrackingUrl + "\n\n" + error);
 }

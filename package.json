@@ -3,33 +3,29 @@
   "version": "5.4.0",
   "description": "Beautiful Issue Card Printer",
   "author": "Bengt Brodersen",
-  "license": "Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)",
+  "license": "CC-BY-SA-4.0",
   "repository": "https://github.com/qoomon/Jira-Issue-Card-Printer.git",
   "bugs": {
     "url": "https://github.com/qoomon/Jira-Issue-Card-Printer/issues"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\"",
-    "build": "gulp build",
-    "build-uglify": "gulp build-uglify"
+    "build": "webpack",
+    "test": "echo \"Error: no test specified\""
   },
-  "devDependencies": {
-    "brfs": "latest",
-    "browserify": "latest",
-    "del": "latest",
-    "gulp": "latest",
-    "gulp-concat": "latest",
-    "gulp-sequence": "latest",
-    "gulp-sourcemaps": "latest",
-    "gulp-uglify": "latest",
-    "gulp-wrapper": "latest",
-    "merge2": "latest",
-    "packageify": "latest",
-    "through2": "latest",
-    "vinyl-buffer": "latest",
-    "vinyl-source-stream": "latest",
+  "dependencies": {
     "promise-polyfill": "latest",
     "jquery": "latest",
     "marked": "latest"
+  },
+  "devDependencies": {
+    "git-revision": "latest",
+    "webpack": "latest",
+    "webpack-cli": "latest",
+    "webpack-serve": "latest",
+    "transform-loader": "latest",
+    "brfs": "latest",
+    "clean-webpack-plugin": "latest",
+    "copy-webpack-plugin": "latest",
+    "uglifyjs-webpack-plugin": "latest"
   }
 }

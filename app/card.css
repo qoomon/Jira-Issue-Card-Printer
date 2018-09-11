@@ -47,11 +47,6 @@ body {
     border-image-slice: 56 0 56 1;
     border-image-repeat: round round;
 }
-#preload {
-  position: fixed;
-  top: 0rem;
-  left: 100%;
-}
 .author {
   color: DIMGREY;
   position: relative;
