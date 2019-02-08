@@ -17,6 +17,27 @@ var isEligible = function () {
 };
 
 var getSelectedIssueKeyList = function () {
+  
+    // Next Gen Projects
+    if (/.*\/jira\/software\/projects\/.*/g.test(document.URL)) {
+    
+      // Backlog
+      if (/.*\/jira\/software\/projects\/.*\/backlog\/.*/g.test(document.URL)) {
+          var issueClass = "sc-gxZfDQ";
+          var selectedClass = "jlZGIB";
+          return $(`div.${issueClass}.${selectedClass}`).map(function () {
+              return $(this).find('a').text();
+          });
+      }
+      
+      // Board
+      var issueClass = "sc-fAMDQA";
+      var selectedClass = "dXQUMX";
+      var keyClass = "sc-bCCsHx";
+      return $(`div.${issueClass}.${selectedClass}`).map(function () {
+          return $(this).find(`.${keyClass}`).text();
+      });
+    }
 
     //Browse
     if (/.*\/browse\/.*/g.test(document.URL)) {
