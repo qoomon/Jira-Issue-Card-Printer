@@ -22,7 +22,7 @@ var getSelectedIssueKeyList = function () {
     if (/.*\/jira\/software\/projects\/.*/g.test(document.URL)) {
     
       // Backlog
-      if (/.*\/jira\/software\/projects\/.*\/backlog\/.*/g.test(document.URL)) {
+      if (/.*\/jira\/software\/projects\/.*\/backlog($|\?).*/g.test(document.URL)) {
           var issueClass = "sc-gxZfDQ";
           var selectedClass = "jlZGIB";
           return $(`div.${issueClass}.${selectedClass}`).map(function () {
