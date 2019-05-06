@@ -23,20 +23,23 @@ var getSelectedIssueKeyList = function () {
     
       // Backlog
       if (/.*\/jira\/software\/projects\/.*\/backlog($|\?).*/g.test(document.URL)) {
-          var issueClass = "sc-gxZfDQ";
-          var selectedClass = "jlZGIB";
-          return $(`div.${issueClass}.${selectedClass}`).map(function () {
+        return $(`div[tabindex]`)
+          .filter(function() {
+            return ( $(this).css('background-color') == 'rgb(222, 235, 255)' );
+          })
+          .map(function () {
               return $(this).find('a').text();
           });
       }
       
       // Board
-      var issueClass = "sc-fAMDQA";
-      var selectedClass = "dXQUMX";
-      var keyClass = "sc-bCCsHx";
-      return $(`div.${issueClass}.${selectedClass}`).map(function () {
-          return $(this).find(`.${keyClass}`).text();
-      });
+      return $(`div[tabindex]`)
+        .filter(function() {
+          return ( $(this).css('background-color') == 'rgb(222, 235, 255)' );
+        })
+        .map(function () {
+            return $(this).find('div div div span').text();
+        });
     }
 
     //Browse

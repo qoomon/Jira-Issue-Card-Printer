@@ -16,7 +16,7 @@ before_install:
   - eval $(ssh-agent -s)
   - ssh-add github_deploy_key
 install:
-  - npm install
+  - npm ci
 script:
   - npm run build -- --mode production
 deploy:
