@@ -21,25 +21,29 @@ var getSelectedIssueKeyList = function () {
     // Next Gen Projects
     if (/.*\/jira\/software\/projects\/.*/g.test(document.URL)) {
     
+      var selectedIssue = document.URL.match(/.*selectedIssue=([^&]*).*/)[1]
+        
       // Backlog
       if (/.*\/jira\/software\/projects\/.*\/backlog($|\?).*/g.test(document.URL)) {
-        return $(`div[tabindex]`)
+        var selectedIssues = $(`div[tabindex]`)
           .filter(function() {
             return ( $(this).css('background-color') == 'rgb(222, 235, 255)' );
           })
           .map(function () {
               return $(this).find('a').text();
           });
+        return selectedIssues.length ? selectedIssues : [ selectedIssue ];
       }
       
       // Board
-      return $(`div[tabindex]`)
+      var selectedIssues = $(`div[tabindex]`)
         .filter(function() {
           return ( $(this).css('background-color') == 'rgb(222, 235, 255)' );
         })
         .map(function () {
-            return $(this).find('div div div span').text();
+          return $(this).find('div div div span').text();
         });
+      return  selectedIssues.length ? selectedIssues : [ selectedIssue ];
     }
 
     //Browse
