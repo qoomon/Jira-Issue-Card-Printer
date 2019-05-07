@@ -21,7 +21,12 @@ var getSelectedIssueKeyList = function () {
     // Next Gen Projects
     if (/.*\/jira\/software\/projects\/.*/g.test(document.URL)) {
     
-      var selectedIssue = document.URL.match(/.*selectedIssue=([^&]*).*/)[1]
+      // Request parameter
+      var selectedIssue;
+      var selectedIssueMatch = document.URL.match(/.*selectedIssue=([^&]*).*/);
+      if(selectedIssueMatch){
+        selectedIssue = document.URL.match(/.*selectedIssue=([^&]*).*/)[1]
+      }
         
       // Backlog
       if (/.*\/jira\/software\/projects\/.*\/backlog($|\?).*/g.test(document.URL)) {
