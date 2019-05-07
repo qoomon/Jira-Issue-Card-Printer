@@ -48,24 +48,23 @@ body {
     border-image-repeat: round round;
 }
 .author {
-  color: DIMGREY;
+  color: #989898;
   position: relative;
-  top: -0.2rem;
-  left: 0.8rem;
+  left: 0.5rem;
   display: table;
   margin: 0 auto;
   overflow: visible;  
 }
 .author > div:nth-of-type(1) {
   position: relative;
-  font-size: 0.3rem;
+  font-size: 10px;
 }
 .author > div:nth-of-type(2) {
   position: relative;
-  top: -0.05rem;
+
   left: -0.1rem;
   display: table;
-  font-size: 0.25rem;
+  font-size: 8px;
   margin: 0 auto;
   overflow: visible;
 }
