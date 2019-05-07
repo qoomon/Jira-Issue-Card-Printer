@@ -36,7 +36,7 @@ var getSelectedIssueKeyList = function () {
               || $(this).css('background-color') == 'rgb(255, 189, 173)';
           })
           .map(function () {
-              return $(this).find('a').text();
+              return $(this).find('> a').text();
           });
         return selectedIssues.length ? selectedIssues : [ selectedIssue ];
       }
@@ -48,7 +48,8 @@ var getSelectedIssueKeyList = function () {
             || $(this).css('background-color') == 'rgb(255, 189, 173)';
         })
         .map(function () {
-          return $(this).find('div div div span').text();
+          return $(this).find('div[id^=card-description-]')
+            .prop("id").replace('card-description-','');
         });
       return  selectedIssues.length ? selectedIssues : [ selectedIssue ];
     }
