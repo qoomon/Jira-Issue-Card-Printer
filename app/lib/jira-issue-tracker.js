@@ -27,7 +27,8 @@ var getSelectedIssueKeyList = function () {
       if (/.*\/jira\/software\/projects\/.*\/backlog($|\?).*/g.test(document.URL)) {
         var selectedIssues = $(`div[tabindex]`)
           .filter(function() {
-            return ( $(this).css('background-color') == 'rgb(222, 235, 255)' );
+            return $(this).css('background-color') == 'rgb(222, 235, 255)' 
+              || $(this).css('background-color') == 'rgb(255, 189, 173)';
           })
           .map(function () {
               return $(this).find('a').text();
@@ -38,7 +39,8 @@ var getSelectedIssueKeyList = function () {
       // Board
       var selectedIssues = $(`div[tabindex]`)
         .filter(function() {
-          return ( $(this).css('background-color') == 'rgb(222, 235, 255)' );
+          return $(this).css('background-color') == 'rgb(222, 235, 255)'
+            || $(this).css('background-color') == 'rgb(255, 189, 173)';
         })
         .map(function () {
           return $(this).find('div div div span').text();
