@@ -220,9 +220,7 @@ body {
   background-color: WHITESMOKE;
   background-repeat: no-repeat;
   background-position: center;
-  background-size: cover;
-  //-webkit-filter: contrast(200%) grayscale(100%);
-  //filter: contrast(200%) grayscale(100%);
+  background-size: 103%;
   text-align: center;
   font-weight: bold;
   font-size: 1.0rem;

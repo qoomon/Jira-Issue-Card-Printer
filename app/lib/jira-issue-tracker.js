@@ -138,7 +138,7 @@ var getCardData = function (issueKey) {
         if (data.fields.assignee) {
             issueData.assignee = data.fields.assignee.displayName.replace(/\[[^[]*\]/,'');
             var avatarUrl = data.fields.assignee.avatarUrls['48x48'];
-            if (avatarUrl.indexOf("ownerId=") >= 0) {
+            if (avatarUrl) {
                 issueData.avatarUrl = avatarUrl;
             }
         }
