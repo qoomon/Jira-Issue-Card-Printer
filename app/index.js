@@ -312,7 +312,7 @@ var fillCard = function(card, data) {
                 return namePart[0].toUpperCase();
             }).join('');
             card.find(".issue-assignee").text(initials);
-            card.find(".issue-assignee").css("background-color", textColor(initials));
+            card.find(".issue-assignee").css("background-color", textColor(data.assignee));
         }
     } else {
         card.find(".issue-assignee").remove();
