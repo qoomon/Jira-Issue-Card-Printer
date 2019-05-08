@@ -14,59 +14,63 @@
     <div id="card-print-dialog-footer">
       <div class="buttons">
         <div class="ui-element" style="float: left;" >
-          <input id="columnCount" type="number" min="0" max="9" class="numberInput" style="float: left; width: 18px; padding: 2px;" value="1"/>
-          <div style="float: left; margin-left: 5px; margin-right: 5px;">x</div>
-          <input id="rowCount" type="number" min="0" max="9" class="numberInput" style="float: left; width: 18px; padding: 2px;" value="2"/>
-          <label style="float: left; margin-left:5px;">Page Grid</label>
-        </div>
-        <div class="ui-element" style="float: left;">
-          <form style="float: left;" oninput="amount.value=parseFloat(scaleRange.value).toFixed(1)">
-            <input id="scaleRange" type="range" min="-1.0" max="1.0" step="0.1" value="0.0" style="float: left; width: 70px; position: relative;
-    top: -2px;" />
-            <label>Scale</label>
-            <output style="float: left; width: 22px; margin-left:2px;" name="amount" for="scaleRange"></output>
-          </form>
-
+          <label style="float: left; margin-right: 3px;">Page Grid</label>
+          <input id="columnCount" type="number" min="0" max="9" class="numberInput" style="float: left; width: 18px; padding: 2px; top: -3px;" value="1"/>
+          <div style="float: left; margin-left: 3px; margin-right: 3px;">x</div>
+          <input id="rowCount" type="number" min="0" max="9" class="numberInput" style="float: left; width: 18px; padding: 2px; top: -3px;" value="2"/>
         </div>
         <div class="ui-element checkbox" style="float: left;">
+          <label for="single-card-page-checkbox">Single Card Pages</label>
           <input id="single-card-page-checkbox" type="checkbox"/>
           <label for="single-card-page-checkbox"></label>
-          <label for="single-card-page-checkbox">Single Cards</label>
         </div>
-        <div class="ui-element checkbox" style="float: left;">
+        <div class="ui-element" style="float: left;">
+          <form style="float: left; margin: 0;" oninput="amount.value=parseFloat(scaleRange.value).toFixed(1)">
+            <label style="float: left; margin-right: 3px;">Scale</label>
+            <output style="float: left; width: 22px; margin-right: 3px;" name="amount" for="scaleRange"></output>
+            <input id="scaleRange" type="range" min="-1.0" max="1.0" step="0.1" value="0.0" style="float: left; position: relative; top: -2px; width: 50px;" />
+          </form>
+        </div>
+        
+        <div class="ui-element checkbox" style="clear: both; float: left;">
+          <label for="description-checkbo">Descriptions</label>
           <input id="description-checkbox" type="checkbox"/>
           <label for="description-checkbox"></label>
-          <label for="description-checkbo">Description</label>
         </div>
         <div class="ui-element checkbox" style="float: left;">
+          <label for="assignee-checkbox">Assignees</label>
           <input id="assignee-checkbox" type="checkbox"/>
           <label for="assignee-checkbox"></label>
-          <label for="assignee-checkbox">Assignee</label>
         </div>
         <div class="ui-element checkbox" style="float: left;">
+          <label for="assignee-avatar-checkbox">Avatars</label>
+          <input id="assignee-avatar-checkbox" type="checkbox"/>
+          <label for="assignee-avatar-checkbox"></label>
+        </div>
+        <div class="ui-element checkbox" style="float: left;">
+          <label for="due-date-checkbox">Due Dates</label>
           <input id="due-date-checkbox" type="checkbox"/>
           <label for="due-date-checkbox"></label>
-          <label for="due-date-checkbox">Due Date</label>
         </div>
         <div class="ui-element checkbox" style="float: left;">
+          <label for="estimate-checkbox">Estimates</label>
           <input id="estimate-checkbox" type="checkbox"/>
           <label for="estimate-checkbox"></label>
-          <label for="estimate-checkbox">Estimate</label>
         </div>
         <div class="ui-element checkbox" style="float: left;">
+          <label for="qr-code-checkbox">QR Codes</label>
           <input id="qr-code-checkbox" type="checkbox"/>
           <label for="qr-code-checkbox"></label>
-          <label for="qr-code-checkbox">QR Code</label>
         </div>
         <div class="ui-element checkbox" style="float: left;">
+          <label for="tags-checkbox">Tags</label>
           <input id="tags-checkbox" type="checkbox"/>
           <label for="tags-checkbox"></label>
-          <label for="tags-checkbox">Tags</label>
         </div>
         <div class="ui-element checkbox" style="float: left;">
+          <label for="epic-checkbox">Epics</label>
           <input id="epic-checkbox" type="checkbox"/>
           <label for="epic-checkbox"></label>
-          <label for="epic-checkbox">Epic</label>
         </div>
 
         <div id="card-print-dialog-print" class="ui-element button button-primary" >Print</div>

@@ -93,6 +93,7 @@ var saveSettings = function() {
     cookies.write("card_printer_single_card_page", settings.singleCardPage);
     cookies.write("card_printer_hide_description", settings.hideDescription);
     cookies.write("card_printer_hide_assignee", settings.hideAssignee);
+    cookies.write("card_printer_hide_assignee_avatar", settings.hideAssigneeAvatar);
     cookies.write("card_printer_hide_due_date", settings.hideDueDate);
     cookies.write("card_printer_hide_estimate", settings.hideEstimate);
     cookies.write("card_printer_hide_qr_code", settings.hideQrCode);
@@ -109,6 +110,7 @@ var loadSettings = function() {
     settings.singleCardPage = parseBool(cookies.read("card_printer_single_card_page"), true);
     settings.hideDescription = parseBool(cookies.read("card_printer_hide_description"), false);
     settings.hideAssignee = parseBool(cookies.read("card_printer_hide_assignee"), false);
+    settings.hideAssigneeAvatar = parseBool(cookies.read("card_printer_hide_assignee_avatar"), false);
     settings.hideDueDate = parseBool(cookies.read("card_printer_hide_due_date"), false);
     settings.hideEstimate = parseBool(cookies.read("card_printer_hide_estimate"), false);
     settings.hideQrCode = parseBool(cookies.read("card_printer_hide_qr_code"), false);
@@ -150,6 +152,9 @@ var updatePrintDialogue = function() {
     $("#single-card-page-checkbox", appFrameDocument).attr('checked', settings.singleCardPage);
     $("#description-checkbox", appFrameDocument).attr('checked', !settings.hideDescription);
     $("#assignee-checkbox", appFrameDocument).attr('checked', !settings.hideAssignee);
+    $("label[for='assignee-avatar-checkbox']", appFrameDocument).css('color', settings.hideAssignee ? 'lightgrey': 'inherit');
+    $("#assignee-avatar-checkbox", appFrameDocument).attr('checked', !settings.hideAssigneeAvatar);
+  
     $("#due-date-checkbox", appFrameDocument).attr('checked', !settings.hideDueDate);
     $("#estimate-checkbox", appFrameDocument).attr('checked', !settings.hideEstimate);
     $("#qr-code-checkbox", appFrameDocument).attr('checked', !settings.hideQrCode);
@@ -305,15 +310,14 @@ var fillCard = function(card, data) {
 
     //Assignee
     if (data.assignee) {
+        var initials = data.assignee.trim().replace(/\s{2,}/g," ").split(/\s/)
+          .map((namePart) => namePart[0].toUpperCase()).join('');
+        card.find(".issue-assignee").css("background-color", textColor(data.assignee));
+        card.find(".issue-assignee span").text(initials);
+        
         if (data.avatarUrl) {
-            card.find(".issue-assignee").css("background-image", "url('" + data.avatarUrl + "')");
-        } else {
-            var initials = data.assignee.trim().replace(/\s{2,}/g," ").split(/\s/).map(function (namePart) {
-                return namePart[0].toUpperCase();
-            }).join('');
-            card.find(".issue-assignee").text(initials);
-            card.find(".issue-assignee").css("background-color", textColor(data.assignee));
-        }
+            card.find(".issue-assignee img").prop('src', data.avatarUrl);
+        } 
     } else {
         card.find(".issue-assignee").remove();
     }
@@ -374,6 +378,8 @@ var applyCardOptions = function() {
     $(".issue-description", printFrame.document).toggle(!settings.hideDescription);
     // hide/show assignee
     $(".issue-assignee", printFrame.document).toggle(!settings.hideAssignee);
+    // hide/show assignee avatar
+    $(".issue-assignee img", printFrame.document).toggle(!settings.hideAssigneeAvatar);
     // hide/show due date
     $(".issue-due-box", printFrame.document).toggle(!settings.hideDueDate);
     // hide/show estimate
@@ -469,6 +475,7 @@ var printPreviewJs = function() {
     documentBody.find("#single-card-page-checkbox").click(function () {
         global.settings.singleCardPage = this.checked;
         saveSettings();
+        updatePrintDialogue();
         redrawCards();
         return true;
     });
@@ -478,6 +485,7 @@ var printPreviewJs = function() {
     documentBody.find("#description-checkbox").click(function () {
         global.settings.hideDescription = !this.checked;
         saveSettings();
+        updatePrintDialogue();
         redrawCards();
         return true;
     });
@@ -487,6 +495,17 @@ var printPreviewJs = function() {
     documentBody.find("#assignee-checkbox").click(function () {
         global.settings.hideAssignee = !this.checked;
         saveSettings();
+        updatePrintDialogue();
+        redrawCards();
+        return true;
+    });
+    
+    // show assignee avatar
+
+    documentBody.find("#assignee-avatar-checkbox").click(function () {
+        global.settings.hideAssigneeAvatar = !this.checked;
+        saveSettings();
+        updatePrintDialogue();
         redrawCards();
         return true;
     });
@@ -496,6 +515,7 @@ var printPreviewJs = function() {
     documentBody.find("#due-date-checkbox").click(function () {
         global.settings.hideDueDate = !this.checked;
         saveSettings();
+        updatePrintDialogue();
         redrawCards();
         return true;
     });
