@@ -233,9 +233,9 @@ body {
   float: right;
   width: auto;
   min-width: 2rem;
-  width: auto;
   max-width: calc(100% - 5.4rem);
-  height: auto;
+  height: 2.2rem;
+  overflow: hidden;
   font-size: 0.6rem;
   line-height: 0.6rem;
   text-align: right;
