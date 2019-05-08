@@ -38,7 +38,7 @@ var getSelectedIssueKeyList = function () {
           .map(function () {
               return $(this).find('> a').text();
           });
-        return selectedIssues.length ? selectedIssues : [ selectedIssue ];
+        return selectedIssues.length ? selectedIssues : selectedIssue ? [ selectedIssue ]: [];
       }
       
       // Board
@@ -51,7 +51,7 @@ var getSelectedIssueKeyList = function () {
           return $(this).find('div[id^=card-description-]')
             .prop("id").replace('card-description-','');
         });
-      return  selectedIssues.length ? selectedIssues : [ selectedIssue ];
+      return selectedIssues.length ? selectedIssues : selectedIssue ? [ selectedIssue ]: [];
     }
 
     //Browse
