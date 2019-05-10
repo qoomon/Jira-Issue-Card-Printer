@@ -25,6 +25,19 @@ go to [Installation Site](https://qoomon.github.io/Jira-Issue-Card-Printer/bookm
 ### Card Layout
 ![Card Layout](doc/CardExample.png)
 
+### Features
+* Multible/Single Issue per Page
+* Scale Card Layout
+* Cards Informations
+ * Issue Type
+ * Issue Id
+ * Title
+ * Description
+ * Assignee
+ * Due Date
+ * Estimate
+ * QR Code with Issue Link
+ * Tags/Lables/Epics
 
 ### Usage
 Just select Issue(s) then run the Bookmarklet.
