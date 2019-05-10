@@ -28,9 +28,7 @@ go to [Installation Site](https://qoomon.github.io/Jira-Issue-Card-Printer/bookm
 
 ### Usage
 Just select Issue(s) then run the Bookmarklet.
-
-* **Internet Explore - Make sure to enable "Print Background Images and Colors"**
- * File -> Page Setup -> Paper options -> Print Background Images and Colors
+* **Make sure to enable "Print Background Images and Colors"**
 
 Marker to separate description into print and no print area ("~~~~~")
 
