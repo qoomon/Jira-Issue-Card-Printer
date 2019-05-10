@@ -86,7 +86,7 @@ var parseBool = function(text, def) {
 
 var saveSettings = function() {
     var settings = global.settings;
-    cookies.write("card_printer_scale", settings.scale);
+    cookies.write("card_printer_scale_value", settings.scale);
     cookies.write("card_printer_row_count", settings.rowCount);
     cookies.write("card_printer_column_count", settings.colCount);
 
@@ -103,7 +103,7 @@ var saveSettings = function() {
 
 var loadSettings = function() {
     var settings = global.settings = global.settings || {};
-    settings.scale = parseFloat(cookies.read("card_printer_scale")) || 0.0;
+    settings.scale = parseFloat(cookies.read("card_printer_scale_value")) || 1.0;
     settings.rowCount = parseInt(cookies.read("card_printer_row_count")) || 2;
     settings.colCount = parseInt(cookies.read("card_printer_column_count")) || 1;
 
@@ -165,15 +165,7 @@ var updatePrintDialogue = function() {
 var scaleCards = function() {
     var settings = global.settings;
     var printFrame = global.printFrame;
-
-    var scaleValue = settings.scale * 2.0;
-    var scaleRoot;
-    if (scaleValue < 0) {
-        scaleRoot = 1.0 / (1.0 - scaleValue);
-    } else {
-        scaleRoot = 1.0 * (1.0 + scaleValue);
-    }
-
+    var scaleValue = settings.scale;
     var rowCount = settings.rowCount;
     var columnCount = settings.colCount;
 
