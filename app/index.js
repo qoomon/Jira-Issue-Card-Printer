@@ -71,6 +71,27 @@ var formatDate = function(date) {
     return dateSplit[0] + " " + dateSplit[2] + "." + shortMonths[dateSplit[1]] + ".";
 }
 
+var scaleSliderValue2scaleValue = function(sliderValue){
+  if(sliderValue > 0 ) {
+    return  1 + sliderValue; 
+  } 
+  if(sliderValue < 0 ) {
+    return  1 / (1 - sliderValue);
+  }
+  return 1
+}
+
+var scaleSliderValue2displayValue = function(sliderValue){
+  var scale = scaleSliderValue2scaleValue(sliderValue);
+  if(scale > 1 ) {
+    return scale.toFixed(1); 
+  } 
+  if(scale < 1 ) {
+    return scale.toFixed(2).replace(/^0/,'');
+  }
+  return '1.0';
+}
+
 var resizeIframe = function(iframe) {
     iframe = $(iframe);
     if(iframe[0].contentWindow){
@@ -86,7 +107,7 @@ var parseBool = function(text, def) {
 
 var saveSettings = function() {
     var settings = global.settings;
-    cookies.write("card_printer_scale_value", settings.scale);
+    cookies.write("card_printer_scale_slider_value", settings.scaleSliderValue);
     cookies.write("card_printer_row_count", settings.rowCount);
     cookies.write("card_printer_column_count", settings.colCount);
 
@@ -103,7 +124,7 @@ var saveSettings = function() {
 
 var loadSettings = function() {
     var settings = global.settings = global.settings || {};
-    settings.scale = parseFloat(cookies.read("card_printer_scale_value")) || 1.0;
+    settings.scaleSliderValue = parseFloat(cookies.read("card_printer_scale_slider_value")) || 1.0;
     settings.rowCount = parseInt(cookies.read("card_printer_row_count")) || 2;
     settings.colCount = parseInt(cookies.read("card_printer_column_count")) || 1;
 
@@ -144,8 +165,8 @@ var createOverlayFrame = function() {
 var updatePrintDialogue = function() {
     var appFrameDocument = global.appFrame.document;
     var settings = global.settings;
-    $("#scaleRange", appFrameDocument).val(settings.scale);
-    $("#scaleRange", appFrameDocument).parent().find("output").val(settings.scale);
+    $("#scale-slider", appFrameDocument).val(settings.scaleSliderValue);
+    $("#scale-slider", appFrameDocument).parent().find("output[for='scale-slider']").val(scaleSliderValue2displayValue(settings.scaleSliderValue))
     $("#rowCount", appFrameDocument).val(settings.rowCount);
     $("#columnCount", appFrameDocument).val(settings.colCount);
 
@@ -165,14 +186,12 @@ var updatePrintDialogue = function() {
 var scaleCards = function() {
     var settings = global.settings;
     var printFrame = global.printFrame;
-    var scaleValue = settings.scale;
+    var scale = scaleSliderValue2scaleValue(settings.scaleSliderValue); 
     var rowCount = settings.rowCount;
     var columnCount = settings.colCount;
-
-    // scale
-
+    
     // reset scale
-    $("html", printFrame.document).css("font-size", scaleRoot + "cm");
+    $("html", printFrame.document).css("font-size", scale + "cm");
     $("#gridStyle", printFrame.document).remove();
 
     // calculate scale
@@ -185,12 +204,12 @@ var scaleCards = function() {
     var cardMinWidth = cardElement.css("min-width") ? cardElement.css("min-width").replace("px", "") : 0;
     var cardMinHeight = cardElement.css("min-height") ? cardElement.css("min-height").replace("px", "") : 0;
 
-    var scaleWidth = cardMaxWidth / cardMinWidth;
-    var scaleHeight = cardMaxHeight / cardMinHeight;
-    var scale = Math.min(scaleWidth, scaleHeight, 1);
+    var viewScaleWidth = cardMaxWidth / cardMinWidth;
+    var viewScaleHeight = cardMaxHeight / cardMinHeight;
+    var viewScale = Math.min(viewScaleWidth, viewScaleHeight, 1);
 
     // scale
-    $("html", printFrame.document).css("font-size", ( scaleRoot * scale ) + "cm");
+    $("html", printFrame.document).css("font-size", ( scale * viewScale ) + "cm");
 
     // grid size
     var style = document.createElement('style');
@@ -548,11 +567,12 @@ var printPreviewJs = function() {
         return true;
     });
 
-    // scale font
-
-    // change is needed for IE11 Support
-    documentBody.find("#scaleRange").on('input change', function () {
-        global.settings.scale = $(this).val();
+    // scale
+    
+    documentBody.find("#scale-slider").on('input change', function () {
+        var scaleSliderValue = parseFloat($(this).val()); 
+        $(this).parent().find("output[for='scale-slider']").val(scaleSliderValue2displayValue(scaleSliderValue));
+        global.settings.scaleSliderValue = scaleSliderValue;
         saveSettings();
         redrawCards();
     });
