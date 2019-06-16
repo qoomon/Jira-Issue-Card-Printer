@@ -322,8 +322,6 @@ body {
         margin: 0.0mm;
         padding: 0.0mm;
         background-color: WHITE !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
     }
 
     .card {
