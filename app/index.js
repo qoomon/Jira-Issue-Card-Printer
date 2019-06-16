@@ -435,6 +435,8 @@ var renderCards = function(issueKeyList) {
     printFrameDocument.write("<head/><body></body>");
     printFrameDocument.close();
     $("body", printFrameDocument).css("height", "100%");
+    $("body", printFrameDocument).css("-webkit-print-color-adjust", "exact"); // Chrome, Safari
+    $("body", printFrameDocument).css("color-adjust", "exact"); // Firefox
 
     $("head", printFrameDocument).append($('<style>').html(fs.readFileSync(__dirname + '/card.css', 'utf8')));
     // preload some resources
