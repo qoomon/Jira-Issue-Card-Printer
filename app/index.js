@@ -216,8 +216,11 @@ var scaleCards = function() {
     style.id = 'gridStyle';
     style.type = 'text/css';
     style.innerHTML = ".card { " +
-        "width: calc( 99.9999999999% / " + columnCount + " );" +
-        "height: calc( 99.999999999% / " + rowCount + " );" +
+        // WORKAROUND simple width and height are not working in firefox
+        "min-width: calc( 99.9999999999% / " + columnCount + " );" +
+        "min-height: calc( 99.999999999% / " + rowCount + " );" +
+        "max-width: calc( 99.9999999999% / " + columnCount + " );" +
+        "max-height: calc( 99.999999999% / " + rowCount + " );" +
         "}";
     $("head", printFrame.document).append(style);
 }
