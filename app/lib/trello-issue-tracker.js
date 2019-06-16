@@ -1,8 +1,8 @@
 var $ = require('jquery');
 var marked = require('marked');
 marked.setOptions({
-  gfm: true,
-  breaks: true
+    gfm: true,
+    breaks: true
 });
 
 
@@ -24,7 +24,7 @@ var getSelectedIssueKeyList = function () {
         var issueKeys2 = $("textarea.list-header-name.is-editing").parent().parent().find(".list-cards > .list-card").map(function () {
             return $(this).attr("href").match(/.*\/c\/([^\/]*).*/)[1];
         });
-        
+
         return jQuery.merge(issueKeys, issueKeys2);
     }
 
@@ -40,7 +40,7 @@ var getIssueData = function (issueKey) {
     var url = "/1/cards/" + issueKey + "?members=true";
     console.log("IssueUrl: " + url);
     //console.log("Issue: " + issueKey + " Loading...");
-    return new Promise(function (fulfill, reject){
+    return new Promise(function (fulfill, reject) {
         $.getJSON(url).done(fulfill).fail(reject);
     });
 };

@@ -1,8 +1,9 @@
 var global = {};
 
 require('./lib/polyfill');
-require('./lib/google-analytics'); ga('create', 'UA-50840116-3', { 'alwaysSendReferrer': true});
- 
+require('./lib/google-analytics');
+ga('create', 'UA-50840116-3', {'alwaysSendReferrer': true});
+
 var fs = require('fs');
 var $ = require('jquery');
 
@@ -19,7 +20,7 @@ var issueTrackers = [
     require('./lib/kanboard-issue-tracker')
 ];
 
-var textColor = function(text) {
+var textColor = function (text) {
 
     var colours = [
         '#ff5653',
@@ -51,7 +52,7 @@ var textColor = function(text) {
     return colours[colourIndex];
 }
 
-var formatDate = function(date) {
+var formatDate = function (date) {
     var shortMonths = {
         'Jan': 1,
         'Feb': 2,
@@ -71,41 +72,41 @@ var formatDate = function(date) {
     return dateSplit[0] + " " + dateSplit[2] + "." + shortMonths[dateSplit[1]] + ".";
 }
 
-var scaleSliderValue2scaleValue = function(sliderValue){
-  if(sliderValue > 0 ) {
-    return  1 + sliderValue; 
-  } 
-  if(sliderValue < 0 ) {
-    return  1 / (1 - sliderValue);
-  }
-  return 1
+var scaleSliderValue2scaleValue = function (sliderValue) {
+    if (sliderValue > 0) {
+        return 1 + sliderValue;
+    }
+    if (sliderValue < 0) {
+        return 1 / (1 - sliderValue);
+    }
+    return 1
 }
 
-var scaleSliderValue2displayValue = function(sliderValue){
-  var scale = scaleSliderValue2scaleValue(sliderValue);
-  if(scale > 1 ) {
-    return scale.toFixed(1); 
-  } 
-  if(scale < 1 ) {
-    return scale.toFixed(2).replace(/^0/,'');
-  }
-  return '1.0';
+var scaleSliderValue2displayValue = function (sliderValue) {
+    var scale = scaleSliderValue2scaleValue(sliderValue);
+    if (scale > 1) {
+        return scale.toFixed(1);
+    }
+    if (scale < 1) {
+        return scale.toFixed(2).replace(/^0/, '');
+    }
+    return '1.0';
 }
 
-var resizeIframe = function(iframe) {
+var resizeIframe = function (iframe) {
     iframe = $(iframe);
-    if(iframe[0].contentWindow){
+    if (iframe[0].contentWindow) {
         iframe.height(iframe[0].contentWindow.document.body.height);
     }
 }
 
-var parseBool = function(text, def) {
+var parseBool = function (text, def) {
     if (text == 'true') return true;
     else if (text == 'false') return false;
     else return def;
 }
 
-var saveSettings = function() {
+var saveSettings = function () {
     var settings = global.settings;
     cookies.write("card_printer_scale_slider_value", settings.scaleSliderValue);
     cookies.write("card_printer_row_count", settings.rowCount);
@@ -122,7 +123,7 @@ var saveSettings = function() {
     cookies.write("card_printer_hide_epic", settings.hideEpic);
 }
 
-var loadSettings = function() {
+var loadSettings = function () {
     var settings = global.settings = global.settings || {};
     settings.scaleSliderValue = parseFloat(cookies.read("card_printer_scale_slider_value")) || 1.0;
     settings.rowCount = parseInt(cookies.read("card_printer_row_count")) || 2;
@@ -139,13 +140,13 @@ var loadSettings = function() {
     settings.hideEpic = parseBool(cookies.read("card_printer_hide_epic"), false);
 }
 
-var print = function() {
+var print = function () {
     ga('send', 'event', 'button', 'click', 'print', $(".card", global.printFrame.contentWindow.document).length);
     global.printFrame.contentWindow.focus();
     global.printFrame.contentWindow.print();
 }
 
-var createOverlayFrame = function() {
+var createOverlayFrame = function () {
     var appFrame = document.createElement('iframe');
     appFrame.id = "card-printer-iframe";
     $(appFrame).css({
@@ -162,7 +163,7 @@ var createOverlayFrame = function() {
     return appFrame;
 }
 
-var updatePrintDialogue = function() {
+var updatePrintDialogue = function () {
     var appFrameDocument = global.appFrame.document;
     var settings = global.settings;
     $("#scale-slider", appFrameDocument).val(settings.scaleSliderValue);
@@ -173,9 +174,9 @@ var updatePrintDialogue = function() {
     $("#single-card-page-checkbox", appFrameDocument).attr('checked', settings.singleCardPage);
     $("#description-checkbox", appFrameDocument).attr('checked', !settings.hideDescription);
     $("#assignee-checkbox", appFrameDocument).attr('checked', !settings.hideAssignee);
-    $("label[for='assignee-avatar-checkbox']", appFrameDocument).css('color', settings.hideAssignee ? 'lightgrey': 'inherit');
+    $("label[for='assignee-avatar-checkbox']", appFrameDocument).css('color', settings.hideAssignee ? 'lightgrey' : 'inherit');
     $("#assignee-avatar-checkbox", appFrameDocument).attr('checked', !settings.hideAssigneeAvatar);
-  
+
     $("#due-date-checkbox", appFrameDocument).attr('checked', !settings.hideDueDate);
     $("#estimate-checkbox", appFrameDocument).attr('checked', !settings.hideEstimate);
     $("#qr-code-checkbox", appFrameDocument).attr('checked', !settings.hideQrCode);
@@ -183,13 +184,13 @@ var updatePrintDialogue = function() {
     $("#epic-checkbox", appFrameDocument).attr('checked', !settings.hideEpic);
 }
 
-var scaleCards = function() {
+var scaleCards = function () {
     var settings = global.settings;
     var printFrame = global.printFrame;
-    var scale = scaleSliderValue2scaleValue(settings.scaleSliderValue); 
+    var scale = scaleSliderValue2scaleValue(settings.scaleSliderValue);
     var rowCount = settings.rowCount;
     var columnCount = settings.colCount;
-    
+
     // reset scale
     $("html", printFrame.document).css("font-size", scale + "cm");
     $("#gridStyle", printFrame.document).remove();
@@ -209,7 +210,7 @@ var scaleCards = function() {
     var viewScale = Math.min(viewScaleWidth, viewScaleHeight, 1);
 
     // scale
-    $("html", printFrame.document).css("font-size", ( scale * viewScale ) + "cm");
+    $("html", printFrame.document).css("font-size", (scale * viewScale) + "cm");
 
     // grid size
     var style = document.createElement('style');
@@ -222,7 +223,7 @@ var scaleCards = function() {
     $("head", printFrame.document).append(style);
 }
 
-var cropCards = function() {
+var cropCards = function () {
     var cardElements = Array.from(global.printFrame.document.querySelectorAll(".card"));
     cardElements.forEach(function (cardElement) {
         var cardContent = cardElement.querySelectorAll(".card-body")[0];
@@ -234,7 +235,7 @@ var cropCards = function() {
     });
 }
 
-var getIconStyle = function(type) {
+var getIconStyle = function (type) {
     var style = {};
     style.color = textColor(type.toLowerCase());
     style.image = 'https://identicon.org/?t=' + encodeURIComponent(type.toLowerCase()) + '&s=256&c=b';
@@ -299,7 +300,7 @@ var getIconStyle = function(type) {
     return style;
 }
 
-var fillCard = function(card, data) {
+var fillCard = function (card, data) {
     //Key
     card.find('.issue-id').text(data.key);
 
@@ -321,14 +322,14 @@ var fillCard = function(card, data) {
 
     //Assignee
     if (data.assignee) {
-        var initials = data.assignee.trim().replace(/\s{2,}/g," ").split(/\s/)
-          .map((namePart) => namePart[0].toUpperCase()).join('');
+        var initials = data.assignee.trim().replace(/\s{2,}/g, " ").split(/\s/)
+            .map((namePart) => namePart[0].toUpperCase()).join('');
         card.find(".issue-assignee").css("background-color", textColor(data.assignee));
         card.find(".issue-assignee span").text(initials);
-        
+
         if (data.avatarUrl) {
             card.find(".issue-assignee img").prop('src', data.avatarUrl);
-        } 
+        }
     } else {
         card.find(".issue-assignee").remove();
     }
@@ -381,7 +382,7 @@ var fillCard = function(card, data) {
     card.find(".issue-qr-code").css("background-image", "url('" + qrCodeUrl + "')");
 }
 
-var applyCardOptions = function() {
+var applyCardOptions = function () {
     var settings = global.settings;
     var printFrame = global.printFrame;
 
@@ -412,21 +413,21 @@ var applyCardOptions = function() {
         });
     } else {
         $(".card", printFrame.document).each(function (index, element) {
-            if (index % (settings.colCount * settings.rowCount ) >= (settings.colCount * (settings.rowCount - 1))) {
+            if (index % (settings.colCount * settings.rowCount) >= (settings.colCount * (settings.rowCount - 1))) {
                 $(element).css({'margin-bottom': '20px'});
             }
         });
     }
 }
 
-var redrawCards = function() {
+var redrawCards = function () {
     applyCardOptions();
     scaleCards();
     cropCards();
     resizeIframe(global.printFrame);
 }
 
-var renderCards = function(issueKeyList) {
+var renderCards = function (issueKeyList) {
     var promises = [];
 
     var printFrameDocument = global.printFrame.document;
@@ -466,11 +467,11 @@ var renderCards = function(issueKeyList) {
     });
 }
 
-var closePrintPreview = function() {
+var closePrintPreview = function () {
     $("#card-printer-iframe").remove();
 }
 
-var printPreviewJs = function() {
+var printPreviewJs = function () {
 
     var documentBody = $("body", global.appFrame.document);
 
@@ -513,7 +514,7 @@ var printPreviewJs = function() {
         redrawCards();
         return true;
     });
-    
+
     // show assignee avatar
 
     documentBody.find("#assignee-avatar-checkbox").click(function () {
@@ -571,9 +572,9 @@ var printPreviewJs = function() {
     });
 
     // scale
-    
+
     documentBody.find("#scale-slider").on('input change', function () {
-        var scaleSliderValue = parseFloat($(this).val()); 
+        var scaleSliderValue = parseFloat($(this).val());
         $(this).parent().find("output[for='scale-slider']").val(scaleSliderValue2displayValue(scaleSliderValue));
         global.settings.scaleSliderValue = scaleSliderValue;
         saveSettings();
@@ -636,7 +637,7 @@ var printPreviewJs = function() {
     });
 }
 
-var error2object = function(value) {
+var error2object = function (value) {
     if (value instanceof Error) {
         var error = {};
         Object.getOwnPropertyNames(value).forEach(function (key) {
@@ -647,7 +648,7 @@ var error2object = function(value) {
     return value;
 }
 
-var main = function(issueTrackers) {
+var main = function (issueTrackers) {
     loadSettings();
 
     var promises = [];
@@ -735,7 +736,10 @@ var handleError = function (error) {
     error = error2object(error);
     error = JSON.stringify(error);
     console.log("ERROR " + error);
-    ga('send', 'exception', {'exDescription': APP.version + " - " + document.location.host + "\n" + error, 'exFatal': true});
+    ga('send', 'exception', {
+        'exDescription': APP.version + " - " + document.location.host + "\n" + error,
+        'exFatal': true
+    });
     // closePrintPreview();
     alert("Sorry something went wrong\n\nPlease create an issue with following details at\n" + global.issueTrackingUrl + "\n\n" + error);
 }

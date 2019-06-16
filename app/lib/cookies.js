@@ -1,4 +1,4 @@
-var read = function(name) {
+var read = function (name) {
     var cookies = document.cookie.split('; ');
 
     for (var i = 0; i < cookies.length; i++) {
@@ -8,7 +8,7 @@ var read = function(name) {
     return null;
 }
 
-var write = function(name, value) {
+var write = function (name, value) {
     var expireDate = new Date();  // current date & time
     expireDate.setFullYear(expireDate.getFullYear() + 1) // one year
     document.cookie = name + "=" + value + "; Path=/; expires=" + expireDate.toGMTString();
@@ -18,7 +18,7 @@ var write = function(name, value) {
 }
 
 module.exports = {
-    read:read,
-    write:write
+    read: read,
+    write: write
 };
 

@@ -1,6 +1,6 @@
-
 if (!window.Promise) {
-  window.Promise = require('promise-polyfill');;
+    window.Promise = require('promise-polyfill');
+    ;
 }
 
 //trim string - remove leading and trailing whitespaces

@@ -30,7 +30,7 @@ var getIssueData = function (issueKey) {
     var url = "/!api/2.0/repositories/" + repo + "/issues/" + issueKey;
     console.log("IssueUrl: " + url);
     //console.log("Issue: " + issueKey + " Loading...");
-    return new Promise(function (fulfill, reject){
+    return new Promise(function (fulfill, reject) {
         $.getJSON(url).done(fulfill).fail(reject);
     });
 };
@@ -42,7 +42,7 @@ var getCardData = function (issueKey, callback) {
     promises.push(getIssueData(issueKey).then(function (data) {
         issueData.key = data.id;
 
-        issueData.type =data.kind;
+        issueData.type = data.kind;
 
         issueData.summary = data.title;
         issueData.description = data.content.html;

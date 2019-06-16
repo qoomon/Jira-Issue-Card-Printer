@@ -31,7 +31,7 @@ var getIssueData = function (issueKey) {
     var url = "/api/v2/projects/" + project + "/cards/" + number + ".xml";
     console.log("IssueUrl: " + url);
     //console.log("Issue: " + issueKey + " Loading...");
-    return new Promise(function (fulfill, reject){
+    return new Promise(function (fulfill, reject) {
         $.get(url).done(fulfill).fail(reject);
     });
 

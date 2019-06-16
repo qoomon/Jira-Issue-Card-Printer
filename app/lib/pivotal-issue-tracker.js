@@ -34,7 +34,7 @@ var getIssueData = function (issueKey) {
     var url = 'https://www.pivotaltracker.com/services/v5/stories/' + issueKey + "?fields=name,kind,description,story_type,owned_by(name),comments(file_attachments(kind)),estimate,deadline";
     console.log("IssueUrl: " + url);
     //console.log("Issue: " + issueKey + " Loading...");
-    return new Promise(function (fulfill, reject){
+    return new Promise(function (fulfill, reject) {
         $.getJSON(url).done(fulfill).fail(reject);
     });
 };

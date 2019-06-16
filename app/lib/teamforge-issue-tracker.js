@@ -86,8 +86,7 @@ var getCardData = function (issueKey) {
             }
             if (field == "Description") {
                 issueData.description = jQuery(tdEl).text();
-            }
-            else if (field == "Artifact ID : Title") {
+            } else if (field == "Artifact ID : Title") {
                 issueData.summary = jQuery(tdEl).find("a").text();
                 issueData.url = getSiteAuthority() + jQuery(tdEl).find("a").attr("href");
             } else if (field == "Assigned To") {

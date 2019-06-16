@@ -26,9 +26,9 @@ var getIssueData = function (issueKey) {
     var url = '/youtrack/rest/issue/' + issueKey + '?';
     console.log("IssueUrl: " + url);
     //console.log("Issue: " + issueKey + " Loading...");
-    return new Promise(function (fulfill, reject){
-            $.getJSON(url).done(fulfill).fail(reject);
-        }).then(function (responseData) {
+    return new Promise(function (fulfill, reject) {
+        $.getJSON(url).done(fulfill).fail(reject);
+    }).then(function (responseData) {
         //console.log("Issue: " + issueKey + " Loaded!");
         $.each(responseData.field, function (key, value) {
             // add fields with field names

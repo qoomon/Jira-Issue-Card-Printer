@@ -3,13 +3,13 @@ var $ = require('jquery');
 var name = "JIRA";
 
 var baseUrl = function () {
-  var result = window.location.origin;
-  if (AJS && AJS.params && AJS.params.baseURL){
-    result = AJS.params.baseURL;
-  } else if ($("input[title='baseURL']") && $("input[title='baseURL']").val()){
-    result = $("input[title='baseURL']").val();
-  }
-  return result;
+    var result = window.location.origin;
+    if (AJS && AJS.params && AJS.params.baseURL) {
+        result = AJS.params.baseURL;
+    } else if ($("input[title='baseURL']") && $("input[title='baseURL']").val()) {
+        result = $("input[title='baseURL']").val();
+    }
+    return result;
 };
 
 var isEligible = function () {
@@ -17,41 +17,41 @@ var isEligible = function () {
 };
 
 var getSelectedIssueKeyList = function () {
-  
+
     // Next Gen Projects
     if (/.*\/jira\/software\/projects\/.*/g.test(document.URL)) {
-    
-      // Request parameter
-      var selectedIssue;
-      var selectedIssueMatch = document.URL.match(/.*selectedIssue=([^&]*).*/);
-      if(selectedIssueMatch){
-        selectedIssue = document.URL.match(/.*selectedIssue=([^&]*).*/)[1]
-      }
-        
-      // Backlog
-      if (/.*\/jira\/software\/projects\/.*\/backlog($|\?).*/g.test(document.URL)) {
+
+        // Request parameter
+        var selectedIssue;
+        var selectedIssueMatch = document.URL.match(/.*selectedIssue=([^&]*).*/);
+        if (selectedIssueMatch) {
+            selectedIssue = document.URL.match(/.*selectedIssue=([^&]*).*/)[1]
+        }
+
+        // Backlog
+        if (/.*\/jira\/software\/projects\/.*\/backlog($|\?).*/g.test(document.URL)) {
+            var selectedIssues = $(`div[tabindex]`)
+                .filter(function () {
+                    return $(this).css('background-color') == 'rgb(222, 235, 255)'
+                        || $(this).css('background-color') == 'rgb(255, 189, 173)';
+                })
+                .map(function () {
+                    return $(this).find('> a').text();
+                });
+            return selectedIssues.length ? selectedIssues : selectedIssue ? [selectedIssue] : [];
+        }
+
+        // Board
         var selectedIssues = $(`div[tabindex]`)
-          .filter(function() {
-            return $(this).css('background-color') == 'rgb(222, 235, 255)' 
-              || $(this).css('background-color') == 'rgb(255, 189, 173)';
-          })
-          .map(function () {
-              return $(this).find('> a').text();
-          });
-        return selectedIssues.length ? selectedIssues : selectedIssue ? [ selectedIssue ]: [];
-      }
-      
-      // Board
-      var selectedIssues = $(`div[tabindex]`)
-        .filter(function() {
-          return $(this).css('background-color') == 'rgb(222, 235, 255)'
-            || $(this).css('background-color') == 'rgb(255, 189, 173)';
-        })
-        .map(function () {
-          return $(this).find('div[id^=card-description-]')
-            .prop("id").replace('card-description-','');
-        });
-      return selectedIssues.length ? selectedIssues : selectedIssue ? [ selectedIssue ]: [];
+            .filter(function () {
+                return $(this).css('background-color') == 'rgb(222, 235, 255)'
+                    || $(this).css('background-color') == 'rgb(255, 189, 173)';
+            })
+            .map(function () {
+                return $(this).find('div[id^=card-description-]')
+                    .prop("id").replace('card-description-', '');
+            });
+        return selectedIssues.length ? selectedIssues : selectedIssue ? [selectedIssue] : [];
     }
 
     //Browse
@@ -98,21 +98,21 @@ var getIssueData = function (issueKey) {
     var urlClassic = baseUrl() + '/rest/api/2/issue/' + issueKey + '?expand=renderedFields,names';
 
     //console.log("Issue: " + issueKey + " Loading...");
-    return new Promise(function (fulfill, reject){
+    return new Promise(function (fulfill, reject) {
         console.log("IssueUrl: " + urlAgile);
-        $.getJSON(urlAgile).done(fulfill).fail( function() {
-                console.log("IssueUrl: " + urlClassic);
-                $.get(urlClassic).done(fulfill).fail(reject);
-            });
+        $.getJSON(urlAgile).done(fulfill).fail(function () {
+            console.log("IssueUrl: " + urlClassic);
+            $.get(urlClassic).done(fulfill).fail(reject);
+        });
     }).then(function (responseData) {
         //console.log("Issue: " + issueKey + " Loaded!");
         $.each(responseData.names, function (fieldKey, fieldName) {
             // try to fetch cutom fields
             if (fieldKey.startsWith("customfield_")) {
-                if( !responseData.fields.estimate && ['storyPointEstimate','storyPoints', 'storyPunkte', 'backlogEstimate'].indexOf(fieldName.toCamelCase()) > -1 ){
+                if (!responseData.fields.estimate && ['storyPointEstimate', 'storyPoints', 'storyPunkte', 'backlogEstimate'].indexOf(fieldName.toCamelCase()) > -1) {
                     responseData.fields.estimate = responseData.fields[fieldKey];
                 }
-                if( !responseData.fields.epic && ['epicLink', 'eposVerknüpfung'].indexOf(fieldName.toCamelCase()) > -1 ){
+                if (!responseData.fields.epic && ['epicLink', 'eposVerknüpfung'].indexOf(fieldName.toCamelCase()) > -1) {
                     responseData.fields.epic = {};
                     responseData.fields.epic.key = responseData.fields[fieldKey];
                     responseData.fields.epic.name = "";
@@ -136,7 +136,7 @@ var getCardData = function (issueKey) {
         issueData.labels = data.fields.labels;
 
         if (data.fields.assignee) {
-            issueData.assignee = data.fields.assignee.displayName.replace(/\[[^[]*\]/,'');
+            issueData.assignee = data.fields.assignee.displayName.replace(/\[[^[]*\]/, '');
             var avatarUrl = data.fields.assignee.avatarUrls['48x48'];
             if (avatarUrl) {
                 issueData.avatarUrl = avatarUrl;

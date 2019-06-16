@@ -23,27 +23,29 @@ var getIssueData = function (issueKey) {
     var url = '/?controller=TaskViewController&action=show&task_id=' + issueKey;
 
     //console.log("Issue: " + issueKey + " Loading...");
-    return new Promise(function (fulfill, reject){
+    return new Promise(function (fulfill, reject) {
         console.log("IssueUrl: " + url);
         $.get(url).done(fulfill).fail(reject);
     }).then(function (responseData) {
         var htmlObject = $('<div>').html(responseData);
-    
+
         var issueData = {};
         issueData.id = issueKey;
         issueData.title = htmlObject.find('h2').text();
-        issueData.category    = htmlObject.find('#task-summary > div > div.task-summary-columns > div:nth-child(2) > ul > li:nth-child(1) > span').text();
-        issueData.complexity  = htmlObject.find('#task-summary > div > div.task-summary-columns > div:nth-child(1) > ul > li:nth-child(4) > span').text();
-        issueData.assignee    = htmlObject.find('#task-summary > div > div.task-summary-columns > div:nth-child(3) > ul > li:nth-child(1) > span').text();
-        if(issueData.assignee){
-          issueData.assignee = issueData.assignee.trim();
+        issueData.category = htmlObject.find('#task-summary > div > div.task-summary-columns > div:nth-child(2) > ul > li:nth-child(1) > span').text();
+        issueData.complexity = htmlObject.find('#task-summary > div > div.task-summary-columns > div:nth-child(1) > ul > li:nth-child(4) > span').text();
+        issueData.assignee = htmlObject.find('#task-summary > div > div.task-summary-columns > div:nth-child(3) > ul > li:nth-child(1) > span').text();
+        if (issueData.assignee) {
+            issueData.assignee = issueData.assignee.trim();
         }
-        issueData.duedate     = htmlObject.find('#task-summary > div > div.task-summary-columns > div:nth-child(4) > ul > li:nth-child(1) > span').text();
-        issueData.description = htmlObject.find('section.accordion-section > div.accordion-content > article').html();  
-        if(issueData.description){
-          issueData.description = issueData.description.trim();
+        issueData.duedate = htmlObject.find('#task-summary > div > div.task-summary-columns > div:nth-child(4) > ul > li:nth-child(1) > span').text();
+        issueData.description = htmlObject.find('section.accordion-section > div.accordion-content > article').html();
+        if (issueData.description) {
+            issueData.description = issueData.description.trim();
         }
-        issueData.labels = htmlObject.find('#task-summary > div > div.task-tags > ul > li').map(function(){ return $(this).text();}).toArray();
+        issueData.labels = htmlObject.find('#task-summary > div > div.task-tags > ul > li').map(function () {
+            return $(this).text();
+        }).toArray();
         issueData.url = document.location.origin + url;
         return issueData;
     })

@@ -1,80 +1,85 @@
 <div id="card-print-overlay">
-  <div id="card-print-dialog">
-    <div id="card-print-dialog-header">
-      <div id="card-print-dialog-title">Card Printer</div>
-      <div id="info">
-        <label id="info-line"><b>Jira</b> - <b>Bitbucket</b> - <b>Trello</b> - <b>YouTrack</b> - <b>PivotalTracker</b> - <b>TeamForge</b></label>
-        <div id="report-issue" class="ui-element button" >Report Issues</div>
-        <div id="about" class="ui-element button" >About</div>
-      </div>
-    </div>
-    <div id="card-print-dialog-content">
-      <iframe id="card-print-dialog-content-iframe"></iframe>
-    </div>
-    <div id="card-print-dialog-footer">
-      <div class="buttons">
-        <div class="ui-element" style="float: left;" >
-          <label style="float: left; margin-right: 3px;">Page Grid</label>
-          <input id="columnCount" type="number" min="1" max="9" class="numberInput" style="float: left; width: 38px; padding: 2px; top: -3px;" value="1"/>
-          <div style="float: left; margin-left: 3px; margin-right: 3px;">x</div>
-          <input id="rowCount" type="number" min="1" max="9" class="numberInput" style="float: left; width: 38px; padding: 2px; top: -3px;" value="2"/>
+    <div id="card-print-dialog">
+        <div id="card-print-dialog-header">
+            <div id="card-print-dialog-title">Card Printer</div>
+            <div id="info">
+                <label id="info-line"><b>Jira</b> - <b>Bitbucket</b> - <b>Trello</b> - <b>YouTrack</b> - <b>PivotalTracker</b>
+                    - <b>TeamForge</b></label>
+                <div id="report-issue" class="ui-element button">Report Issues</div>
+                <div id="about" class="ui-element button">About</div>
+            </div>
         </div>
-        <div class="ui-element checkbox" style="float: left;">
-          <label for="single-card-page-checkbox">Single Card Pages</label>
-          <input id="single-card-page-checkbox" type="checkbox"/>
-          <label for="single-card-page-checkbox"></label>
+        <div id="card-print-dialog-content">
+            <iframe id="card-print-dialog-content-iframe"></iframe>
         </div>
-        <div class="ui-element" style="float: left;">
-          <form style="float: left; margin: 0;">
-            <label style="float: left; margin-right: 3px;">Scale</label>
-            <output name="display" for="scale-slider" style="float: left; width: 22px; margin-right: 3px;"></output>
-            <input id="scale-slider" type="range" min="-1.0" max="1.0" step="0.1" value="0.0" style="float: left; position: relative; top: -2px; width: 50px;" />
-          </form>
-        </div>
+        <div id="card-print-dialog-footer">
+            <div class="buttons">
+                <div class="ui-element" style="float: left;">
+                    <label style="float: left; margin-right: 3px;">Page Grid</label>
+                    <input id="columnCount" type="number" min="1" max="9" class="numberInput"
+                           style="float: left; width: 38px; padding: 2px; top: -3px;" value="1"/>
+                    <div style="float: left; margin-left: 3px; margin-right: 3px;">x</div>
+                    <input id="rowCount" type="number" min="1" max="9" class="numberInput"
+                           style="float: left; width: 38px; padding: 2px; top: -3px;" value="2"/>
+                </div>
+                <div class="ui-element checkbox" style="float: left;">
+                    <label for="single-card-page-checkbox">Single Card Pages</label>
+                    <input id="single-card-page-checkbox" type="checkbox"/>
+                    <label for="single-card-page-checkbox"></label>
+                </div>
+                <div class="ui-element" style="float: left;">
+                    <form style="float: left; margin: 0;">
+                        <label style="float: left; margin-right: 3px;">Scale</label>
+                        <output name="display" for="scale-slider"
+                                style="float: left; width: 22px; margin-right: 3px;"></output>
+                        <input id="scale-slider" type="range" min="-1.0" max="1.0" step="0.1" value="0.0"
+                               style="float: left; position: relative; top: -2px; width: 50px;"/>
+                    </form>
+                </div>
 
-        <div class="ui-element checkbox" style="clear: both; float: left;">
-          <label for="description-checkbox">Descriptions</label>
-          <input id="description-checkbox" type="checkbox"/>
-          <label for="description-checkbox"></label>
-        </div>
-        <div class="ui-element checkbox" style="float: left;">
-          <label for="assignee-checkbox">Assignees</label>
-          <input id="assignee-checkbox" type="checkbox"/>
-          <label for="assignee-checkbox"></label>
-        </div>
-        <div class="ui-element checkbox" style="float: left;">
-          <label for="assignee-avatar-checkbox">Avatars</label>
-          <input id="assignee-avatar-checkbox" type="checkbox"/>
-          <label for="assignee-avatar-checkbox"></label>
-        </div>
-        <div class="ui-element checkbox" style="float: left;">
-          <label for="due-date-checkbox">Due Dates</label>
-          <input id="due-date-checkbox" type="checkbox"/>
-          <label for="due-date-checkbox"></label>
-        </div>
-        <div class="ui-element checkbox" style="float: left;">
-          <label for="estimate-checkbox">Estimates</label>
-          <input id="estimate-checkbox" type="checkbox"/>
-          <label for="estimate-checkbox"></label>
-        </div>
-        <div class="ui-element checkbox" style="float: left;">
-          <label for="qr-code-checkbox">QR Codes</label>
-          <input id="qr-code-checkbox" type="checkbox"/>
-          <label for="qr-code-checkbox"></label>
-        </div>
-        <div class="ui-element checkbox" style="float: left;">
-          <label for="tags-checkbox">Tags</label>
-          <input id="tags-checkbox" type="checkbox"/>
-          <label for="tags-checkbox"></label>
-        </div>
-        <div class="ui-element checkbox" style="float: left;">
-          <label for="epic-checkbox">Epics</label>
-          <input id="epic-checkbox" type="checkbox"/>
-          <label for="epic-checkbox"></label>
-        </div>
+                <div class="ui-element checkbox" style="clear: both; float: left;">
+                    <label for="description-checkbox">Descriptions</label>
+                    <input id="description-checkbox" type="checkbox"/>
+                    <label for="description-checkbox"></label>
+                </div>
+                <div class="ui-element checkbox" style="float: left;">
+                    <label for="assignee-checkbox">Assignees</label>
+                    <input id="assignee-checkbox" type="checkbox"/>
+                    <label for="assignee-checkbox"></label>
+                </div>
+                <div class="ui-element checkbox" style="float: left;">
+                    <label for="assignee-avatar-checkbox">Avatars</label>
+                    <input id="assignee-avatar-checkbox" type="checkbox"/>
+                    <label for="assignee-avatar-checkbox"></label>
+                </div>
+                <div class="ui-element checkbox" style="float: left;">
+                    <label for="due-date-checkbox">Due Dates</label>
+                    <input id="due-date-checkbox" type="checkbox"/>
+                    <label for="due-date-checkbox"></label>
+                </div>
+                <div class="ui-element checkbox" style="float: left;">
+                    <label for="estimate-checkbox">Estimates</label>
+                    <input id="estimate-checkbox" type="checkbox"/>
+                    <label for="estimate-checkbox"></label>
+                </div>
+                <div class="ui-element checkbox" style="float: left;">
+                    <label for="qr-code-checkbox">QR Codes</label>
+                    <input id="qr-code-checkbox" type="checkbox"/>
+                    <label for="qr-code-checkbox"></label>
+                </div>
+                <div class="ui-element checkbox" style="float: left;">
+                    <label for="tags-checkbox">Tags</label>
+                    <input id="tags-checkbox" type="checkbox"/>
+                    <label for="tags-checkbox"></label>
+                </div>
+                <div class="ui-element checkbox" style="float: left;">
+                    <label for="epic-checkbox">Epics</label>
+                    <input id="epic-checkbox" type="checkbox"/>
+                    <label for="epic-checkbox"></label>
+                </div>
 
-        <div id="card-print-dialog-print" class="ui-element button button-primary" >Print</div>
-      </div>
+                <div id="card-print-dialog-print" class="ui-element button button-primary">Print</div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
