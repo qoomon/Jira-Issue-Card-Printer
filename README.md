@@ -61,7 +61,8 @@ select a column by open the add new card input for specific column
 ### Support
 #### Browser
 * **Chrome Browsers 46+**
-* **Safari 9+**.
+* **Firefox 67+**
+* **Safari 9+**
 * **Internet Explore 11+**
 
 #### Issue tracker
