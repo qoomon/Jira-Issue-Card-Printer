@@ -216,11 +216,8 @@ var scaleCards = function() {
     style.id = 'gridStyle';
     style.type = 'text/css';
     style.innerHTML = ".card { " +
-        // WORKAROUND simple width and height are not working in firefox
-        "min-width: calc( 99.9999999999% / " + columnCount + " );" +
-        "min-height: calc( 99.999999999% / " + rowCount + " );" +
-        "max-width: calc( 99.9999999999% / " + columnCount + " );" +
-        "max-height: calc( 99.999999999% / " + rowCount + " );" +
+        "width: calc( 99.9999999999% / " + columnCount + " );" +
+        "height: calc( 99.999999999% / " + rowCount + " );" +
         "}";
     $("head", printFrame.document).append(style);
 }
@@ -437,6 +434,7 @@ var renderCards = function(issueKeyList) {
     printFrameDocument.open();
     printFrameDocument.write("<head/><body></body>");
     printFrameDocument.close();
+    $("body", printFrameDocument).css("height", "100%");
 
     $("head", printFrameDocument).append($('<style>').html(fs.readFileSync(__dirname + '/card.css', 'utf8')));
     // preload some resources
@@ -696,7 +694,7 @@ var main = function(issueTrackers) {
 
     // get print content frame
     var printFrame = $("#card-print-dialog-content-iframe", global.appFrame.document)[0];
-    // add convinient fields
+    // add convenient fields
     printFrame.window = printFrame.contentWindow;
     printFrame.document = printFrame.window.document;
     printFrame.document.open();
