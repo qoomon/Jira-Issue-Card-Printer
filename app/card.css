@@ -53,21 +53,10 @@ body {
   left: 0.5rem;
   display: table;
   margin: 0 auto;
-  overflow: visible;  
-}
-.author > div:nth-of-type(1) {
-  position: relative;
+  overflow: visible;
   font-size: 10px;
 }
-.author > div:nth-of-type(2) {
-  position: relative;
 
-  left: -0.1rem;
-  display: table;
-  font-size: 8px;
-  margin: 0 auto;
-  overflow: visible;
-}
 .card {
   position: relative;
   float: left;
