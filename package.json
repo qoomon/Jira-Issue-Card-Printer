@@ -9,7 +9,7 @@
     "url": "https://github.com/qoomon/Jira-Issue-Card-Printer/issues"
   },
   "scripts": {
-    "build": "webpack",
+    "build": "webpack --mode production",
     "test": "echo \"Error: no test specified\""
   },
   "dependencies": {
