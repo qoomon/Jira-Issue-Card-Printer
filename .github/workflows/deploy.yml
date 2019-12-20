@@ -37,6 +37,6 @@ jobs:
       run: |
         eval $(ssh-agent -s) >/dev/null
         ssh-add ~/.ssh/github_actions
-        ./deploy_to_github_pages.sh 'dist' "git@github.com:${{ github.repository }}.git" 'gh-pages' 'GitHub Actions'
+        ./deploy_to_github_pages.sh 'dist' "git@github.com:${{ github.repository }}.git" 'gh-pages' 'github-actions'
         
     
