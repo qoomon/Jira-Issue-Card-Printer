@@ -134,9 +134,8 @@ var getCardData = function (issueKey) {
         issueData.summary = data.fields.summary;
         issueData.description = data.renderedFields.description;
         issueData.labels = data.fields.labels || [];
-        issueData.labels = issueData.labels.concat(data.fields.components.map(component => component.name))
+        issueData.labels = issueData.labels.concat(data.fields.components.map(component => component.name));
          
-
         if (data.fields.assignee) {
             issueData.assignee = data.fields.assignee.displayName.replace(/\[[^[]*\]/, '');
             var avatarUrl = data.fields.assignee.avatarUrls['48x48'];
