@@ -1,5 +1,6 @@
 # Issue-Card-Printer
-[![Build Status](https://travis-ci.com/qoomon/Jira-Issue-Card-Printer.svg?branch=master)](https://travis-ci.com/qoomon/Jira-Issue-Card-Printer)
+
+[![Build Workflow](https://github.com/qoomon/Jira-Issue-Card-Printer/workflows/Deploy/badge.svg)](https://github.com/qoomon/Jira-Issue-Card-Printer/actions)
 
 Beautiful Issue Card Printer
 
