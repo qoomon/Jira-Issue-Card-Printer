@@ -167,7 +167,7 @@ var updatePrintDialogue = function () {
     var appFrameDocument = global.appFrame.document;
     var settings = global.settings;
     $("#scale-slider", appFrameDocument).val(settings.scaleSliderValue);
-    $("#scale-slider", appFrameDocument).parent().find("output[for='scale-slider']").val(scaleSliderValue2displayValue(settings.scaleSliderValue))
+    $("#scale-slider", appFrameDocument).parent().find("output[for='scale-slider']").val(scaleSliderValue2displayValue(settings.scaleSliderValue));
     $("#rowCount", appFrameDocument).val(settings.rowCount);
     $("#columnCount", appFrameDocument).val(settings.colCount);
 
