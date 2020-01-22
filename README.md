@@ -2,6 +2,9 @@
 
 [![Build Workflow](https://github.com/qoomon/Jira-Issue-Card-Printer/workflows/Deploy/badge.svg)](https://github.com/qoomon/Jira-Issue-Card-Printer/actions)
 
+[![LGTM Grade](https://img.shields.io/lgtm/grade/javascript/github/qoomon/Jira-Issue-Card-Printer)](https://lgtm.com/projects/g/qoomon/Jira-Issue-Card-Printer)
+
+
 Beautiful Issue Card Printer
 
 I've written a little bookmarklet for converting digital issues in a pretty card layout for printing.
