@@ -5,7 +5,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 const packageFile = require('./package.json');
-const gitRevision = require('git-revision');
+//const gitRevision = require('git-revision');
 
 module.exports = (env) => {
     const mode = process.env.NODE_ENV || "development";
