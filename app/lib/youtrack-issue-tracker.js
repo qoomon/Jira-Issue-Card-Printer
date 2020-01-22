@@ -3,7 +3,7 @@ var $ = require('jquery');
 var name = "YouTrack";
 
 var isEligible = function () {
-    return (/.*myjetbrains.com\/youtrack\/.*/g).test(document.URL) || (/.*youtrack.jetbrains.com\/.*/g).test(document.URL);
+    return (/.*myjetbrains\.com\/youtrack\/.*/g).test(document.URL) || (/.*youtrack.jetbrains.com\/.*/g).test(document.URL);
 };
 
 var getSelectedIssueKeyList = function () {
