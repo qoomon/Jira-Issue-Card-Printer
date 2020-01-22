@@ -25,7 +25,7 @@ var getSelectedIssueKeyList = function () {
         var selectedIssue;
         var selectedIssueMatch = document.URL.match(/.*selectedIssue=([^&]*).*/);
         if (selectedIssueMatch) {
-            selectedIssue = document.URL.match(/.*selectedIssue=([^&]*).*/)[1]
+            selectedIssue = document.URL.match(/.*selectedIssue=([^&]*).*/)[1];
         }
 
         // Backlog
