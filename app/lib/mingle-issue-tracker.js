@@ -3,7 +3,7 @@ var $ = require('jquery');
 var name = "mingle";
 
 var isEligible = function () {
-    return /.*mingle.thoughtworks.com\/.*/g.test(document.URL);
+    return /.*mingle\.thoughtworks.com\/.*/g.test(document.URL);
 };
 
 var getSelectedIssueKeyList = function () {
