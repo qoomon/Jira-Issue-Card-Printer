@@ -132,7 +132,7 @@ var getCardData = function (issueKey) {
         issueData.key = data.key;
         issueData.type = data.fields.issuetype.name.toLowerCase();
         issueData.summary = data.fields.summary;
-        issueData.description = data.renderedFields.description;
+        issueData.description = data.renderedFields ? data.renderedFields.description : '';
         issueData.labels = data.fields.labels || [];
         issueData.labels = issueData.labels.concat(data.fields.components.map(component => component.name));
          
