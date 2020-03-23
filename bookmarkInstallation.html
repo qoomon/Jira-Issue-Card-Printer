@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Card Printer Installation</title>
+    <link rel="stylesheet" type="text/css" href="bookmarkInstallation.css">
+      <!-- Latest compiled and minified CSS -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+      <!-- Latest compiled and minified JavaScript -->
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <style>
+      body {
+        padding: 16px;
+      }
+      .button {
+        width: 96px;
+        height: 96px;
+        margin: 32px;
+        border-radius: 50%;
+
+        background-image: url(resources/Printer.png);
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: contain;
+
+        box-shadow: 2px 4px 15px #888888;
+
+        color: transparent;
+      }
+      .button > a {
+        display: block;
+        height: 100%;
+        width: 100%;
+        color: transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container theme-showcase" role="main">
+      <div class="jumbotron">
+        <h1>Jira Card Printer</h1>
+      </div>
+      <b>Create Bookmark with following content</b>
+      <pre><code>
+  javascript:(function(){var e=document.getElementsByTagName("head")[0],t=document.createElement("script");t.src="https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarklet.js",e.appendChild(t),e.removeChild(t)})();
+      </code></pre>
+    </div>
+  </body>
+</html>
