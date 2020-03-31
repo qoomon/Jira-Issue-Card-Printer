@@ -1,7 +1,6 @@
 # Issue-Card-Printer
 
 [![Build Workflow](https://github.com/qoomon/Jira-Issue-Card-Printer/workflows/Deploy/badge.svg)](https://github.com/qoomon/Jira-Issue-Card-Printer/actions)
-
 [![LGTM Grade](https://img.shields.io/lgtm/grade/javascript/github/qoomon/Jira-Issue-Card-Printer)](https://lgtm.com/projects/g/qoomon/Jira-Issue-Card-Printer)
 
 
