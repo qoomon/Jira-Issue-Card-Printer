@@ -24,7 +24,7 @@
     "git-revision": "latest",
     "transform-loader": "latest",
     "uglifyjs-webpack-plugin": "latest",
-    "webpack": "^4.42.1",
+    "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-serve": "latest"
   }
