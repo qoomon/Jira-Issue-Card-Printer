@@ -28,10 +28,12 @@ module.exports = (env) => {
         },
         plugins: [
             new CleanWebpackPlugin(),
-            new CopyWebpackPlugin([
+            new CopyWebpackPlugin({ 
+              patterns:[
                 {from: './app/resources', to: 'resources'},
                 {from: './doc/bookmarkInstallation.html'}
-            ]),
+              ]
+            }),
             new webpack.DefinePlugin({
                 APP: JSON.stringify({
                     version: packageFile.version,
