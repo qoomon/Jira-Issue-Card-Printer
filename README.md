@@ -28,8 +28,8 @@ javascript:(function(){
  var head = document.getElementsByTagName("head")[0];
  var script = document.createElement("script");
  script.src = "https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarklet.js";
- head.appendChild(t); 
- head.removeChild(t)
+ head.appendChild(script); 
+ head.removeChild(script);
 })();
 ```
 
