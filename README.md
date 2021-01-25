@@ -22,7 +22,16 @@ You may fork this project to contribute.
 
 ### Installation
 
-go to [Installation Site](https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarkInstallation.html)
+Just create a Bookmark with following content as URL
+```javascript
+javascript:(function(){
+ var head = document.getElementsByTagName("head")[0];
+ var script = document.createElement("script");
+ script.src = "https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarklet.js";
+ head.appendChild(t); 
+ head.removeChild(t)
+})();
+```
 
 
 ### Card Layout
