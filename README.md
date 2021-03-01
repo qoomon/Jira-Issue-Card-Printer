@@ -25,10 +25,9 @@ You may fork this project to contribute.
 Just create a Bookmark with following content as URL
 ```javascript
 javascript:(function(){
- var head = document.getElementsByTagName("head")[0];
  var script = document.createElement("script");
  script.src = "https://qoomon.github.io/Jira-Issue-Card-Printer/bookmarklet.js";
- head.appendChild(script).remove();
+ document.head.appendChild(script).remove();
 })();
 ```
 
