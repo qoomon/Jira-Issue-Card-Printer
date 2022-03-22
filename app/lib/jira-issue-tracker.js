@@ -13,10 +13,41 @@ var baseUrl = function () {
 };
 
 var isEligible = function () {
-    return $("meta[name='application-name'][ content='JIRA']").length > 0;
+    return /.*\.atlassian.net\/jira\/.*/g.test(document.URL)
+      || $("meta[name='application-name'][ content='JIRA']").length > 0;
 };
 
 var getSelectedIssueKeyList = function () {
+
+    // --- Jira Cloud ----------------------------------------------------------
+
+    if (/.*\/jira\/software\/c\/projects\/.*/g.test(document.URL)) {
+
+      // Request parameter
+      var selectedIssue;
+      var selectedIssueMatch = document.URL.match(/.*selectedIssue=([^&]*).*/);
+      if (selectedIssueMatch) {
+          selectedIssue = document.URL.match(/.*selectedIssue=([^&]*).*/)[1];
+      }
+
+      // Backlog
+      if (/.*\/jira\/software\/c\/projects\/.*\/backlog($|\?).*/g.test(document.URL)) {
+          var selectedIssues = $(`.js-issue.ghx-selected`)
+              .map(function () {
+                  return $(this).find('.ghx-key').prop('title');
+              });
+          return selectedIssues.length ? selectedIssues : selectedIssue ? [selectedIssue] : [];
+      }
+
+      // Board
+      var selectedIssues = $(`.ghx-issue.ghx-selected`)
+          .map(function () {
+              return $(this).find('.ghx-key').prop('ariaLabel');
+          });
+      return selectedIssues.length ? selectedIssues : selectedIssue ? [selectedIssue] : [];
+    }
+
+    // --- Jira Server ---------------------------------------------------------
 
     // Next Gen Projects
     if (/.*\/jira\/software\/projects\/.*/g.test(document.URL)) {
@@ -135,7 +166,7 @@ var getCardData = function (issueKey) {
         issueData.description = data.renderedFields ? data.renderedFields.description : '';
         issueData.labels = data.fields.labels || [];
         issueData.labels = issueData.labels.concat(data.fields.components.map(component => component.name));
-         
+
         if (data.fields.assignee) {
             issueData.assignee = data.fields.assignee.displayName.replace(/\[[^[]*\]/, '');
             var avatarUrl = data.fields.assignee.avatarUrls['48x48'];
