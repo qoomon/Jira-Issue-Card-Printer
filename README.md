@@ -5,10 +5,7 @@
 
 Beautiful Issue Card Printer
 
-I've written a little bookmarklet for converting digital issues in a pretty card layout for printing.
-
-So long
-Bengt
+This little bookmarklet is for converting digital issues in a pretty card layout for printing.
 
 ## License
 [Attribution-NoDerivatives 4.0 International (CC BY-ND 4.0)](https://creativecommons.org/licenses/by-nd/4.0/) 
