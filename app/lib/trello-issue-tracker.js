@@ -1,10 +1,9 @@
 var $ = require('jquery');
-var marked = require('marked');
-marked.setOptions({
+var {Marked} = require('marked');
+const marked = new Marked({
     gfm: true,
     breaks: true
 });
-
 
 var name = "trello";
 
