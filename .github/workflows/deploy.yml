@@ -9,17 +9,18 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    steps:              
-    - uses: actions/checkout@v2  
-    - uses: actions/setup-node@v1
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
       with:
-        node-version: 12.x
+        node-version: 18
+        cache: 'npm'
     - run: npm ci
     - run: npm run build
     # - run: npm test
     #   env:
     #     CI: true
-    
+
     - name: Deploy to GitHub Pages
       if: github.ref == 'refs/heads/master'
       uses: qoomon/actions-publish-to-github-pages@v1
@@ -28,5 +29,5 @@ jobs:
         GITHUB_PAGES_BRANCH: gh-pages
         GITHUB_PAGES_REPLACE: false
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
-    
+
+

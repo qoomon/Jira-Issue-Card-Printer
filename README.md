@@ -32,9 +32,9 @@ javascript:(function(){
 ![Card Layout](doc/CardExample.png)
 
 ### Features
-* Multible/Single Issue per Page
+* Multiple/Single Issue per Page
 * Scale Card Layout
-* Cards Informations
+* Cards Information
  * Issue Type
  * Issue Id
  * Title

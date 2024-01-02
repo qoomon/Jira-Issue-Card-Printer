@@ -13,19 +13,17 @@
     "test": "echo \"Error: no test specified\""
   },
   "dependencies": {
-    "promise-polyfill": "latest",
-    "jquery": "latest",
+    "promise-polyfill": "^8.3.0",
+    "jquery": "^3.7.0",
     "marked": "^11.1.1"
   },
   "devDependencies": {
-    "brfs": "latest",
-    "clean-webpack-plugin": "latest",
-    "copy-webpack-plugin": "latest",
-    "git-revision": "latest",
-    "transform-loader": "latest",
-    "uglifyjs-webpack-plugin": "latest",
-    "webpack": "^4.46.0",
-    "webpack-cli": "^4.7.0",
-    "webpack-serve": "latest"
+    "brfs": "^2.0.2",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^6.4.1",
+    "git-revision": "^0.0.2",
+    "transform-loader": "^0.2.4",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
   }
 }

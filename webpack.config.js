@@ -2,7 +2,7 @@ const webpack = require('webpack');
 const path = require('path')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require("terser-webpack-plugin");
 
 const packageFile = require('./package.json');
 //const gitRevision = require('git-revision');
@@ -22,13 +22,16 @@ module.exports = (env) => {
             rules: [
                 {
                     test: /\.js$/,
-                    loader: "transform-loader?brfs"
+                    loader: "transform-loader",
+                    options: {
+                        brfs: true
+                    }
                 }
             ]
         },
         plugins: [
             new CleanWebpackPlugin(),
-            new CopyWebpackPlugin({ 
+            new CopyWebpackPlugin({
               patterns:[
                 {from: './app/resources', to: 'resources'},
                 {from: './doc/bookmarkInstallation.html'}
@@ -40,10 +43,15 @@ module.exports = (env) => {
                     issueTrackingUrl: packageFile.bugs.url
                 }),
             }),
-            mode == 'production' && new UglifyJsPlugin({ 
-              uglifyOptions: {ecma: 8},
-              sourceMap: true 
-            })
-        ].filter(Boolean)
+        ],
+        optimization: {
+            minimize: mode === 'production',
+            minimizer: [
+                new TerserPlugin(),
+            ],
+        },
+        performance: {
+            assetFilter: (asset) => false
+        }
     }
 };
