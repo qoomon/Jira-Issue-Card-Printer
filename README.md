@@ -1,4 +1,4 @@
-# Issue-Card-Printer
+# Issue-Card-Printer [![starline](https://github-starline.vercel.app/qoomon/Jira-Issue-Card-Printer)](https://github.com/qoomon/starline)
 
 [![Build Workflow](https://github.com/qoomon/Jira-Issue-Card-Printer/workflows/Build%20&%20Deploy/badge.svg)](https://github.com/qoomon/Jira-Issue-Card-Printer/actions)
 
